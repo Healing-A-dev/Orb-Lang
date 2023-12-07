@@ -108,7 +108,7 @@ function string.position(string,phrase)
   if matchCount ~= phrase:len() or matchCount == 0 then
     return nil
   else
-    return {Start = startLocation-(matchCount-1), End = startLocation-(matchCount)+matchCount, Phrase = table.concat(matchedStrings), Phrase_Length = phrase:len()}
+    return {Start = startLocation, End = startLocation-(matchCount)+matchCount, Phrase = table.concat(matchedStrings), Phrase_Length = phrase:len()}
   end
 end
   

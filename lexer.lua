@@ -15,8 +15,6 @@ function lexer.fetchToken(ttf,line)
   end
   for _,i in pairs(assignedToken[line]) do
     for k,v in pairs(Tokens) do
-      --[[if i:upper():gsub("%p"," ") == v() then
-        assigned_Token[line][i:gsub("%p+"," ")] = k]]
       for sepStr in i:gmatch("%w+") do
         if sepStr:upper() == v() or type(sepStr):upper() == v() and assigned_Token[line][sepStr] == nil then
           assigned_Token[line][sepStr] = k
@@ -26,7 +24,7 @@ function lexer.fetchToken(ttf,line)
         for test in i:gmatch("%d+") do
           assigned_Token[line][test] = k
         end
-      elseif i:match("^%"..v()) then
+      elseif i:match("^%"..v().."+") then
         assigned_Token[line][i:match(v())] = k
       end
       for sep in i:gmatch("%p") do
@@ -52,7 +50,7 @@ function lexer.lex(program)
   if not program:find("%<lua>") then
     program = program..".orb"
   end
-  f = io.open(program,"r") or __KytenThrowError("Not_found",program)
+  f = io.open(program,"r") or __Orb.ThrowError("Not_found",program)
   local lines = f:lines()
   split, syntax = utils.stringify(lines)
   for _,i in pairs(syntax) do
@@ -60,8 +58,8 @@ function lexer.lex(program)
   end
   for _,i in pairs(syntax) do
     tokenTable[_] = {}
-    for k,v in pairs(split[_]) do
-      for s,t in pairs(assigned_Token[_]) do
+    for k,v in spairs(split[_]) do
+      for s,t in spairs(assigned_Token[_]) do
         if v == s then
           tokenTable[_][k] = {t,s}
         end
@@ -69,8 +67,8 @@ function lexer.lex(program)
     end
   end
   for _,i in pairs(syntax) do
-    for k,v in pairs(assigned_Token[_]) do
-      for s,t in pairs(tokenTable[_]) do
+    for k,v in spairs(assigned_Token[_]) do
+      for s,t in spairs(tokenTable[_]) do
         tokenTable[_][i:position(k).Start] = {v,k}
       end
       tokenTable[_][i:position(k).Start] = {v,k}

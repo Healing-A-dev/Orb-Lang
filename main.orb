@@ -3,11 +3,11 @@
     "Testfile" -> Testfile
 }
 
-func testFunction(words::<@Flex>, timesToPrint):{
-    set static timesPrinted::<@Mnt> = 0;
+func testFunction(words::<@Flex>, timesToPrint::<@Int>):{
+    set static timesPrinted::<@Int> = 0;
     $timesToPrint || 1 -> timesToPrint;
     if ([typeof $words] != "string"):{
-        error("Type "/$words/" is not equal to string");
+        error('Type '/$words/" is not equal to string");
     }
     repeat:{
         putln $words;
