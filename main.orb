@@ -7,7 +7,7 @@ func testFunction(words::<@Flex>, timesToPrint::<@Int>):{
     set static timesPrinted::<@Int> = 0;
     $timesToPrint || 1 -> timesToPrint;
     if ([typeof $words] != "string"):{
-        error('Type '/$words/" is not equal to string");
+        error('Type '<>$words<>" is not equal to string");
     }
     repeat:{
         putln $words;

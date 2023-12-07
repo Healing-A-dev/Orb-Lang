@@ -10,6 +10,9 @@ function lexer.fetchToken(ttf,line)
   local assignedToken = {}
   assignedToken[line] = {}
   assigned_Token[line] = {}
+  for _,i in pairs(Tokens) do
+    assigned_Token[i()] = tostring(_)
+  end
   for s in ttf:gmatch("([^%s]+)") do
     assignedToken[line][#assignedToken[line]+1] = s
   end
