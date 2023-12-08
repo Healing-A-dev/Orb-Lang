@@ -1,5 +1,7 @@
 local utils = {}
 
+local PhraseTable = {}
+
 function utils.stringify(toStingify)
   local ss,syn = {},{}
   for line in toStingify do
@@ -88,7 +90,10 @@ function utils.stringSearch(list,item)
   end
 end
 
-function string.position(string,phrase)
+function string.position(string,phrase,findAfter)
+  if PhraseTable[phrase] == nil then
+    PhraseTable[phrase] = {lastLocation}
+  end
   local splitString = string:split()
   local splitPhrase = phrase:split()
   local matchCount = 0
@@ -97,7 +102,7 @@ function string.position(string,phrase)
   for _,i in pairs(splitString) do
     for k,v in pairs(splitPhrase) do
       if i == v and matchCount < phrase:len() then
-        if splitString[_-1] == splitPhrase[k-1] or matchCount ~= phrase:len() then
+        if splitString[_-1] == splitPhrase[k-1] or matchCount ~= phrase:len() --[[and PhraseTable[phrase].lastLocation == 0]] then
           startLocation = _
           matchedStrings[#matchedStrings+1] = v
           matchCount = matchCount + 1
@@ -108,6 +113,8 @@ function string.position(string,phrase)
   if matchCount ~= phrase:len() or matchCount == 0 then
     return nil
   else
+    print(phrase,PhraseTable[phrase].lastLocation)
+    PhraseTable[phrase].lastLocation = startLocation
     return {Start = startLocation, End = startLocation-(matchCount)+matchCount, Phrase = table.concat(matchedStrings), Phrase_Length = phrase:len()}
   end
 end

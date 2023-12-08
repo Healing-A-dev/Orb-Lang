@@ -1,11 +1,11 @@
 @format "sh.io";
 @including:{
-    "Testfile" -> Testfile
+    "Testfile" -> tf
 }
 
 func testFunction(words::<@Flex>, timesToPrint::<@Int>):{
     set static timesPrinted::<@Int> = 0;
-    $timesToPrint || 1 -> timesToPrint;
+    $timesToPrint || 1 -> $timesToPrint;
     if ([typeof $words] != "string"):{
         error('Type '<>$words<>" is not equal to string");
     }

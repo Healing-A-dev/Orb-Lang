@@ -24,5 +24,6 @@ for _,i in spairs(tokenTable) do
     os.execute('clear')
     print("String Token: "..assigned_Token[isString.stringSE])
     print("Item: "..v[2].."\nLine: ".._.."\nPosition: "..k.."\nToken: "..v[1].."\n\nString: "..tostring(isString.isString))
+    --print(k,v[1],v[2])
   end
 end
