@@ -1,5 +1,8 @@
 local utils = {}
 
+local phraseTable = {}
+
+
 function utils.stringify(toStingify)
   local ss,syn = {},{}
   for line in toStingify do
@@ -89,27 +92,23 @@ function utils.stringSearch(list,item)
 end
 
 function string.position(string,phrase)
-  local splitString = string:split()
-  local splitPhrase = phrase:split()
-  local matchCount = 0
-  local startLocation
-  local matchedStrings = {}
-  for _,i in pairs(splitString) do
-    for k,v in pairs(splitPhrase) do
-      if i == v and matchCount < phrase:len() then
-        if splitString[_-1] == splitPhrase[k-1] or matchCount ~= phrase:len() then
-          startLocation = _
-          matchedStrings[#matchedStrings+1] = v
-          matchCount = matchCount + 1
-        end
-      end
+  local front, back = nil, nil
+  if phrase:len() == 1 and not tonumber(phrase) then
+    phrase = "%"..phrase
+  end
+  if phraseTable[phrase] ~= nil and phrase == phraseTable[phrase].Phrase then
+    if string:find(phrase,phraseTable[phrase].Start+1) == nil then
+      front, back = string:find(phrase)
+    else
+      front, back = string:find(phrase,phraseTable[phrase].Start+1)
     end
-  end
-  if matchCount ~= phrase:len() or matchCount == 0 then
-    return nil
   else
-    return {Start = startLocation, End = startLocation-(matchCount)+matchCount, Phrase = table.concat(matchedStrings), Phrase_Length = phrase:len()}
+    front, back = string:find(phrase)
   end
+  if front ~= nil then 
+    phraseTable[phrase] = {Phrase = phrase, Start = front, End = back}
+  end
+  return {Start = front, End = back, Phrase = phrase:gsub("%%",""), phraseLength = phrase:gsub("%%",""):len()}
 end
-  
+
 return utils
