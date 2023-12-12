@@ -1,20 +1,16 @@
 @format "sh.io";
 @including:{
-    "Testfile" -> Testfile
+    "Muso.drk" -> Muso
 }
 
-func testFunction(words::<@Flex>, timesToPrint::<@Int>):{
-    set static timesPrinted::<@Int> = 0;
-    $timesToPrint || 1 -> $timesToPrint;
-    if ([typeof $words] != "string"):{
-        error('Type '<>$words<>" is not equal to string");
+set Load:Array = {};
+func Load.loadData(dataToLoad:Flex,outfile:String):{
+    if ([typeof($outfile)] != "string"):{
+        error("outfile type '"/{typeof($outfile)}/"' does not match required type 'string'");
     }
-    repeat:{
-        putln $words;
-        $timesToPrint+1 -> $timesToPrint;
-    } until {
-        $timesPrinted == $timesToPrint;
+    if ([$Muso.search($dataToLoad)] != nil):{
+        @Muso [$Muso.load($dataToLoad)/" -o "/$outfile];
+    }else{
+        error("Muso: "/$dataToLoad/" does not exit",1);
     }
 }
-
-timesToPrint("Hello, World!", 1);
