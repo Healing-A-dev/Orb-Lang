@@ -1,20 +1,20 @@
 @format "sh.io";
 @including:{
-    "Testfile" -> tf
+    "Muso.drk" -> Muso
 }
 
-func testFunction(words::<@Flex>, timesToPrint::<@Int>):{
-    set static timesPrinted::<@Int> = 0;
-    $timesToPrint || 1 -> $timesToPrint;
-    if ([typeof $words] != "string"):{
-        error('Type '<>$words<>" is not equal to string");
-    }
-    repeat:{
-        putln $words;
-        $timesToPrint+1 -> $timesToPrint;
-    } until {
-        $timesPrinted == $timesToPrint;
+class Load:{
+    func Load.loadData(dataToLoad:Flex,outfile:String):{
+        if ([typeof($outfile)] != "string"):{
+            error("outfile type '"/{typeof($outfile)}/"' does not match required type 'string'");
+        }
+        if ([$Muso.search($dataToLoad)] !void):{
+            @Muso [$Muso.load($dataToLoad)/" -o "/$outfile];
+            $outfile -> $save;
+        }else{
+            error("Muso: "/$dataToLoad/" does not exit",1);
+        }
     }
 }
 
-timesToPrint("Hello, World!", 1);
+@Load [Load.loadData("PlayerData", "Store.sf")];

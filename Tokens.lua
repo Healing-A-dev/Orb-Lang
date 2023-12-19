@@ -48,7 +48,9 @@ Tokens = {
     KTOKEN_TYPE_PERIOD = function() return "." end,
     KTOKEN_TYPE_COLON = function() return ":" end,
     KTOKEN_TYPE_COMMA = function() return "," end,
+    KTOKEN_TYPE_GTHAN = function() return ">" end,
+    KTOKEN_TYPE_LTHAN = function() return "<" end,
     KTOKEN_TYPE_EOL = function() return ";" end
 }
-    
+
 return Tokens

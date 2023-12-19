@@ -10,9 +10,9 @@ function lexer.fetchToken(ttf,line)
   local assignedToken = {}
   assignedToken[line] = {}
   assigned_Token[line] = {}
-  for _,i in pairs(Tokens) do
+  --[[for _,i in pairs(Tokens) do
     assigned_Token[i()] = tostring(_)
-  end
+  end]]
   for s in ttf:gmatch("([^%s]+)") do
     assignedToken[line][#assignedToken[line]+1] = s
   end
@@ -27,7 +27,7 @@ function lexer.fetchToken(ttf,line)
         for test in i:gmatch("%d+") do
           assigned_Token[line][test] = k
         end
-      elseif i:match("^%["..v().."]+") then
+      elseif i:match("^%[%"..v().."]+") then
         assigned_Token[line][i:match(v())] = k
       end
       for sep in i:gmatch("%p") do
@@ -69,15 +69,11 @@ function lexer.lex(program)
       end
     end
   end
-  for _,i in pairs(syntax) do
-    for k,v in spairs(assigned_Token[_]) do
-      for s,t in pairs(tokenTable[_]) do
-        tokenTable[_][i:position(k).Start] = {v,k}
-      end
-      tokenTable[_][i:position(k).Start] = {v,k}
+  for _,i in pairs(assigned_Token) do
+    for k,v in spairs(i) do
+      tokenTable[_][syntax[_]:position(k).Start] = {v,k}
     end
   end
-
   return tokenTable, split, syntax
 end
 

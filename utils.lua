@@ -1,6 +1,7 @@
 local utils = {}
 
-local PhraseTable = {}
+local phraseTable = {}
+
 
 function utils.stringify(toStingify)
   local ss,syn = {},{}
@@ -90,33 +91,24 @@ function utils.stringSearch(list,item)
   end
 end
 
-function string.position(string,phrase,findAfter)
-  if PhraseTable[phrase] == nil then
-    PhraseTable[phrase] = {lastLocation}
+function string.position(string,phrase)
+  local front, back = nil, nil
+  if phrase:len() == 1 and not tonumber(phrase) then
+    phrase = "%"..phrase
   end
-  local splitString = string:split()
-  local splitPhrase = phrase:split()
-  local matchCount = 0
-  local startLocation
-  local matchedStrings = {}
-  for _,i in pairs(splitString) do
-    for k,v in pairs(splitPhrase) do
-      if i == v and matchCount < phrase:len() then
-        if splitString[_-1] == splitPhrase[k-1] or matchCount ~= phrase:len() --[[and PhraseTable[phrase].lastLocation == 0]] then
-          startLocation = _
-          matchedStrings[#matchedStrings+1] = v
-          matchCount = matchCount + 1
-        end
-      end
+  if phraseTable[phrase] ~= nil and phrase == phraseTable[phrase].Phrase then
+    front, back = string:find(phrase)
+    if string:find(phrase,phraseTable[phrase].Back) ~= nil then
+      print("More found >> "..phrase.."["..front..","..back.."]")
+      front, back = string:find(phrase,phraseTable[phrase].Back)
     end
-  end
-  if matchCount ~= phrase:len() or matchCount == 0 then
-    return nil
   else
-    print(phrase,PhraseTable[phrase].lastLocation)
-    PhraseTable[phrase].lastLocation = startLocation
-    return {Start = startLocation, End = startLocation-(matchCount)+matchCount, Phrase = table.concat(matchedStrings), Phrase_Length = phrase:len()}
+    front, back = string:find(phrase)
   end
+  if front ~= nil then
+    phraseTable[phrase] = {Phrase = phrase, Start = front, End = back, Phrase = phrase:gsub("%%","")}
+  end
+  return {Start = front, End = back}
 end
-  
+
 return utils

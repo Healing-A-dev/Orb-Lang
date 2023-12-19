@@ -6,6 +6,14 @@ currentFile = "main"
 local pathToFile = {"main"}
 local isString = {isString = false, stringSE = "NULL"}
 lexer.lex("main")
+--[[for _,i in spairs(syntax) do
+  print("Line: ".._.." = {")
+  for k,v in spairs(tokenTable[_]) do
+    print("Position: "..k.."\tToken: "..v[1].."\tPhrase: "..v[2])
+  end
+  print("}\n")
+end]]
+
 for _,i in spairs(tokenTable) do
   for k,v in spairs(i) do
     if isString.isString and v[1] ~= assigned_Token[isString.stringSE] then
@@ -24,6 +32,5 @@ for _,i in spairs(tokenTable) do
     os.execute('clear')
     print("String Token: "..assigned_Token[isString.stringSE])
     print("Item: "..v[2].."\nLine: ".._.."\nPosition: "..k.."\nToken: "..v[1].."\n\nString: "..tostring(isString.isString))
-    --print(k,v[1],v[2])
   end
 end
