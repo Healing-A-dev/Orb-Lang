@@ -2,7 +2,7 @@ local errors = {}
 
 __Orb = {}
 
-function __Orb.ThrowError(type,file,line)
+function __Orb.newError(type,file,line)
     local line = line or nil 
     local types = {
         ["Complier"] = "Working on it!",

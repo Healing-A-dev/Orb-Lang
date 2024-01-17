@@ -1,26 +1,25 @@
 @format "sh.io";
 @including:{
-    "Master_Data_Handler" -> Handler;
+    "storageManager" -> Storage;
+    "gameManager" -> game;   
 }
 
-set Users = {
-    ["Jannet"] = {
-        name:String = "Jannet",
-        ID:Int = 985,
-        accessLevel:String = "undefined"
-    }
-};
-
-def getInfo = {
-    func AccLevel(user:String):{
-        @Handler [$retriveUserLevel(login.isSuccessful.userName)];
-        if ($Handler == "Admin"):{
-            $Handler -> Users.user.accessLevel;
-            @Handler [$getUserLocation(user)] -> Users.user.loginLocation;
-        }else{
-            $Handler -> Users.user.accessLevel;
-        }
+set static passwordAttempts:Int = 0;
+func login():{
+    io.getln("Insert username: ") -> username;
+    @Storage [Storage.retrieve(username,"password")];
+    os.run('clear');
+    if ([io.getln("Insert password: ")] != $Storage):{
+        error.newError("Incorrect Password");
+        passwordAttempts + 1 -> passwordAttempts;
+    }else{
+        return username;
     }
 }
 
-@getInfo [$getInfo.AccLevel("Jannet")];
+func start():{
+    @Storage [Storage.retrieve(username,"playerInfo")] -> player;
+    if (player.new):{
+        freshStart();
+    }
+}
