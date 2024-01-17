@@ -19,7 +19,7 @@ Tokens = {
     KTOKEN_KEYWORD_DERIVE = function() return "DERIVE" end,
     KTOKEN_KEYWORD_FOR = function() return "FOR" end,
     KTOKEN_KEYWORD_SET = function() return "SET" end,
-    KTOKEN_KEYWORD_NULL = function() return "NULL" end,
+    KTOKEN_KEYWORD_VOID = function() return "VOID" end,
     KTOKEN_KEYWORD_ELSE = function() return "ELSE" end,
     KTOKEN_KEYWORD_TRUE = function() return "TRUE"end,
     KTOKEN_KEYWORD_FALSE = function() return "FALSE" end,
@@ -50,6 +50,7 @@ Tokens = {
     KTOKEN_TYPE_COMMA = function() return "," end,
     KTOKEN_TYPE_GTHAN = function() return ">" end,
     KTOKEN_TYPE_LTHAN = function() return "<" end,
+    KTOKEN_TYPE_EPOINT = function() return "!" end,
     KTOKEN_TYPE_EOL = function() return ";" end
 }
 

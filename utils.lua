@@ -1,7 +1,6 @@
 local utils = {}
 
-local phraseTable = {}
-
+--local phraseTable = {}
 
 function utils.stringify(toStingify)
   local ss,syn = {},{}
@@ -91,24 +90,27 @@ function utils.stringSearch(list,item)
   end
 end
 
-function string.position(string,phrase)
-  local front, back = nil, nil
+function string.position(string,phrase,line)
+  phraseTable[line] = {}
   if phrase:len() == 1 and not tonumber(phrase) then
     phrase = "%"..phrase
+    print(phrase)
   end
-  if phraseTable[phrase] ~= nil and phrase == phraseTable[phrase].Phrase then
-    front, back = string:find(phrase)
-    if string:find(phrase,phraseTable[phrase].Back) ~= nil then
-      print("More found >> "..phrase.."["..front..","..back.."]")
-      front, back = string:find(phrase,phraseTable[phrase].Back)
-    end
+  local ophrase = phrase:gsub("%%","")
+  if phraseTable[line][phrase] == nil then
+    phraseTable[line][phrase] = {}
+    phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase)
   else
-    front, back = string:find(phrase)
+    if phrase:gsub("%%",""):len() == 1 then
+      phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[phrase].End+1)
+    else
+      phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[phrase].End)
+    end
   end
-  if front ~= nil then
-    phraseTable[phrase] = {Phrase = phrase, Start = front, End = back, Phrase = phrase:gsub("%%","")}
-  end
-  return {Start = front, End = back}
+  return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
+
 end
+
+
 
 return utils

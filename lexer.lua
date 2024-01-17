@@ -50,6 +50,7 @@ end
 function lexer.lex(program)
   assigned_Token = {}
   tokenTable = {}
+  phraseTable = {}
   if not program:find("%<lua>") then
     program = program..".orb"
   end
@@ -61,8 +62,8 @@ function lexer.lex(program)
   end
   for _,i in pairs(syntax) do
     tokenTable[_] = {}
-    for k,v in spairs(split[_]) do
-      for s,t in spairs(assigned_Token[_]) do
+    for k,v in pairs(split[_]) do
+      for s,t in pairs(assigned_Token[_]) do
         if v == s then
           tokenTable[_][k] = {t,s}
         end
@@ -70,8 +71,9 @@ function lexer.lex(program)
     end
   end
   for _,i in pairs(assigned_Token) do
-    for k,v in spairs(i) do
-      tokenTable[_][syntax[_]:position(k).Start] = {v,k}
+    for k,v in pairs(i) do
+      tokenTable[_][syntax[_]:position(k,_).Start] = {v,k}
+      --print(syntax[_]:position(k,_).Start)
     end
   end
   return tokenTable, split, syntax

@@ -1,20 +1,26 @@
 @format "sh.io";
 @including:{
-    "Muso.drk" -> Muso
+    "Master_Data_Handler" -> Handler;
 }
 
-class Load:{
-    func Load.loadData(dataToLoad:Flex,outfile:String):{
-        if ([typeof($outfile)] != "string"):{
-            error("outfile type '"/{typeof($outfile)}/"' does not match required type 'string'");
-        }
-        if ([$Muso.search($dataToLoad)] !void):{
-            @Muso [$Muso.load($dataToLoad)/" -o "/$outfile];
-            $outfile -> $save;
+set Users = {
+    ["Jannet"] = {
+        name:String = "Jannet",
+        ID:Int = 985,
+        accessLevel:String = "undefined"
+    }
+};
+
+def getInfo = {
+    func AccLevel(user:String):{
+        @Handler [$retriveUserLevel(login.isSuccessful.userName)];
+        if ($Handler == "Admin"):{
+            $Handler -> Users.user.accessLevel;
+            @Handler [$getUserLocation(user)] -> Users.user.loginLocation;
         }else{
-            error("Muso: "/$dataToLoad/" does not exit",1);
+            $Handler -> Users.user.accessLevel;
         }
     }
 }
 
-@Load [Load.loadData("PlayerData", "Store.sf")];
+@getInfo [$getInfo.AccLevel("Jannet")];
