@@ -9,7 +9,8 @@ Tokens = {
     KTOKEN_KEY_ASSIGN = function() return "->" end,
     KTOKEN_KEY_EOL = function() return "<EOL>" end,
     KTOKEN_KEY_MACRO = function() return "@" end,
-    KTOKEN_IDENTIFIER = function() return "::<@%w+>" end,
+    KTOKEN_KEY_ESCAPE = function() return "\\" end,
+    KTOKEN_IDENTIFIER = function() return ":%w+" end,
 --------------[Keywords (17 for now)]---------------
     KTOKEN_KEYWORD_FUNCTION = function() return "FUNC" end,
     KTOKEN_KEYWORD_IF = function() return "IF" end,
@@ -28,6 +29,7 @@ Tokens = {
     KTOKEN_KEYWORD_FORMAT = function() return "FORMAT" end,
     KTOKEN_KEYWORD_PUTLN = function() return "PUTLN" end,
     KTOKEN_KEYWORD_STATIC = function() return "STATIC" end,
+    KTOKEN_KEYWORD_INCLUDING = function() return "INCLUDING" end,
 ------------------------[Others]-------------------------
     KTOKEN_TYPE_STRING = function() return "STRING" end,
     KTOKEN_TYPE_NUMBER = function() return "NUMBER" end,

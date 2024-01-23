@@ -1,7 +1,5 @@
 local utils = {}
 
---local phraseTable = {}
-
 function utils.stringify(toStingify)
   local ss,syn = {},{}
   for line in toStingify do
@@ -91,24 +89,28 @@ function utils.stringSearch(list,item)
 end
 
 function string.position(string,phrase,line)
-  phraseTable[line] = {}
-  if phrase:len() == 1 and not tonumber(phrase) then
+  if phraseTable[line] == nil then phraseTable[line] = {} end
+  if phrase:len() == 1 and not tonumber(phrase) and not phrase:find("%w") then
     phrase = "%"..phrase
-    print(phrase)
   end
   local ophrase = phrase:gsub("%%","")
-  if phraseTable[line][phrase] == nil then
+  local s,e = string:find(phrase)
+  print(phrase..": "..s,e)
+  if phraseTable[line][phrase] == nil and (e-s)+1 == #ophrase then
     phraseTable[line][phrase] = {}
     phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase)
   else
     if phrase:gsub("%%",""):len() == 1 then
-      phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[phrase].End+1)
+      if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil and (e-s)+1 == #ophrase then
+        phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End+1)
+      end
     else
-      phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[phrase].End)
+      if string:find(phrase,phraseTable[line][phrase].End) ~= nil and (e-s)+1 == #ophrase then
+        phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End)
+      end
     end
   end
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
-
 end
 
 
