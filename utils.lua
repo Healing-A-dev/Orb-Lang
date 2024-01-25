@@ -1,5 +1,8 @@
 local utils = {}
 
+local phraseTable = {}
+
+
 function utils.stringify(toStingify)
   local ss,syn = {},{}
   for line in toStingify do
@@ -108,5 +111,6 @@ function string.position(string,phrase,line)
   end
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
+
 
 return utils
