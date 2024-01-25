@@ -16,7 +16,7 @@ function lexer.fetchToken(ttf,line)
   end
   for _,i in pairs(assignedToken[line]) do
     for k,v in pairs(Tokens) do
-      for sepStr in i:gmatch("%w+") do --STRINGS
+      for sepStr in i:gmatch("%s?%w+%s?") do --STRINGS
         if sepStr:upper() == v() or type(sepStr):upper() == v() and not table.search(Keywords,sepStr) then
           if tostring(k):find("KEYWORD") then
             Keywords[#Keywords+1] = sepStr
@@ -57,7 +57,7 @@ function lexer.lex(program)
   end
   f = io.open(program,"r") or error.newError("Not_found",program)
   local lines = f:lines()
-  split, syntax = utils.stringify(lines)
+  local split, syntax = utils.stringify(lines)
   for _,i in pairs(syntax) do
     lexer.fetchToken(i,_)
   end

@@ -1,7 +1,7 @@
 local errors = require("errors")
 local lexer = require("lexer")
 local utils = require("utils")
-
+os.execute('clear')
 currentFile = "main"
 local pathToFile = {"main"}
 local isString = {isString = false, stringSE = "NULL"}
@@ -13,3 +13,6 @@ lexer.lex("main")
   end
   print("}\n")
 end]]
+
+--print(phraseTable[4]["game"].Start,phraseTable[4]["game"].End)
+--print(phraseTable[4]["gameManager"].Start,phraseTable[4]["gameManager"].End)

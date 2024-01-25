@@ -45,13 +45,13 @@ function spairs(t, order)
   end
 end
 
-function table.search(table,value)
+function table.search(t,value)
   local num = 0
-  for _,i in pairs(table) do
+  for _,i in pairs(t) do
     num = num + 1
     if value == i then
       return true
-    elseif value ~= i and num == #table then
+    elseif value ~= i and num == #t then
       return false
     end
   end
@@ -67,11 +67,8 @@ end
 
 function utils.stringSearch(list,item)
   local store = {}
-  local substore = {}
+  local substore = list:split()
   local string = ""
-  for s = 1, #list do
-    substore[#substore+1] = list:sub(s,s)
-  end
   for _,i in pairs(substore) do
     if i == item or type(tonumber(i)):upper() == item then
       store[#store+1] = _
@@ -95,24 +92,21 @@ function string.position(string,phrase,line)
   end
   local ophrase = phrase:gsub("%%","")
   local s,e = string:find(phrase)
-  print(phrase..": "..s,e)
-  if phraseTable[line][phrase] == nil and (e-s)+1 == #ophrase then
+  if phraseTable[line][phrase] == nil then
     phraseTable[line][phrase] = {}
     phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase)
   else
     if phrase:gsub("%%",""):len() == 1 then
-      if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil and (e-s)+1 == #ophrase then
+      if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil then
         phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End+1)
       end
     else
-      if string:find(phrase,phraseTable[line][phrase].End) ~= nil and (e-s)+1 == #ophrase then
-        phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End)
+      if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil then
+        phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End+1)
       end
     end
   end
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
-
-
 
 return utils
