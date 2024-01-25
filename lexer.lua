@@ -2,7 +2,7 @@ local lexer = {}
 
 --[Imports]--
 local utils   = require("utils")
-local errors  = require("errors")
+local error  = require("errors")
 local Tokens  = require("Tokens")
 
 --Creates the tokens
@@ -57,7 +57,7 @@ function lexer.lex(program)
   end
   f = io.open(program,"r") or error.newError("Not_found",program)
   local lines = f:lines()
-  local split, syntax = utils.stringify(lines)
+  split, syntax = utils.stringify(lines)
   for _,i in pairs(syntax) do
     lexer.fetchToken(i,_)
   end

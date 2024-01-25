@@ -2,7 +2,7 @@ local utils = {}
 
 local phraseTable = {}
 
-
+--Literally only used in the interpreter to get each line and every character
 function utils.stringify(toStingify)
   local ss,syn = {},{}
   for line in toStingify do
@@ -17,6 +17,7 @@ function utils.stringify(toStingify)
   return ss, syn
 end
 
+--Does what it says...inverts the keys and values of a table
 function table.invert(t)
   local s = {}
   for _,i in pairs(t) do
@@ -25,6 +26,7 @@ function table.invert(t)
   return s
 end
 
+--idk, didnt make it...
 function spairs(t, order)
   -- collect the keys
   local keys = {}
@@ -47,7 +49,8 @@ function spairs(t, order)
       end
   end
 end
-
+ 
+--Also just does what it says...just searches a table for a value
 function table.search(t,value)
   local num = 0
   for _,i in pairs(t) do
@@ -60,6 +63,7 @@ function table.search(t,value)
   end
 end
 
+--LITERALLY just splits a string into individual characters
 function string.split(string)
   local str = {}
   for s = 1, #string do
@@ -68,6 +72,7 @@ function string.split(string)
   return str
 end
 
+--ok..i honestly dont remeber what this does...I think it returns the position of a phrase in a string
 function utils.stringSearch(list,item)
   local store = {}
   local substore = list:split()
@@ -88,6 +93,7 @@ function utils.stringSearch(list,item)
   end
 end
 
+--THIS THING RIGHT HERE CAUSED ME SO MUCH PAIN, AND IT STILL DOESNT EVEN WORK PROPERLY!!!! But in short, it just returns every position of a phrase in a string
 function string.position(string,phrase,line)
   if phraseTable[line] == nil then phraseTable[line] = {} end
   if phrase:len() == 1 and not tonumber(phrase) and not phrase:find("%w") then

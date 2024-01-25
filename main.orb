@@ -1,7 +1,7 @@
 @format "sh.io";
 @including:{
     "storageManager" -> Storage;
-    "gameManager" -> game;   
+    "gameManager" -> Game;   
 }
 
 set static passwordAttempts:Int = 0;
