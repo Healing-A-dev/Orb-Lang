@@ -118,5 +118,4 @@ function string.position(string,phrase,line)
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
 
-
 return utils

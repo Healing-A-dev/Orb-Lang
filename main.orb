@@ -1,37 +1,5 @@
 @format "sh.io";
-@including:{
-    "storageManager" -> Storage;
-    "gameManager" -> Game;   
-}
 
-set static passwordAttempts:Int = 0;
-func login():{
-    io.getln("Insert username: ") -> static username;
-    @Stoarge [Storage.retrieve(__GAME,username)];
-    if ($Storage != nil):{
-        @Storage [Storage.retrieve(__GAME.username,"password")];
-    }
-    os.run('clear');
-    repeat:{
-        if ([io.getln("Insert password: ")] != $Storage):{
-            error.newError("Incorrect Password",true);
-            passwordAttempts + 1 -> passwordAttempts;
-            set static login:Bool = true;
-        }else{
-            return username;
-        }
-    until (login || passwordAttempts == 5)};
-    if (passwordAttempts == 5):{
-        true -> __GAME.username.locked;
-        error.newError("Too many unsucessful login attempts. Your account has been locked, to unlock you're account please either change your passowrd or contact us to unlock your account");
-    }
-}
+putln "Hello, World";
 
-func start():{
-    login();
-    @Storage [Storage.retrieve(username,"playerInfo")] -> Player;
-    if (Player.new || Player.ascend):{
-        freshStart(Player.ascend);
-        tutorial(io.getln("Would you like to participate in the tutorial?\n\ny  ||  n"));
-    }
-}
+set var:Int = 50
