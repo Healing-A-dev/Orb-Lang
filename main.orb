@@ -29,9 +29,9 @@ func login():{
 
 func start():{
     login();
-    @Storage [Storage.retrieve(username,"playerInfo")] -> player;
-    if (player.new || player.ascend):{
-        freshStart(player.ascend);
+    @Storage [Storage.retrieve(username,"playerInfo")] -> Player;
+    if (Player.new || Player.ascend):{
+        freshStart(Player.ascend);
         tutorial(io.getln("Would you like to participate in the tutorial?\n\ny  ||  n"));
     }
 }

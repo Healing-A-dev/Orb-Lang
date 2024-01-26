@@ -10,7 +10,8 @@ Tokens = {
     KTOKEN_KEY_EOL = function() return "<EOL>" end,
     KTOKEN_KEY_DEFCALL = function() return "@" end,
     KTOKEN_KEY_ESCAPE = function() return "\\" end,
-    KTOKEN_IDENTIFIER = function() return ":%w+" end,
+    KOTKEN_KEY_OR = function() return "||" end,
+    KTOKEN_KEY_IDENTIFIER = function() return ":%w+" end,
 --------------[Keywords (17 for now)]---------------
     KTOKEN_KEYWORD_FUNCTION = function() return "FUNC" end,
     KTOKEN_KEYWORD_IF = function() return "IF" end,
