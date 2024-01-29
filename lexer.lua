@@ -17,7 +17,7 @@ function lexer.createToken(ttf,line)
   for _,i in pairs(assignedToken[line]) do
     for k,v in pairs(Tokens) do
       for sepStr in i:gmatch("%w+") do --STRINGS
-        if sepStr:upper() == v() or type(sepStr):upper() == v() and not table.search(Keywords,sepStr) then
+        if sepStr:upper() == v() or type(sepStr):upper() == v() and not table.search(Keywords,sepStr) and not tonumber(sepStr) then
           if tostring(k):find("KEYWORD") then
             Keywords[#Keywords+1] = sepStr
           end
@@ -45,7 +45,7 @@ function lexer.createToken(ttf,line)
   end
 end
 
-
+--Fetch the Token of input variable
 function lexer.fetchToken(token)
   local returnToken = {}
   for _,i in pairs(assigned_Token) do
@@ -95,19 +95,36 @@ function lexer.lex(program)
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
           fullTokens[#fullTokens] = {s,prevToken[2]..v[2]}
           Skip = true
+        elseif prevToken ~= nil and prevToken[2]:find(v[2]) then
+          Skip = true
         end
       end
       if not Skip then
+        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") or v[1]:find("WHILE") or v[1]:find("DEF") then
+          v[3] = "STATEMENT"
+        end
         if v[1]:find("DIVIDE") then
           if prevToken ~= nil and prevToken[1]:find("NUMBER") then
             v[1] = v[1]
           elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") then
             v[1] = "OTOKEN_SPECIAL_CONCAT"
           end
-        elseif prevToken ~= nil and prevToken[1]:find("STATIC") then
+        elseif prevToken ~= nil and prevToken[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_SVARIABLE"
-        elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") then
+          v[3] = "VARIABLE"
+        elseif prevToken ~= nil and prevToken[1]:find("STATIC") and v[1]:find("FUNC") then
+          v[1] = "OTOKEN_SPECAIL_SFUNC"
+        elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_GVARIABLE"
+          v[3] = "VARIABLE"
+        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") then
+          v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
+          v[3] = "STATEMENT"
+        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") then
+          v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
+          v[3] = "STATEMNT"
+        elseif prevToken ~= nil and prevToken[1]:find("NAME") and v[1]:find("NUMBER") then
+
         end
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
@@ -116,8 +133,8 @@ function lexer.lex(program)
           isString.isString = false
           isString.stringSE = nil
         end
-        if isString.isString and not v[1]:find(isString.stringSE) then v[1] = "OTOKEN_TYPE_STRING" end
-        fullTokens[#fullTokens+1] = {v[1], v[2]}
+        if isString.isString and not v[1]:find(isString.stringSE) then v[1] = "OTOKEN_TYPE_STRING" v[3] = nil end
+        fullTokens[#fullTokens+1] = {v[1], v[2], v[3]}
       end
       prevToken = {v[1], v[2]}
     end

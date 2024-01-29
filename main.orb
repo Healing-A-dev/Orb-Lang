@@ -1,5 +1,7 @@
 @format "sh.io";
 
-putln "Hello, World";
-
-set var:Int = 50
+static func isBiggerThan900(num):{
+    if (num < 900):{
+        return "TOO SMALL";
+    }
+}

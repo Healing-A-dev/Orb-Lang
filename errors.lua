@@ -7,7 +7,11 @@ function error.fetchPrevious(line)
         num = num + __LINELENGTH(syntax[linesread])
         linesread = linesread + 1
     end
-    return fullTokens[num]
+    if fullTokens[num][1]:find("QUOTE") then
+        return fullTokens[num-1]
+    else
+        return fullTokens[num]
+    end
 end
 
 function error.newError(type,file,line)
@@ -16,13 +20,14 @@ function error.newError(type,file,line)
         ["Complier"] = "Working on it!",
         ["Not_found"] = "Orb: error\ntraceback\n\t[orb]: <"..file.."> file not found\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
         ["Format"] = "Orb: format error\ntraceback\n\t[orb]: improper format typing\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["EOL"] = "Orb: <eol> error\ntraceback\n\t[orb]: ';' expected near '"..error.fetchPrevious(tonumber(line))[2].."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line
+        ["EOL"] = "Orb: <eol> error\ntraceback\n\t[orb]: ';' expected near '"..error.fetchPrevious(tonumber(line))[2].."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        ["EOL.TABLE"] = "Orb: <eol> error\ntraceback\n\t[orb]: ',' expected near '"..error.fetchPrevious(tonumber(line))[2].."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"
     end
     print(types[type])
-    os.exit()
+    --os.exit()
 end
 
 
