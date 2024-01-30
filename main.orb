@@ -2,6 +2,6 @@
 
 static func isBiggerThan900(num):{
     if (num < 900):{
-        return "TOO SMALL";
+        return "Number is not larger than 900";
     }
 }

@@ -36,7 +36,7 @@ for _,i in pairs(syntax) do
   if #i ~= 0 then
     num = num + __LINELENGTH(i)
     for s,t in pairs(fullTokens) do
-      if t[3] == "STATEMENT" then
+      if t[3] == "STATEMENT" or t[3] == "STATEMENT_EXT" then
         isStatement = true
       end
     end
@@ -45,11 +45,12 @@ for _,i in pairs(syntax) do
       isStatement = false
     end
     if not fullTokens[num][1]:find("EOL") and not fullTokens[num][1]:find("OBRACE") then
+      print(fullTokens[num][2],_)
       --error.newError("EOL",currentFile,_)
     end
   end
 end
 
-for s,t in pairs(fullTokens) do
-  print(t[1],t[2])
-end
+--[[for _,i in pairs(fullTokens) do
+  print(i[1],i[2],i[3])
+end]]

@@ -95,12 +95,10 @@ function lexer.lex(program)
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
           fullTokens[#fullTokens] = {s,prevToken[2]..v[2]}
           Skip = true
-        elseif prevToken ~= nil and prevToken[2]:find(v[2]) then
-          Skip = true
         end
       end
       if not Skip then
-        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") or v[1]:find("WHILE") or v[1]:find("DEF") then
+        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") then
           v[3] = "STATEMENT"
         end
         if v[1]:find("DIVIDE") then
@@ -120,11 +118,12 @@ function lexer.lex(program)
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
           v[3] = "STATEMENT"
+        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
+          v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
+          v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") then
           v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
-          v[3] = "STATEMNT"
-        elseif prevToken ~= nil and prevToken[1]:find("NAME") and v[1]:find("NUMBER") then
-
+          v[3] = "STATEMENT"
         end
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true

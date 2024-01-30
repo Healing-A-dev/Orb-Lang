@@ -27,7 +27,7 @@ function error.newError(type,file,line)
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"
     end
     print(types[type])
-    --os.exit()
+    os.exit()
 end
 
 
