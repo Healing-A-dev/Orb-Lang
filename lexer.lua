@@ -98,7 +98,7 @@ function lexer.lex(program)
         end
       end
       if not Skip then
-        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") then
+        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") then
           v[3] = "STATEMENT"
         end
         if v[1]:find("DIVIDE") then
@@ -115,13 +115,13 @@ function lexer.lex(program)
         elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_GVARIABLE"
           v[3] = "VARIABLE"
-        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") then
+        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
           v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
           v[3] = "STATEMENT"
-        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") then
+        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
           v[3] = "STATEMENT"
         end

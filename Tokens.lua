@@ -61,7 +61,8 @@ Tokens = {
     OTOKEN_FILL_QMARK = function() return "?" end,
     OTOKEN_FILL_SQUIGGLE = function() return "~" end,
     OTOEKN_FILL_HCOMMA = function() return "`" end,
-    OTOKEN_FILL_UNDERSCORE = function() return "_" end
+    OTOKEN_FILL_UNDERSCORE = function() return "_" end,
+    OTOKEN_FILL_HALFOR = function() return "|" end
 }
 
 return Tokens
