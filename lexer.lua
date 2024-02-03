@@ -89,16 +89,17 @@ function lexer.lex(program)
   
   for _,i in spairs(syntax) do --Adjusts accordingly
     local prevToken = nil
+    fullTokens[_] = {}
     for k,v in spairs(tokenTable[_]) do
       local Skip = false
       for s,t in pairs(Tokens) do
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
-          fullTokens[#fullTokens] = {s,prevToken[2]..v[2]}
+          fullTokens[_][#fullTokens[_]] = {s,prevToken[2]..v[2]}
           Skip = true
         end
       end
       if not Skip then
-        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") then
+        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("ELSE") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
         if v[1]:find("DIVIDE") then
@@ -117,13 +118,13 @@ function lexer.lex(program)
           v[3] = "VARIABLE"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
-          v[3] = "STATEMENT"
+          --v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
-          v[3] = "STATEMENT"
+          --v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
-          v[3] = "STATEMENT"
+          --v[3] = "STATEMENT"
         end
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
@@ -133,7 +134,7 @@ function lexer.lex(program)
           isString.stringSE = nil
         end
         if isString.isString and not v[1]:find(isString.stringSE) then v[1] = "OTOKEN_TYPE_STRING" v[3] = nil end
-        fullTokens[#fullTokens+1] = {v[1], v[2], v[3]}
+        fullTokens[_][#fullTokens[_]+1] = {v[1], v[2], v[3]}
       end
       prevToken = {v[1], v[2]}
     end

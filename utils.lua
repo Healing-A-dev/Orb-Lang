@@ -1,7 +1,5 @@
 local utils = {}
 
-local phraseTable = {}
-
 --Literally only used in the interpreter to get each line and every character
 function utils.stringify(toStingify)
   local ss,syn = {},{}
@@ -93,6 +91,13 @@ function utils.stringSearch(list,item)
   end
 end
 
+--THIS is going to make the string.position function work...hopefully...
+local function positionSearch(t,p,...)
+  local args = {...}
+
+  return 3
+end
+
 --THIS THING RIGHT HERE CAUSED ME SO MUCH PAIN, AND IT STILL DOESNT EVEN WORK PROPERLY!!!! But in short, it just returns every position of a phrase in a string
 function string.position(string,phrase,line)
   if phraseTable[line] == nil then phraseTable[line] = {} end
@@ -100,7 +105,6 @@ function string.position(string,phrase,line)
     phrase = "%"..phrase
   end
   local ophrase = phrase:gsub("%%","")
-  local s,e = string:find(phrase)
   if phraseTable[line][phrase] == nil then
     phraseTable[line][phrase] = {}
     phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase)
