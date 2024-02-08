@@ -66,6 +66,7 @@ function lexer.lex(program)
   tokenTable = {}
   phraseTable = {}
   fullTokens = {}
+  Variables.Static = {}
   local isString = {isString = false, stringSE = nil}
   if not program:find("%<lua>") then
     program = program..".orb"
@@ -99,7 +100,7 @@ function lexer.lex(program)
         end
       end
       if not Skip then
-        if v[1]:find("IF") or v[1]:find("ELIF") or v[1]:find("ELSE") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
+        if v[1]:find("IF") and not v[1]:find("ELIF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
         if v[1]:find("DIVIDE") then
@@ -118,13 +119,10 @@ function lexer.lex(program)
           v[3] = "VARIABLE"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
-          --v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
-          --v[3] = "STATEMENT"
         elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
-          --v[3] = "STATEMENT"
         end
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
@@ -139,6 +137,18 @@ function lexer.lex(program)
       prevToken = {v[1], v[2]}
     end
   end
+
+  for _,i in pairs(fullTokens) do
+    for s = 1, #i do
+      --print(i[s][2])
+      if i[s][1]:find("GVARIABLE") then
+        Variables.Global[i[s][2]] = types.getVarType(i[s][2])
+      elseif i[s][1]:find("SVARIABLE") then
+        Variables.Static[#Variables.Static+1] = {i[s][2], types.getVarType(i[s][2])}
+      end
+    end
+  end
+  
   return tokenTable, split, syntax
 end
 
