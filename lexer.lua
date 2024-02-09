@@ -142,6 +142,18 @@ function lexer.lex(program)
     end
   end
 
+  for _,i in pairs(fullTokens) do
+    for s = 1, #i do
+      if i[s][1]:find("GVARIABLE") then
+        local var = i[s][2]
+        Variables.Global[var] = types.getVarType(var)
+      elseif i[s][1]:find("SVARIABLE") then
+        local var = i[s][2]
+        Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
+      end
+    end
+  end
+
   return tokenTable, split, syntax
 end
 

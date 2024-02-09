@@ -9,9 +9,6 @@ currentFile = "main"
 pathToFile = {"main"}
 Variables = {Global = {}, Static = {}}
 
-
-lexer.lex("main")
-
 function __ENDCHAR(lineNumber)
   lineNumber = tonumber(lineNumber)
   local lastValue = nil
@@ -28,6 +25,8 @@ function __ENDCHAR(lineNumber)
   end
   return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1], Position = position}
 end
+
+lexer.lex("main")
 
 local rtable = {}
 if currentFile == "main" and not syntax[1]:find('@format "sh.io"') then
@@ -86,18 +85,6 @@ for _,i in pairs(syntax) do
     --End of line syntax checking
     if not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
       error.newError("EOL",currentFile,_)
-    end
-  end
-end
-
-for _,i in pairs(fullTokens) do
-  for s = 1, #i do
-    if i[s][1]:find("GVARIABLE") then
-      local var = i[s][2]
-      Variables.Global[var] = types.getVarType(var)
-    elseif i[s][1]:find("SVARIABLE") then
-      local var = i[s][2]
-      Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
     end
   end
 end
