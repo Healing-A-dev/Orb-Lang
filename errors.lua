@@ -1,5 +1,6 @@
 local error = {}
 
+
 function error.fetchPrevious(line,token)
     if token ~= "Token" then
         if __ENDCHAR(line).Token:find("QUOTE") then
@@ -18,27 +19,25 @@ function error.newError(type,file,line,...)
     local line = tostring(line) or nil
 
     local function __EXTRAINFO(process)
-        local moreInfo = ""
-        if process ~= nil then
-            local etc = nil
-            if process[1] == "func" then
-                etc = process[1].."tion"..moreInfo
-            else
-                etc = process[1].." statement"..moreInfo
-            end
-            return etc
+        local table = {}
+        local maxProcessLength = 5
+        table[0] = ""
+        for i = 1, maxProcessLength do
+            table[#table+1] = process[i] or ""
         end
-        return ""
+        return table
     end
 
     local types = {
-        ["Complier"] = "Working on it!",
-        ["Not_found"] = "Orb: error\ntraceback\n\t[orb]: <"..file.."> file not found\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["Format"] = "Orb: format error\ntraceback\n\t[orb]: improper format typing\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["EOL"] = "Orb: <eol> error\ntraceback\n\t[orb]: ';' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["EOL.TABLE"] = "Orb: <eol> error\ntraceback\n\t[orb]: ',' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["STATEMENT_INIT"] = "Orb: statement error\n\ttraceback\n\t[orb]: :{ expected to initiate "..__EXTRAINFO(...).."\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
-        ["STATEMENT_END"] = "Orb: statemtent error\n\ttraceback\n\t[orb]: } expected to close "..__EXTRAINFO(...).."\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line
+        Complier = "Working on it!",
+        Not_found = "Orb: error\ntraceback:\n\t[orb]: <"..file.."> file not found\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        Format = "Orb: format error\ntraceback:\n\t[orb]: improper format typing\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        EOL = "Orb: <eol> error\ntraceback:\n\t[orb]: ';' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        EOL_TABLE = "Orb: <eol> error\ntraceback:\n\t[orb]: ',' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        STATEMENT_INIT = "Orb: statement error\n\ttraceback:\n\t[orb]: :{ expected to initiate "..__EXTRAINFO(...)[0].."\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        STATEMENT_END = "Orb: statemtent error\n\ttraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[0].."\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        UNDEFINED_VAR = "Orb: definition error\n\ttraceback:\n\t[orb]: undefined variable '"..__EXTRAINFO(...)[1].."' (typing expected, got nil)\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line,
+        ASSIGNMENT = "Orb: assignment error\n\ttraceback:\n\t[orb]: improper value assigned to variable '"..__EXTRAINFO(...)[1].."' (varType: "..__EXTRAINFO(...)[2]..")\n\t[file]: "..table.concat(pathToFile,"\\").."\n\t[line]: "..line
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"

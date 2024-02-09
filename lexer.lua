@@ -4,6 +4,10 @@ local lexer = {}
 local utils   = require("utils")
 local error  = require("errors")
 local Tokens  = require("Tokens")
+local types = require("types")
+
+
+
 
 --Creates the tokens
 function lexer.createToken(ttf,line)
@@ -138,18 +142,8 @@ function lexer.lex(program)
     end
   end
 
-  for _,i in pairs(fullTokens) do
-    for s = 1, #i do
-      --print(i[s][2])
-      if i[s][1]:find("GVARIABLE") then
-        Variables.Global[i[s][2]] = types.getVarType(i[s][2])
-      elseif i[s][1]:find("SVARIABLE") then
-        Variables.Static[#Variables.Static+1] = {i[s][2], types.getVarType(i[s][2])}
-      end
-    end
-  end
-  
   return tokenTable, split, syntax
 end
+
 
 return lexer

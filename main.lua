@@ -10,7 +10,6 @@ pathToFile = {"main"}
 Variables = {Global = {}, Static = {}}
 
 
-
 lexer.lex("main")
 
 function __ENDCHAR(lineNumber)
@@ -30,7 +29,6 @@ function __ENDCHAR(lineNumber)
   return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1], Position = position}
 end
 
-
 local rtable = {}
 if currentFile == "main" and not syntax[1]:find('@format "sh.io"') then
   error.newError("Format",currentFile,1)
@@ -44,6 +42,7 @@ end
 
 local Statement = {isStatement = false} -- For statement checking
 local Table = {isTable = false}
+
 for _,i in pairs(syntax) do
 
   --If then legnth of the current line is greater than 0, move onto syntax checking
@@ -91,14 +90,18 @@ for _,i in pairs(syntax) do
   end
 end
 
+for _,i in pairs(fullTokens) do
+  for s = 1, #i do
+    if i[s][1]:find("GVARIABLE") then
+      local var = i[s][2]
+      Variables.Global[var] = types.getVarType(var)
+    elseif i[s][1]:find("SVARIABLE") then
+      local var = i[s][2]
+      Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
+    end
+  end
+end
+
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
 
-
-
-
 --I can either make types required or have the compiler figure it out...HMMMMMM. Mind you, this is I need to choose for table syntax checking
-
-
-
---local test = {"Healing","bob",108901,"Healing","MILO"}
---print(table.position(test,"Healing"))
