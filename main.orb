@@ -1,3 +1,16 @@
 @format "sh.io";
 
-set static number:Array = {"Name","Bob"};
+set Characters:Array = {["Celeine"] = "???"};
+
+func freshStart():{
+    set static tmp:Array = {};
+    set static races:Array = {{"Celestial","Primordial","Angle"} -> mystic,{"Crimson-Witch","Ahphorite","Archon"} -> legendary,{"Fairy","Vampire","Beastkin"} -> rare,{"Human","Warewolf","Magi","Goul"} -> common};
+    for (_,i in pairs(races)):{
+        _ -> tmp[#tmp+1];
+    }
+    math.genrand(1,#tmp) -> static s;
+    math.genrand(1,races[tmp[s]]) -> k;
+    races[tmp[s]][k] -> playerRace;
+    set static playerAttributes:Array = {};
+    set static playerInventory:Array = {Items = {}, Moves = {}, Equpied = {}};
+}

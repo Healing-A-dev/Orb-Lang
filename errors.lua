@@ -11,7 +11,7 @@ function error.fetchPrevious(line,token)
     elseif token == "Token" then
         return __ENDCHAR(line).Token
     else
-        error("INCCORET THING",9) --Honestly it should never reach here, this is just in case my stupidity gets the best of me lol
+        error("INCORRCET THING",9) --Honestly it should never reach here, this is just in case my stupidity gets the best of me lol
     end
 end
 

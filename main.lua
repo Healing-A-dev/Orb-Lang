@@ -2,7 +2,6 @@ local error = require("errors")
 local lexer = require("lexer")
 local utils = require("utils")
 local Tokens = require("Tokens")
-local types = require("types")
 
 os.execute('clear')
 currentFile = "main"
@@ -71,13 +70,10 @@ for _,i in pairs(syntax) do
     
     --Check to see if "}" is found and is the closing part of a statement
     if Statement.isStatement and __ENDCHAR(_).Token:find("CBRACE") and #i:gsub("%s+","") == 1 then
-
       --Adjust Accordingly to an <EOL> token
       fullTokens[_][#fullTokens[_]][1] = Tokens.OTOKEN_KEY_EOL()
-
       --Removes statement for the Statement table
       table.remove(Statement,#Statement)
-
       --Check to see if the Statement table is empty. If so, statement turn off statement checking
       if #Statement == 0 then Statement.isStatement = false end
     end
@@ -87,6 +83,19 @@ for _,i in pairs(syntax) do
       error.newError("EOL",currentFile,_)
     end
   end
+end
+
+
+for _,i in pairs(Variables) do
+  print(_)
+  for s,t in pairs(i) do
+    if type(t) == "table" then
+      print(" - "..t[1]..": "..t[2])
+    else
+      print(" - "..s..": "..t)
+    end
+  end
+  print()
 end
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
