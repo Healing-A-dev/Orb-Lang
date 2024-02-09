@@ -19,7 +19,7 @@ function error.newError(type,file,line,...)
     local line = tostring(line) or nil
 
     local function __EXTRAINFO(process)
-        local table = {}
+        local table,process = {}, process or {}
         local maxProcessLength = 5
         table[0] = ""
         for i = 1, maxProcessLength do
