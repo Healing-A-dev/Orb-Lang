@@ -1,7 +1,5 @@
 local utils = {}
 
-
-
 --Literally only used in the interpreter to get each line and every character
 function utils.stringify(toStingify)
   local ss,syn = {},{}

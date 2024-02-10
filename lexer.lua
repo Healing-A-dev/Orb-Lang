@@ -6,9 +6,6 @@ local error  = require("errors")
 local Tokens  = require("Tokens")
 local types = require("types")
 
-
-
-
 --Creates the tokens
 function lexer.createToken(ttf,line)
   local assignedToken = {}

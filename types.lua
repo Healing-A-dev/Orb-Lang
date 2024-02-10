@@ -3,7 +3,7 @@ local types = {}
 local error = require("errors")
 
 local allowedTypes = {
-    Int = {
+    Num = {
         required = "%d+"
     },
     Char = {
@@ -41,6 +41,9 @@ function types.getVarType(variable)
             end
         end
     end
+    if allowedTypes[varType] == nil then
+        error.newError("UNKNOWN_TYPE",currentFile,line,{variable,varType})
+    end
     if type(allowedTypes[varType].required) ~= "table" then
         if not assignment:match(allowedTypes[varType].required) then
             error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
@@ -61,8 +64,6 @@ function types.getVarType(variable)
         end
         return varType
     end
-                
-    return variable
 end
 
 
