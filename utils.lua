@@ -91,24 +91,6 @@ function utils.stringSearch(list,item)
   end
 end
 
---[[func table.position(table,item):{
-  ?static store = {};
-  ?static string = "";
-  for (_,i in pairs(table)):{
-    if (i == item):{
-      store[#store+1] = (#table-(#table-_));
-    end};
-  end};
-  for (_,i in pairs(store)):{
-    string = string..tostring(i).."\t";
-  end};
-  if (#string == 0):{
-    return nil;
-  }else{
-    return string;
-  end};
-end};]]
-
 function table.position(t,item)
   local store = {}
   local string = ""
