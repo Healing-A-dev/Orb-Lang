@@ -1,3 +1,36 @@
 @format "sh.io";
+@including:{
+    "storageManager" -> Storage;
+    "gameManager" -> Gmanage;   
+}
 
-set static age:Num = 300;
+set static passwordAttempts:Num = 0;
+func login():{
+    io.getln("Insert username: ") -> username;
+    @Stoarge [Storage.retrieve(__GAME,username)];
+    if ($Storage != nil):{
+        @Storage [Storage.retrieve(__GAME.username,"password")];
+    }
+    os.run('clear');
+    while (!login || passwordAttempts < 5):{
+        if ([io.getln("Insert Password: ")] != $Storage):{
+            error.newEorr("Incorrect Password",true);
+            passwordAttempts + 1 -> passwordAttempts;
+            set static login:Bool = true;
+        } else {
+            return username;
+        }
+    }
+    if (passwordAttempts == 5):{
+        true -> __GAME.username.locked;
+        error.newError("Too many unsucessful login attempts. Your account has been locked, to unlock you're account please either change your passowrd or contact us to unlock your account");
+    }
+}
+
+func start():{
+    login();
+    @Storage [Storage.retrieve(username,"playerInfo")] -> player;
+    if (player.new || player.ascend):{
+        freshStart(player.ascend);
+    }
+}
