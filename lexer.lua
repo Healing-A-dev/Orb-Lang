@@ -118,6 +118,9 @@ function lexer.lex(program)
         elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_GVARIABLE"
           v[3] = "VARIABLE"
+        elseif prevToken ~= nil and prevToken[1]:find("ASSIGN") and not v[1]:find("STATIC") then
+          v[1] = "OTOKEN_SPECIAL_ANY_VARIABLE"
+          v[3] = "VARAIBLE"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
@@ -143,7 +146,11 @@ function lexer.lex(program)
     for s = 1, #i do
       if i[s][1]:find("GVARIABLE") then
         local var = i[s][2]
-        Variables.Global[var] = types.getVarType(var)
+        if not i[s][1]:find("ANY") then
+          Variables.Global[var] = types.getVarType(var)
+        else
+          Variables.Global[var] = "Any"
+        end
       elseif i[s][1]:find("SVARIABLE") then
         local var = i[s][2]
         Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
