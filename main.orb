@@ -1,3 +1,5 @@
 @format "sh.io";
 
-set static s5:String = "3";
+set static character:Char = "3";
+
+character -> Name;

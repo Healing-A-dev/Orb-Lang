@@ -97,9 +97,11 @@ for _,i in pairs(Variables) do
   print()
 end
 
-
-
-print(def.storeDef("Hello",{1})[1])
+for _,i in pairs(fullTokens) do
+  for s = 1, #i do
+    print(fullTokens[_][s][1])
+  end
+end
 
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

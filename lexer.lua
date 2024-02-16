@@ -96,7 +96,7 @@ function lexer.lex(program)
       local Skip = false
       for s,t in pairs(Tokens) do
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
-          fullTokens[_][#fullTokens[_]] = {s,prevToken[2]..v[2]}
+          fullTokens[_][#fullTokens[_]] = {s,t()}
           Skip = true
         end
       end
@@ -118,9 +118,6 @@ function lexer.lex(program)
         elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_GVARIABLE"
           v[3] = "VARIABLE"
-        elseif prevToken ~= nil and prevToken[1]:find("ASSIGN") and not v[1]:find("STATIC") then
-          v[1] = "OTOKEN_SPECIAL_ANY_VARIABLE"
-          v[3] = "VARAIBLE"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
