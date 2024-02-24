@@ -85,7 +85,7 @@ for _,i in pairs(syntax) do
 end
 
 
-for _,i in pairs(Variables) do
+--[[for _,i in pairs(Variables) do
   print(_)
   for s,t in pairs(i) do
     if type(t) == "table" then
@@ -95,13 +95,13 @@ for _,i in pairs(Variables) do
     end
   end
   print()
-end
+end]]
 
-for _,i in pairs(fullTokens) do
+--[[for _,i in pairs(fullTokens) do
   for s = 1, #i do
-    print(fullTokens[_][s][1])
+    print(fullTokens[_][s][1],fullTokens[_][s][2])
   end
-end
+end]]
 
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

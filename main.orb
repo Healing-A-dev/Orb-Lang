@@ -1,5 +1,13 @@
 @format "sh.io";
 
-set static character:Char = "3";
+set static character:Array = {"Healing","Billy","Bob","Joe"};
 
-character -> Name;
+character -> static Name;
+
+func printTest_2():{
+    putln "test";
+}
+
+func bobert():{
+    putln "BOBERT";
+}

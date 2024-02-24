@@ -15,6 +15,14 @@ function utils.stringify(toStingify)
   return ss, syn
 end
 
+function utils.getFunctionName(t,pos)
+  local s = ""
+  for _,i in pairs(t) do
+    s = s..i[pos]
+  end
+  return s
+end
+
 --Does what it says...inverts the keys and values of a table
 function table.invert(t)
   local s = {}

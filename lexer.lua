@@ -2,9 +2,9 @@ local lexer = {}
 
 --[Imports]--
 local utils   = require("utils")
-local error  = require("errors")
+local error   = require("errors")
 local Tokens  = require("Tokens")
-local types = require("types")
+local types   = require("types")
 
 --Creates the tokens
 function lexer.createToken(ttf,line)
@@ -93,6 +93,7 @@ function lexer.lex(program)
     local prevToken = nil
     fullTokens[_] = {}
     for k,v in spairs(tokenTable[_]) do
+      --print(tokenTable[_][k][2])
       local Skip = false
       for s,t in pairs(Tokens) do
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
@@ -122,8 +123,10 @@ function lexer.lex(program)
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
         elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
-        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not v[1]:find("OPAREN") then
+        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
           v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
+        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and prevToken[1]:find("NAME") and not prevToken[1]:find("SFUNC") and not v[1]:find("OPAREN") then
+          v[1] = "OTOKEN_SPECIAL_FUNC_NAME_EXT"
         end
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
@@ -140,18 +143,35 @@ function lexer.lex(program)
   end
 
   for _,i in pairs(fullTokens) do
+    local fName = {}
+    local prev = nil
     for s = 1, #i do
-      if i[s][1]:find("GVARIABLE") then
-        local var = i[s][2]
-        if not i[s][1]:find("ANY") then
-          Variables.Global[var] = types.getVarType(var)
-        else
-          Variables.Global[var] = "Any"
-        end
-      elseif i[s][1]:find("SVARIABLE") then
-        local var = i[s][2]
-        Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
+      local currentToken = fullTokens[_][s]
+      if prev ~= nil and prev[1]:find("ASSIGN") and not currentToken[1]:find("FUNC") and not currentToken[1]:find("STATIC") then
+        fullTokens[_][s][1] = "OTOKEN_SPECIAL_GVARIABLE"
+        fullTokens[_][s][3] = "VARIABLE"
+      elseif prev ~= nil and prev[1]:find("ASSIGN") and currentToken[1]:find("STATIC") then
+        fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SAVARIABLE"
+        fullTokens[_][s+1][3] = "VARIABLE"
       end
+
+      -- Getting Function Names
+      if currentToken[1]:find("NAME") then
+        fName[#fName+1] = {currentToken[2], _, s, currentToken[1]}
+      elseif not currentToken[1]:find("NAME") and prev ~= nil and prev[1]:find("NAME") then
+        break
+      end
+      prev = currentToken
+    end
+    --if #fName > 0 and tonumber(fName[#fName][1]) then table.remove(fName,#fName) end
+    local functionName = utils.getFunctionName(fName,1)
+    if functionName:len() > 0 then
+      for _,i in pairs(fName) do
+        if fullTokens[i[2]][i[3]] ~= nil then
+          table.remove(fullTokens[i[2]],i[3])
+        end
+      end
+      fullTokens[fName[1][2]][fName[1][3]] = {fName[1][4], functionName, nil}
     end
   end
 
