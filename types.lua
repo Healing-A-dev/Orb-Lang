@@ -3,7 +3,7 @@ local types = {}
 local error = require("errors")
 
 local allowedTypes = {
-    Num = {
+    Number = {
         required = "%d+"
     },
     Char = {

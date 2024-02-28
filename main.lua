@@ -79,7 +79,7 @@ for _,i in pairs(syntax) do
 
     --End of line syntax checking
     if not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
-      error.newError("EOL",currentFile,_)
+      --error.newError("EOL",currentFile,_)
     end
   end
 end
@@ -97,11 +97,11 @@ end
   print()
 end]]
 
---[[for _,i in pairs(fullTokens) do
+for _,i in pairs(fullTokens) do
   for s = 1, #i do
     print(fullTokens[_][s][1],fullTokens[_][s][2])
   end
-end]]
+end
 
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

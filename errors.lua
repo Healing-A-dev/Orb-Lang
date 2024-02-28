@@ -2,6 +2,7 @@ local error = {}
 
 
 function error.fetchPrevious(line,token)
+    local line = tonumber(line)
     if token ~= "Token" then
         if __ENDCHAR(line).Token:find("QUOTE") then
             return __ENDCHAR(line).oneBefore
