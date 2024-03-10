@@ -16,11 +16,17 @@ function utils.stringify(toStingify)
 end
 
 function utils.getFunctionName(t,pos)
-  local s = ""
+  local s = {""}
   for _,i in pairs(t) do
-    s = s..i[pos]
+    s[#s+1] = s[#s]..i[pos]
   end
-  return s
+  for _,i in pairs(s) do
+    if #i == 0 then table.remove(s,_) end
+  end
+  for _,i in pairs(s) do
+    print(i)
+  end
+  return s[#s]
 end
 
 --Does what it says...inverts the keys and values of a table

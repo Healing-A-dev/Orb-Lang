@@ -57,7 +57,7 @@ function types.getVarType(variable)
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType}) 
                 end
             else
-                if assignment:match(i[1]) and assignment:len() > i[2] or not assignment:match(i[1]) then
+                if assignment:match(i[1]) and assignment:len() > i[2] or not assignment:match(i[1]) or assignment:match("%d+") then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
                 end
             end

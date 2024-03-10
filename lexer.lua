@@ -158,14 +158,14 @@ function lexer.lex(program)
       -- Getting Function Names
       if currentToken[1]:find("NAME") then
         fName[#fName+1] = {currentToken[2], _, s, currentToken[1]}
-      elseif not currentToken[1]:find("NAME") and prev ~= nil and prev[1]:find("NAME") then
+      elseif currentToken[1]:find("OPAREN") and prev ~= nil and prev[1]:find("NAME") then
         break
       end
       prev = currentToken
     end
-    local functionName = utils.getFunctionName(fName,1)
-    if functionName:len() > 0 then
-      fullTokens[fName[1][2]][fName[1][3]] = {fName[1][4], functionName, nil}
+    if #fName > 0 then
+      table.remove(fName,2)
+      fullTokens[fName[1][2]][fName[1][3]] = {fName[1][4], utils.getFunctionName(fName,1), nil}
     end
   end
   for _,i in pairs(fullTokens) do

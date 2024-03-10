@@ -29,7 +29,7 @@ end
 lexer.lex("main")
 
 local rtable = {}
-if currentFile == "main" and not syntax[1]:find('@format "sh.io"') then
+if currentFile == "main" and not syntax[1]:find('@format "std.io"') then
   error.newError("Format",currentFile,1)
 elseif currentFile ~= "main" then
   if not syntax[1]:find('@foramt ".+"') then
@@ -79,7 +79,7 @@ for _,i in pairs(syntax) do
 
     --End of line syntax checking
     if not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
-      --error.newError("EOL",currentFile,_)
+      error.newError("EOL",currentFile,_)
     end
   end
 end
