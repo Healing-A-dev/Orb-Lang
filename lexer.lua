@@ -143,7 +143,6 @@ function lexer.lex(program)
   end
 
   for _,i in pairs(fullTokens) do
-    local fName = {}
     local prev = nil
     for s = 1, #i do
       local currentToken = fullTokens[_][s]
@@ -154,36 +153,13 @@ function lexer.lex(program)
         fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SAVARIABLE_ANY"
         fullTokens[_][s+1][3] = "VARIABLE"
       end
-
-      -- Getting Function Names
-      if currentToken[1]:find("NAME") then
-        fName[#fName+1] = {currentToken[2], _, s, currentToken[1]}
-      elseif currentToken[1]:find("OPAREN") and prev ~= nil and prev[1]:find("NAME") then
-        break
-      end
       prev = currentToken
-    end
-    if #fName > 0 then
-      table.remove(fName,2)
-      fullTokens[fName[1][2]][fName[1][3]] = {fName[1][4], utils.getFunctionName(fName,1), nil}
-    end
-  end
-  for _,i in pairs(fullTokens) do
-    for s = 1, #i do
-      if i[s][1]:find("GVARIABLE") then
-        local var = i[s][2]
-        if not i[s][1]:find("ANY") then
-          Variables.Global[var] = types.getVarType(var)
-        else
-          Variables.Global[var] = "Any"
-        end
-      elseif i[s][1]:find("SVARIABLE") then
-        local var = i[s][2]
-        Variables.Static[#Variables.Static+1] = {var, types.getVarType(var)}
+      if currentToken[1]:find("FUNC") and not currentToken[1]:find("NAME") then
+        function_name = utils.getFunctionName(_)
+        fullTokens[_][s+1] = {fullTokens[_][s+1][1], function_name, nil}
       end
     end
   end
-
   return tokenTable, split, syntax
 end
 

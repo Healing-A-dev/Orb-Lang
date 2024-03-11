@@ -2,7 +2,7 @@ local error = require("errors")
 local lexer = require("lexer")
 local utils = require("utils")
 local Tokens = require("Tokens")
-local def = require("def")
+local variables = require("variables")
 
 os.execute('clear')
 currentFile = "main"
@@ -84,8 +84,9 @@ for _,i in pairs(syntax) do
   end
 end
 
+__ADDVARS()
 
---[[for _,i in pairs(Variables) do
+for _,i in pairs(Variables) do
   print(_)
   for s,t in pairs(i) do
     if type(t) == "table" then
@@ -95,11 +96,11 @@ end
     end
   end
   print()
-end]]
+end
 
 for _,i in pairs(fullTokens) do
   for s = 1, #i do
-    print(fullTokens[_][s][1],fullTokens[_][s][2])
+    --print(fullTokens[_][s][1],fullTokens[_][s][2])
   end
 end
 

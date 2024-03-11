@@ -15,18 +15,8 @@ function utils.stringify(toStingify)
   return ss, syn
 end
 
-function utils.getFunctionName(t,pos)
-  local s = {""}
-  for _,i in pairs(t) do
-    s[#s+1] = s[#s]..i[pos]
-  end
-  for _,i in pairs(s) do
-    if #i == 0 then table.remove(s,_) end
-  end
-  for _,i in pairs(s) do
-    print(i)
-  end
-  return s[#s]
+function utils.getFunctionName(line)
+  return syntax[line]:match("func.+%("):gsub("func%s+",""):gsub("%(","")
 end
 
 --Does what it says...inverts the keys and values of a table

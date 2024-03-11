@@ -31,8 +31,10 @@ function types.getVarType(variable)
         for s = 1, #i do
             if i[s][2] == variable and i[s][3] == "VARIABLE" then
                 if not i[s+1][1]:find("COLON") then
-                    local var = i[s][2]
-                    error.newError("UNDEFINED_VAR",currentFile,_,{var})
+                    varType = "Any"
+                    if i[s+4][1]:find("QUOTE") then assignment = i[s+5][2] else assignment = i[s+4][2] end
+                    line = _
+                    --error.newError("UNDEFINED_VAR",currentFile,_,{var})
                 else
                     varType = i[s+2][2]
                     if i[s+4][1]:find("QUOTE") then assignment = i[s+5][2] else assignment = i[s+4][2] end
