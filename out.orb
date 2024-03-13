@@ -1,0 +1,4 @@
+@format "lib.module";
+
+putln "This wont work btw";
+set static bruh:String = "19";

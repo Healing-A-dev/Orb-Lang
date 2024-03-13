@@ -1,13 +1,17 @@
+-- File Imports--
 local error = require("errors")
 local lexer = require("lexer")
 local utils = require("utils")
 local Tokens = require("Tokens")
 local variables = require("variables")
 
-os.execute('clear')
-currentFile = "main"
-pathToFile = {"main"}
+-- Some extra stuff needed for compilation (transpilation)
+os.execute('clear') -- Clearing the console
+pathToFile = {}
 Variables = {Global = {}, Static = {}}
+local compiled = {}
+local Statement = {isStatement = false} -- For statement checking
+local Table = {isTable = false}
 
 function __ENDCHAR(lineNumber)
   lineNumber = tonumber(lineNumber)
@@ -26,41 +30,43 @@ function __ENDCHAR(lineNumber)
   return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1], Position = position}
 end
 
-lexer.lex("main")
 
-local rtable = {}
+-- Below is going to be the compiler (trasnpiler) for the language
+-- This file is going to be renamed to compiler.lua
+-- I still have a lot of stuff to do like table syntaxing and defs and built it http (socket) support
+-- But once this is done ill start working on my bigger project >:)
+-- Project Birdcage
+
+
+lexer.lex("main") -- Tokenizing the file
+pathToFile[#pathToFile+1] = currentFile -- Adding file to path
+
+-- ERROR CHECKING --
 if currentFile == "main" and not syntax[1]:find('@format "std.io"') then
-  error.newError("Format",currentFile,1)
+  error.newError("FORMAT",currentFile,1)
 elseif currentFile ~= "main" then
-  if not syntax[1]:find('@foramt ".+"') then
-    error.newError("Format",currentFile,1)
-  elseif syntax[1]:find('@format ".+"') and not syntax[1]:match('%s"lib.module"') then
-    error.newError("Format",currentFile,1,{syntax[1]:match('%s+')})
+  if not syntax[1]:find('@format') then
+    error.newError("FORMAT",currentFile,1)
+  elseif syntax[1]:find('@format ".+"') and not syntax[1]:find('"lib.module"') then
+    error.newError("FORMAT",currentFile,1,{syntax[1]:match('%s+')})
   end
 end
-
-local Statement = {isStatement = false} -- For statement checking
-local Table = {isTable = false}
 
 for _,i in pairs(syntax) do
   --If then legnth of the current line is greater than 0, move onto syntax checking
   if #i:gsub("%s+","") ~= 0 then
     --Loops through the completed token table
     for s,t in pairs(fullTokens[_]) do
-
       --Checks to see if the token assigned to the phrase is a keyword that requires a corresponding "end","do","then" in its Lua equivelent and makes sure that the proper symbol in Orb is used to initiate said statement ":{"
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
-
         --If syntax check passed, add the statment to the statement table
         if t[3] == "STATEMENT" then
           Statement[#Statement+1] = t[2]
         end
-
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],Statement[#Statement],fullTokens[_][s+1][2]})
         end
-
         --For syntax and lexing reasons
         Statement.isStatement = true
       end
@@ -86,6 +92,9 @@ end
 
 __ADDVARS()
 
+
+-- DEBUGGING --
+
 for _,i in pairs(Variables) do
   print(_)
   for s,t in pairs(i) do
@@ -100,9 +109,8 @@ end
 
 for _,i in pairs(fullTokens) do
   for s = 1, #i do
-    --print(fullTokens[_][s][1],fullTokens[_][s][2])
+    --print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
   end
 end
-
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

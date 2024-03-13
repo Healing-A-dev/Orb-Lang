@@ -10,7 +10,7 @@ local allowedTypes = {
         required = {"%w",1}
     },
     String = {
-        required = "%w+"
+        required = {"'.+'", '".+"'}
     },
     Array = {
         required = "%{"
@@ -23,6 +23,13 @@ local allowedTypes = {
     }
 }
 
+local function getString(line,search,typing)
+    local toSearch = syntax[line]
+    if search and typing == "String" then
+        return toSearch:match(allowedTypes[typing].required[1]) or toSearch:match(allowedTypes[typing].required[2])
+    end
+end
+
 function types.getVarType(variable)
     local varType = nil
     local assignment = nil
@@ -30,13 +37,24 @@ function types.getVarType(variable)
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
             if i[s][2] == variable and i[s][3] == "VARIABLE" then
-                if not i[s+1][1]:find("COLON") then
+                if i[s][1]:find("VARIABLE_ANY") and not i[s+1][1]:find("COLON") then
                     varType = "Any"
-                    if i[s+4][1]:find("QUOTE") then assignment = i[s+5][2] else assignment = i[s+4][2] end
+                    assignment = i[s-2][2]
                     line = _
-                    --error.newError("UNDEFINED_VAR",currentFile,_,{var})
-                else
+                elseif i[s][1]:find("VARIABLE_ANY") and i[s+1][1]:find("COLON") then
                     varType = i[s+2][2]
+                    if not i[s][1]:find("SVARIABLE") then
+                        if i[s-2][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s-2][2] end
+                    else
+                        if i[s-3][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s-3][2] end
+                    end
+                    line = _
+                elseif i[s+1][1]:find("COLON") and not i[s][1]:find("VARIABLE_ANY") then
+                    varType = i[s+2][2]
+                    if i[s+4][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s+4][2] end
+                    line = _
+                elseif not i[s+1][1]:find("COLON") then
+                    varType = "Any"
                     if i[s+4][1]:find("QUOTE") then assignment = i[s+5][2] else assignment = i[s+4][2] end
                     line = _
                 end

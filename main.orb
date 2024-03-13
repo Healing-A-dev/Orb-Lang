@@ -1,6 +1,6 @@
 @format "std.io";
 @including:{
-    Lua -> Lua;
+    Lua -> static Lua
 }
 
 def Email:{
@@ -13,10 +13,3 @@ def Email:{
         putln "Welcome "/{self.name}/" to "/{self.company}{self.comapny_domain};
     }
 }
-
-static func test1():{
-    set email = @Email.new("sara@alphabet.com");
-    email:greet();
-}
-
-test1();

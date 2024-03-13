@@ -63,6 +63,7 @@ end
 
 --Organizes the tokens into the order they appear and adjusts them depeneding on location and other tokens
 function lexer.lex(program)
+  currentFile = program
   assigned_Token = {}
   tokenTable = {}
   phraseTable = {}
@@ -72,10 +73,10 @@ function lexer.lex(program)
   if not program:find("%<lua>") then
     program = program..".orb"
   end
-  f = io.open(program,"r") or error.newError("Not_found",program)
+  f = io.open(program,"r") or error.newError("Not_found",currentFile,1,{program})
   local lines = f:lines()
   split, syntax = utils.stringify(lines)
-
+  f:close()
   for _,i in pairs(syntax) do --Gets tokens
     lexer.createToken(i,_)
   end
@@ -93,7 +94,6 @@ function lexer.lex(program)
     local prevToken = nil
     fullTokens[_] = {}
     for k,v in spairs(tokenTable[_]) do
-      --print(tokenTable[_][k][2])
       local Skip = false
       for s,t in pairs(Tokens) do
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
@@ -150,7 +150,7 @@ function lexer.lex(program)
         fullTokens[_][s][1] = "OTOKEN_SPECIAL_GVARIABLE_ANY"
         fullTokens[_][s][3] = "VARIABLE"
       elseif prev ~= nil and prev[1]:find("ASSIGN") and currentToken[1]:find("STATIC") then
-        fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SAVARIABLE_ANY"
+        fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SVARIABLE_ANY"
         fullTokens[_][s+1][3] = "VARIABLE"
       end
       prev = currentToken
