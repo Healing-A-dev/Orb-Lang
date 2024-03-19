@@ -14,7 +14,7 @@ Tokens = {
     OTOKEN_KEY_ESCAPE = function() return "\\" end,
     OTOKEN_KEY_OR = function() return "||" end,
     OTOKEN_KEY_AND = function() return "&&" end,
-    OTOKEN_KEY_IDENTIFIER = function() return ":%w+" end,
+    --OTOKEN_KEY_IDENTIFIER = function() return ":%w+" end,
 --------------[Keywords (17 for now)]---------------
     OTOKEN_KEYWORD_FUNCTION = function() return "FUNC" end,
     OTOKEN_KEYWORD_IF = function() return "IF" end,

@@ -8,7 +8,7 @@ function __ADDVARS()
                 local var = i[s][2]
                 if i[s][1]:find("FUNC") then
                     Variables.Global[var] = "Function"
-                else
+                elseif not i[s][1]:find("FUNC") and Variables.Static[var] == nil then
                     Variables.Global[var] = types.getVarType(var)
                 end
             elseif i[s][1]:find("SVARIABLE") or i[s][1]:find("SFUNC_NAME") and not i[s][1]:find("EXT") then

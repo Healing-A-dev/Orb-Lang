@@ -70,9 +70,7 @@ for _,i in pairs(syntax) do
         --For syntax and lexing reasons
         Statement.isStatement = true
       end
-
     end
-    
     --Check to see if "}" is found and is the closing part of a statement
     if Statement.isStatement and __ENDCHAR(_).Token:find("CBRACE") and #i:gsub("%s+","") == 1 then
       --Adjust Accordingly to an <EOL> token
@@ -91,7 +89,6 @@ for _,i in pairs(syntax) do
 end
 
 __ADDVARS()
-
 
 -- DEBUGGING --
 
@@ -112,5 +109,4 @@ for _,i in pairs(fullTokens) do
     --print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
   end
 end
-
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

@@ -1,15 +1,10 @@
 @format "std.io";
-@including:{
-    Lua -> static Lua
+
+set static S:Number= 300;
+"Billy" -> static testVar:String;
+
+func Nameless():{
+    return "???";
 }
 
-def Email:{
-    func new(email):{
-        self.name = email:match(".+@"):gsub("@"):titleize();
-        self.company = email:match("@%w+"):gsub("@"):capitalize();
-        self.company_domain = email:match("@.+"):match("%..+");
-    }
-    func greet():{
-        putln "Welcome "/{self.name}/" to "/{self.company}{self.comapny_domain};
-    }
-}
+putln Locks;

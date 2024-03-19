@@ -23,9 +23,9 @@ local allowedTypes = {
     }
 }
 
-local function getString(line,search,typing)
+local function getValue(line,typing)
     local toSearch = syntax[line]
-    if search and typing == "String" then
+    if typing == "String" then
         return toSearch:match(allowedTypes[typing].required[1]) or toSearch:match(allowedTypes[typing].required[2])
     end
 end
@@ -36,26 +36,31 @@ function types.getVarType(variable)
     local line = 0
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
+            local adjust = 0
             if i[s][2] == variable and i[s][3] == "VARIABLE" then
                 if i[s][1]:find("VARIABLE_ANY") and not i[s+1][1]:find("COLON") then
                     varType = "Any"
-                    assignment = i[s-2][2]
+                    if i[s][1]:find("SVARAIBLE") then
+                        assignment = i[s-2][2]
+                    else
+                        assignment = i[s-3][2]
+                    end
                     line = _
                 elseif i[s][1]:find("VARIABLE_ANY") and i[s+1][1]:find("COLON") then
                     varType = i[s+2][2]
                     if not i[s][1]:find("SVARIABLE") then
-                        if i[s-2][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s-2][2] end
+                        if i[s-2][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s-2][2] end
                     else
-                        if i[s-3][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s-3][2] end
+                        if i[s-3][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s-3][2] end
                     end
                     line = _
                 elseif i[s+1][1]:find("COLON") and not i[s][1]:find("VARIABLE_ANY") then
                     varType = i[s+2][2]
-                    if i[s+4][1]:find("QUOTE") then assignment = getString(_,true,varType) else assignment = i[s+4][2] end
+                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s+4][2] end
                     line = _
                 elseif not i[s+1][1]:find("COLON") then
                     varType = "Any"
-                    if i[s+4][1]:find("QUOTE") then assignment = i[s+5][2] else assignment = i[s+4][2] end
+                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s+4][2] end
                     line = _
                 end
             end
