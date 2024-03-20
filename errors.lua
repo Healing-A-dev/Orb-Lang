@@ -3,13 +3,13 @@ local error = {}
 
 function error.fetchPrevious(line,token)
     local line = tonumber(line)
-    if token ~= "Token" then
+    if token ~= "TOKEN" then
         if __ENDCHAR(line).Token:find("QUOTE") then
             return __ENDCHAR(line).oneBefore
         else
             return __ENDCHAR(line).Character
         end
-    elseif token == "Token" then
+    elseif token == "TOKEN" then
         return __ENDCHAR(line).Token
     else
         error("INCORRCET THING",9) --Honestly it should never reach here, this is just in case my stupidity gets the best of me lol
@@ -44,7 +44,8 @@ function error.newError(type,file,line,...)
         STATEMENT_INIT = "Orb: <statement> error\ntraceback:\n\t[orb]: :{ expected to initiate "..__EXTRAINFO(...)[1].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         STATEMENT_END = "Orb: <statemtent> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[0].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         ASSIGNMENT = "Orb: <assignment> error\ntraceback:\n\t[orb]: improper value assigned to variable '"..__EXTRAINFO(...)[1].."' (varType: "..__EXTRAINFO(...)[2]..")\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
-        UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line
+        UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
+        UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"

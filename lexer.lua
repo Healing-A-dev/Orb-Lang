@@ -146,12 +146,9 @@ function lexer.lex(program)
     local prev = nil
     for s = 1, #i do
       local currentToken = fullTokens[_][s]
-      if prev ~= nil and prev[1]:find("ASSIGN") and not currentToken[1]:find("FUNC") and not currentToken[1]:find("STATIC") then
+      if prev ~= nil and prev[1]:find("ASSIGN") and not currentToken[1]:find("FUNC") then
         fullTokens[_][s][1] = "OTOKEN_SPECIAL_GVARIABLE_ANY"
         fullTokens[_][s][3] = "VARIABLE"
-      elseif prev ~= nil and prev[1]:find("ASSIGN") and currentToken[1]:find("STATIC") then
-        fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SVARIABLE_ANY"
-        fullTokens[_][s+1][3] = "VARIABLE"
       end
       prev = currentToken
       if currentToken[1]:find("FUNC") and not currentToken[1]:find("NAME") then

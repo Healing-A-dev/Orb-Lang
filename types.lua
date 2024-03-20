@@ -30,37 +30,35 @@ local function getValue(line,typing)
     end
 end
 
-function types.getVarType(variable)
+function types.getVarType(variable,Type)
     local varType = nil
     local assignment = nil
     local line = 0
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
-            local adjust = 0
             if i[s][2] == variable and i[s][3] == "VARIABLE" then
-                if i[s][1]:find("VARIABLE_ANY") and not i[s+1][1]:find("COLON") then
-                    varType = "Any"
-                    if i[s][1]:find("SVARAIBLE") then
+                if i[s][1]:find("ANY") and Type ~= nil then
+                    if i[s-2][1]:find("QUOTE") then
+                        assignment = getValue(_,Type)
+                    else
                         assignment = i[s-2][2]
-                    else
-                        assignment = i[s-3][2]
                     end
                     line = _
-                elseif i[s][1]:find("VARIABLE_ANY") and i[s+1][1]:find("COLON") then
+                elseif not i[s][1]:find("ANY") and i[s+1][1]:find("COLON") then
                     varType = i[s+2][2]
-                    if not i[s][1]:find("SVARIABLE") then
-                        if i[s-2][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s-2][2] end
+                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then
+                        assignment = getValue(_,varType)
                     else
-                        if i[s-3][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s-3][2] end
+                        assignment = i[s+4][2]
                     end
                     line = _
-                elseif i[s+1][1]:find("COLON") and not i[s][1]:find("VARIABLE_ANY") then
-                    varType = i[s+2][2]
-                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s+4][2] end
-                    line = _
-                elseif not i[s+1][1]:find("COLON") then
+                elseif not i[s][1]:find("ANY") and not i[s+1][1]:find("COLON") then
                     varType = "Any"
-                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then assignment = getValue(_,varType) else assignment = i[s+4][2] end
+                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then 
+                        assignment = getValue(_,varType) 
+                    else 
+                        assignment = i[s+4][2]
+                    end
                     line = _
                 end
             end
@@ -68,14 +66,13 @@ function types.getVarType(variable)
     end
     if allowedTypes[varType] == nil then
         error.newError("UNKNOWN_TYPE",currentFile,line,{variable,varType})
-    end
-    if type(allowedTypes[varType].required) ~= "table" then
+    elseif type(allowedTypes[varType].required) ~= "table" and assignment ~= nil then
         if not assignment:match(allowedTypes[varType].required) then
             error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
         else
             return varType
         end
-    elseif type(allowedTypes[varType].required) == "table" then
+    elseif type(allowedTypes[varType].required) == "table" and assignment ~= nil then
         for _,i in pairs(allowedTypes[varType]) do
             if type(i[2]) ~= "number" then
                 if not assignment:match(i[1]) and not assignment:match(i[2]) then

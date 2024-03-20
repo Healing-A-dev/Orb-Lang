@@ -1,9 +1,14 @@
 @format "std.io";
 
-set static S:Number= 300;
-"Billy" -> static testVar:String;
 
-func Nameless():{
+set static testVar:String = "Hello";
+set static S:Number= 300;
+3 -> S;
+
+func Nameless(args):{
+    if (length(args) < 1):{
+        putln "WHAT ARGS???";
+    }
     return "???";
 }
 
