@@ -9,12 +9,26 @@ local variables = require("variables")
 os.execute('clear') -- Clearing the console
 pathToFile = {}
 Variables = {Global = {}, Static = {}}
-local compiled = {}
-local Statement = {isStatement = false} -- For statement checking
-local Table = {isTable = false}
+local _Compiled = {}
 
-function __ENDCHAR(lineNumber)
-  lineNumber = tonumber(lineNumber)
+local _STACK = {
+  pop = function(self)
+    table.remove(self,#self)
+  end,
+  current = function(self)
+    return self[#self]
+  end,
+  append = function(self,value)
+    self[#self+1] = value
+  end,
+  len = function(self)
+    return #self
+  end
+}
+
+function __ENDCHAR(lineNumber,seek)
+  seek = seek or 0
+  lineNumber = tonumber(lineNumber+seek)
   local lastValue = nil
   local inverted = {}
   local tmp = {}
@@ -27,7 +41,7 @@ function __ENDCHAR(lineNumber)
     lastValue = t:gsub("%%","")
     position = s
   end
-  return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1], Position = position}
+  return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1] or tmp[#tmp], Position = position}
 end
 
 
@@ -39,7 +53,9 @@ end
 
 
 lexer.lex("main") -- Tokenizing the file
+function syntax.nextLine(line) return syntax[line+1] end -- Just to Seek ahead
 pathToFile[#pathToFile+1] = currentFile -- Adding file to path
+__ADDVARS()
 
 -- ERROR CHECKING --
 if currentFile == "main" and not syntax[1]:find('@format "std.io"') then
@@ -52,43 +68,49 @@ elseif currentFile ~= "main" then
   end
 end
 
-for _,i in pairs(syntax) do
+for _,i in ipairs(syntax) do
   --If then legnth of the current line is greater than 0, move onto syntax checking
   if #i:gsub("%s+","") ~= 0 then
     --Loops through the completed token table
     for s,t in pairs(fullTokens[_]) do
       --Checks to see if the token assigned to the phrase is a keyword that requires a corresponding "end","do","then" in its Lua equivelent and makes sure that the proper symbol in Orb is used to initiate said statement ":{"
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
-        --If syntax check passed, add the statment to the statement table
-        if t[3] == "STATEMENT" then
-          Statement[#Statement+1] = t[2]
-        end
+        --If syntax check passed, add the statment to the stack
+          _STACK:append({t[1],t[2],t[3]})
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
-          error.newError("STATEMENT_INIT",currentFile,_,{t[2],Statement[#Statement],fullTokens[_][s+1][2]})
+          error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
         --For syntax and lexing reasons
-        Statement.isStatement = true
+      elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.checkVar(t) then
+        _STACK:append({t[1],t[2],t[3]})
       end
     end
-    --Check to see if "}" is found and is the closing part of a statement
-    if Statement.isStatement and __ENDCHAR(_).Token:find("CBRACE") and #i:gsub("%s+","") == 1 then
-      --Adjust Accordingly to an <EOL> token
-      fullTokens[_][#fullTokens[_]][1] = Tokens.OTOKEN_KEY_EOL()
-      --Removes statement for the Statement table
-      table.remove(Statement,#Statement)
-      --Check to see if the Statement table is empty. If so, statement turn off statement checking
-      if #Statement == 0 then Statement.isStatement = false end
+    --Check to see if "}" is found and is the closing part of a statement or table
+    if __ENDCHAR(_).Token:find("EOL") and _STACK:len() > 0 and lexer.fetchToken(__ENDCHAR(_).oneBefore):find("CBRACE")  or __ENDCHAR(_).Token:find("CBRACE") and _STACK:len() > 0 then
+      if _STACK:current()[3] ~= "VARIABLE" and #i:gsub("%s+","") == 1 then
+        fullTokens[_][#fullTokens[_]][1] = Tokens.OTOKEN_KEY_EOL()
+        _STACK:pop()
+      elseif _STACK:current()[3] == "VARIABLE" then
+        _STACK:pop()
+      end
     end
-
     --End of line syntax checking
-    if not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
+    if _STACK:len() > 0 then
+      if _STACK:current()[3] == "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("COMMA") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not syntax.nextLine(_):find("%}") then
+        error.newError("EOL_TABLE",currentFile,_)
+      elseif _STACK:current()[3] ~= "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
+        error.newError("EOL",currentFile,_)
+      end
+    elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
       error.newError("EOL",currentFile,_)
     end
   end
 end
 
-__ADDVARS()
+for _,i in ipairs(_STACK) do
+  print(_,i[2])
+end
 
 -- DEBUGGING --
 

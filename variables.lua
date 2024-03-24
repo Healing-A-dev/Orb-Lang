@@ -3,10 +3,19 @@ local variables = {}
 local types = require("types")
 local error = require("errors")
 
+function variables.checkVar(var)
+    if var[1]:find("SVARIABLE") then
+        if Variables.Static[var[2]] == "Array" then return true else return false end
+    else
+        if Variables.Global[var[2]] == "Array" then return true else return false end
+    end
+end
+
 function __ADDVARS()
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
             if i[s][1]:find("VARIABLE_ANY") then
+                local typing = ""
                 if Variables.Global[i[s][2]] ~= nil then
                     Variables.Global[i[s][2]] = types.getVarType(i[s][2],Variables.Global[i[s][2]])
                 elseif Variables.Static[i[s][2]] ~= nil then

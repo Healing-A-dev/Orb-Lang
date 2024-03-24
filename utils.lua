@@ -95,7 +95,7 @@ function utils.stringSearch(list,item)
   end
 end
 
-function table.position(t,item)
+function table.position(t,item) -- Just returns the position of and item in a table
   local store = {}
   local string = ""
   for _,i in pairs(t) do
@@ -115,48 +115,36 @@ end
 
 
 function string.position(string,phrase,line)
-
   --If there is no table for the current line, make one
   if phraseTable[line] == nil then phraseTable[line] = {} end
-
   --If the phrase length is less than 1 and is not a letter or number, then add the escape character "%"
   if phrase:len() == 1 and not tonumber(phrase) and not phrase:find("%w") then
     phrase = "%"..phrase
   end
-
   --Keep the original phrase (just makes life a bit easier)
   local ophrase = phrase:gsub("%%","")
-
   --If it is the phrases first time being found, create a table for it and add its starting and end point
   if phraseTable[line][phrase] == nil then
     phraseTable[line][phrase] = {}
-
     --Starting and End points for the phrase
     phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase)
-
     --If phrase hasa already been found but has been found again, change the values of the phrases starting and ending points to the new one
   else
-
     --If phrase length is equal to 1 then find new position 1 space after the current phrase so it doesnt find itself again in the same position
     if phrase:gsub("%%",""):len() == 1 then
-
       --Check to see if value is nil or not
       if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil then
-
         --Assign new position
         phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End+1)
       end
     else --If phrase length is greater than 1 do the same as before (just in case)
-
       --Same as before
       if string:find(phrase,phraseTable[line][phrase].End+1) ~= nil then
-
         --Same as before
         phraseTable[line][phrase].Start,phraseTable[line][phrase].End = string:find(phrase,phraseTable[line][phrase].End+1)
       end
     end
   end
-
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
 
