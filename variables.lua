@@ -17,9 +17,9 @@ function __ADDVARS()
             if i[s][1]:find("VARIABLE_ANY") then
                 local typing = ""
                 if Variables.Global[i[s][2]] ~= nil then
-                    Variables.Global[i[s][2]] = types.getVarType(i[s][2],Variables.Global[i[s][2]])
+                    Variables.Global[i[s][2]] = types.getVarType(i[s][2], Variables.Global[i[s][2]])
                 elseif Variables.Static[i[s][2]] ~= nil then
-                    Variables.Static[i[s][2]] = types.getVarType(i[s][2],Variables.Static[i[s][2]])
+                    Variables.Static[i[s][2]] = types.getVarType(i[s][2], Variables.Static[i[s][2]])
                 else
                     error.newError("UNKNOWN_VAR",currentFile,_,{i[s][2]})
                 end

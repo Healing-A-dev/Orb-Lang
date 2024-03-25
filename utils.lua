@@ -148,4 +148,12 @@ function string.position(string,phrase,line)
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
 
+function utils.varCheck(var)
+  if Variables.Global[var] ~= nil or Variables.Static[var] ~= nil then
+    return {Real = true, Type = Variables.Global[var] or Variables.Static[var]}
+  else
+    return {Real = false, Type = nil}
+  end
+end
+
 return utils

@@ -1,20 +1,13 @@
 @format "std.io";
 
-set static testVar:Array = {
-    "Testoooo",
-    "CHICKOOOO",
-    13,
-    "did it work?",
-    "please..."
-};
+set test:String = "340";
+set static bobert:String = "500";
 
-set static S:Number = 300;
+bobert -> test;
 
-func Nameless(args):{
-    if (length(args) < 1):{
-        putln "WHAT ARGS???";
+func keter():{
+    putln "This is a keter class SCP, beware...";
+    if (s > 2):{
+        putln "what...";
     }
-    return "args";
 }
-
-putln Locks;

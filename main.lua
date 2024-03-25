@@ -76,14 +76,14 @@ for _,i in ipairs(syntax) do
       --Checks to see if the token assigned to the phrase is a keyword that requires a corresponding "end","do","then" in its Lua equivelent and makes sure that the proper symbol in Orb is used to initiate said statement ":{"
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
         --If syntax check passed, add the statment to the stack
-          _STACK:append({t[1],t[2],t[3]})
+          _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
         --For syntax and lexing reasons
       elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.checkVar(t) then
-        _STACK:append({t[1],t[2],t[3]})
+        _STACK:append({t[1],t[2],t[3],_})
       end
     end
     --Check to see if "}" is found and is the closing part of a statement or table
@@ -108,12 +108,16 @@ for _,i in ipairs(syntax) do
   end
 end
 
-for _,i in ipairs(_STACK) do
-  print(_,i[2])
+if _STACK:len() > 0 and _STACK:current()[3]:find("STATEMENT") then
+  error.newError("STATEMENT_END_FUNCTION",currentFile,_STACK:current()[4],{_STACK:current()[2],"",_STACK:current()[5]})
 end
 
 -- DEBUGGING --
 
+for _,i in ipairs(_STACK) do
+  print(_.."\n"..table.concat(i,"\n"))
+end
+print("----------------------------")
 for _,i in pairs(Variables) do
   print(_)
   for s,t in pairs(i) do
@@ -126,9 +130,10 @@ for _,i in pairs(Variables) do
   print()
 end
 
-for _,i in pairs(fullTokens) do
+--[[for _,i in pairs(fullTokens) do
   for s = 1, #i do
-    --print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
+    print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
   end
-end
+  print()
+end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

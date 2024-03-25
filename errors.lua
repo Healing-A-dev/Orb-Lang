@@ -12,7 +12,7 @@ function error.fetchPrevious(line,token)
     elseif token == "TOKEN" then
         return __ENDCHAR(line).Token
     else
-        error("INCORRCET THING",9) --Honestly it should never reach here, this is just in case my stupidity gets the best of me lol
+        error("INCORRECT THING",9) --Honestly it should never reach here, this is just in case my stupidity gets the best of me lol
     end
 end
 
@@ -42,10 +42,11 @@ function error.newError(type,file,line,...)
         EOL = "Orb: <eol> error\ntraceback:\n\t[orb]: ';' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         EOL_TABLE = "Orb: <eol> error\ntraceback:\n\t[orb]: ',' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         STATEMENT_INIT = "Orb: <statement> error\ntraceback:\n\t[orb]: :{ expected to initiate "..__EXTRAINFO(...)[1].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
-        STATEMENT_END = "Orb: <statemtent> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[0].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
-        ASSIGNMENT = "Orb: <assignment> error\ntraceback:\n\t[orb]: improper value assigned to variable '"..__EXTRAINFO(...)[1].."' (varType: "..__EXTRAINFO(...)[2]..")\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
+        STATEMENT_END_FUNCTION = "Orb: <statement> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[1].." starting at line "..line.."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
+        STATEMENT_END_TABLE = "Orb: <statement> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[1].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
+        ASSIGNMENT = "Orb: <assignment> error\ntraceback:\n\t[orb]: improper value "..__EXTRAINFO(...)[3]..__EXTRAINFO(...)[4].."assigned to variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[2].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
-        UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line
+        UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value to unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"

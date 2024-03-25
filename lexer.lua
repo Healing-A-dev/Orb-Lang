@@ -108,7 +108,7 @@ function lexer.lex(program)
         if v[1]:find("DIVIDE") then
           if prevToken ~= nil and prevToken[1]:find("NUMBER") then
             v[1] = v[1]
-          elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") then
+          elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") and not tokenTable[_][k+1][1]:find("NUMBER") then
             v[1] = "OTOKEN_SPECIAL_CONCAT"
           end
         elseif prevToken ~= nil and prevToken[1]:find("STATIC") and not v[1]:find("FUNC") then
