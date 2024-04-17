@@ -11,7 +11,7 @@ pathToFile = {}
 Variables = {Global = {}, Static = {}}
 local _Compiled = {}
 
-local _STACK = {
+_STACK = {
   pop = function(self)
     table.remove(self,#self)
   end,
@@ -53,9 +53,8 @@ end
 
 
 lexer.lex("main") -- Tokenizing the file
-function syntax.nextLine(line) return syntax[line+1] end -- Just to Seek ahead
+function syntax.nextLine(line) if syntax[line+1] ~= nil then return syntax[line+1] end end -- Just to Seek ahead
 pathToFile[#pathToFile+1] = currentFile -- Adding file to path
-__ADDVARS()
 
 -- ERROR CHECKING --
 if currentFile == "main" and not syntax[1]:find('@format "std.io"') then
@@ -73,6 +72,7 @@ for _,i in ipairs(syntax) do
   if #i:gsub("%s+","") ~= 0 then
     --Loops through the completed token table
     for s,t in pairs(fullTokens[_]) do
+      __ADDVARS(_)
       --Checks to see if the token assigned to the phrase is a keyword that requires a corresponding "end","do","then" in its Lua equivelent and makes sure that the proper symbol in Orb is used to initiate said statement ":{"
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
         --If syntax check passed, add the statment to the stack
@@ -115,9 +115,9 @@ end
 -- DEBUGGING --
 
 for _,i in ipairs(_STACK) do
-  print(_.."\n"..table.concat(i,"\n"))
+  print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
-print("----------------------------")
+print("-------------------")
 for _,i in pairs(Variables) do
   print(_)
   for s,t in pairs(i) do
@@ -136,4 +136,5 @@ end
   end
   print()
 end]]
+
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D

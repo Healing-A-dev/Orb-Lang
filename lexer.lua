@@ -115,7 +115,7 @@ function lexer.lex(program)
           v[1] = "OTOKEN_SPECIAL_SVARIABLE"
           v[3] = "VARIABLE"
         elseif prevToken ~= nil and prevToken[1]:find("STATIC") and v[1]:find("FUNC") then
-          v[1] = "OTOKEN_SPECAIL_SFUNC"
+          v[1] = "OTOKEN_SPECIAL_SFUNC"
         elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
           v[1] = "OTOKEN_SPECIAL_GVARIABLE"
           v[3] = "VARIABLE"

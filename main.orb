@@ -1,13 +1,5 @@
 @format "std.io";
 
-set test:String = "340";
-set static bobert:String = "500";
-
-bobert -> test;
-
-func keter():{
-    putln "This is a keter class SCP, beware...";
-    if (s > 2):{
-        putln "what...";
-    }
+func test():{
+    set Steam:String = "Steam";
 }
