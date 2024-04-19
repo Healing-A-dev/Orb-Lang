@@ -57,7 +57,7 @@ function lexer.fetchToken(token)
       end
     end
   end
-  return returnToken[2]
+  return returnToken[2] or false
 end
 
 

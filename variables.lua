@@ -34,16 +34,16 @@ function __ADDVARS(line)
         if i[1]:find("GVARIABLE") and not i[1]:find("ANY") or i[1]:find("FUNC_NAME") and not i[1]:find("SFUNC") and not i[1]:find("EXT") then
             local var = i[2]
             if i[1]:find("FUNC") then
-                Variables.Global[var] = "Function"
+                Variables.Global[var] = {Type = "Function", Value = var}
             elseif not i[1]:find("FUNC") and Variables.Static[var] == nil then
-                Variables.Global[var] = types.getVarType(var)
+                Variables.Global[var] = {Type = types.getVarType(var).Type, Value = types.getVarType(var).Value}
             end
         elseif i[1]:find("SVARIABLE") and not i[1]:find("ANY") or i[1]:find("SFUNC_NAME") and not i[1]:find("EXT") then
             local var = i[2]
             if i[1]:find("SFUNC") then
-                Variables.Static[var] = "Function"
+                Variables.Static[var] = {Type = "Function", Value = var}
             else
-                Variables.Static[var] = types.getVarType(var)
+                Variables.Static[var] = {Type = types.getVarType(var).Type, Value = types.getVarType(var).Value}
             end
         end
     end

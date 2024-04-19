@@ -4,6 +4,7 @@ local lexer = require("lexer")
 local utils = require("utils")
 local Tokens = require("Tokens")
 local variables = require("variables")
+local expressions = require("expressions")
 
 -- Some extra stuff needed for compilation (transpilation)
 os.execute('clear') -- Clearing the console
@@ -73,7 +74,6 @@ for _,i in ipairs(syntax) do
     --Loops through the completed token table
     for s,t in pairs(fullTokens[_]) do
       __ADDVARS(_)
-      --Checks to see if the token assigned to the phrase is a keyword that requires a corresponding "end","do","then" in its Lua equivelent and makes sure that the proper symbol in Orb is used to initiate said statement ":{"
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
         --If syntax check passed, add the statment to the stack
           _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
@@ -112,25 +112,26 @@ if _STACK:len() > 0 and _STACK:current()[3]:find("STATEMENT") then
   error.newError("STATEMENT_END_FUNCTION",currentFile,_STACK:current()[4],{_STACK:current()[2],"",_STACK:current()[5]})
 end
 
--- DEBUGGING --
 
+-- DEBUGGING --
+expressions.parseExpression(8)
 for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
+
 print("-------------------")
+
 for _,i in pairs(Variables) do
-  print(_)
+  print(_..":")
   for s,t in pairs(i) do
-    if type(t) == "table" then
-      print(" - "..t[1]..": "..t[2])
-    else
-      print(" - "..s..": "..t)
-    end
+    print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
 end
 
---[[for _,i in pairs(fullTokens) do
+--[[print("-------------------")
+
+for _,i in pairs(fullTokens) do
   for s = 1, #i do
     print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
   end

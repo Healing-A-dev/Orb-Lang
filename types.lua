@@ -56,12 +56,28 @@ function types.getVarType(variable,Type)
                         assignment = i[s+4][2]
                     end
                     line = _
+                elseif not i[s][1]:find("ANY") and i[s+2][1]:find("COLON") then
+                    varType = i[s+3][2]
+                    if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" then
+                        assignment = getValue(_)
+                    else
+                        assignment = i[s+5][2]
+                    end
+                    line = _
                 elseif not i[s][1]:find("ANY") and not i[s+1][1]:find("COLON") then
                     varType = "Any"
-                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then 
-                        assignment = getValue(_) 
-                    else 
-                        assignment = i[s+4][2]
+                    if not i[s][1]:find("SVARIABLE") then
+                        if i[s+3][1]:find("QUOTE") then 
+                            assignment = getValue(_) 
+                        else 
+                            assignment = i[s+3][2]
+                        end
+                    else
+                        if i[s+4][1]:find("QUOTE") then 
+                            assignment = getValue(_) 
+                        else 
+                            assignment = i[s+4][2]
+                        end
                     end
                     line = _
                 end
@@ -80,7 +96,7 @@ function types.getVarType(variable,Type)
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
             else
-                return varType
+                return {Type = varType, Value = assignment}
             end
         else
             if not tonumber(assignment) and not varChecks.Real then
@@ -90,7 +106,7 @@ function types.getVarType(variable,Type)
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
             else
-                return varType
+                return {Type = varType, Value = assignment}
             end
         end
     elseif type(allowedTypes[varType].required) == "table" and assignment ~= nil then
@@ -110,7 +126,7 @@ function types.getVarType(variable,Type)
                 end
             end
         end
-        return varType
+        return {Type = varType, Value = assignment}
     end
 end
 

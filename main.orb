@@ -1,5 +1,11 @@
 @format "std.io";
 
+set static master:String = "900";
+set static f:Number = 700;
+
 func test():{
-    set Steam:String = "Steam";
+    set Steam:Bool = false;
+    if (1000 > 900):{
+        putln "How";
+    }
 }

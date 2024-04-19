@@ -149,11 +149,25 @@ function string.position(string,phrase,line)
 end
 
 function utils.varCheck(var)
-  if Variables.Global[var] ~= nil or Variables.Static[var] ~= nil then
-    return {Real = true, Type = Variables.Global[var] or Variables.Static[var]}
+  if Variables.Global[var] ~= nil then
+    return {Real = true, Type = Variables.Global[var].Type}
+  elseif Variables.Static[var] ~= nil then
+    return {Real = true, Type = Variables.Static[var].Type}
   else
-    return {Real = false, Type = nil}
+    return {Real = nil, Type = nil}
   end
+end
+
+function string.chop(string,locations)
+  local splitString = string:split()
+  if locations ~= nil then
+    for _,i in pairs(locations) do
+      table.remove(splitString,i)
+    end
+  else
+    table.remove(splitString,#splitString)
+  end
+  return table.concat(splitString)
 end
 
 return utils
