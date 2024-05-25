@@ -141,7 +141,3 @@ end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
 
 local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
-if not utils.varCheck(_function).Real then
-  print("\027[91m\bNOT A REAL FUNCTION DUMMY \027[0m")
-end
-print(_function)

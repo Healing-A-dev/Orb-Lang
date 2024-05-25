@@ -1,7 +1,7 @@
 @format "std.io";
 
 set static master:Char = "K";
-set static f:Any = 1000;
+set static f:Any = "Hello";
 set test:Array = {
     "Hello",
     "Moon"
@@ -9,10 +9,18 @@ set test:Array = {
 
 static func Code.testFunction():{
     set Steam:Bool = false;
-    if (1 > 9):{
+    if (Steam == true):{
         putln "How";
     }
 }
 
+if (f == "Hello"):{
+    set static table:Array = {
+        "String1",
+        "String2",
+        "String3"
+    };
+}
+
 set ooga:Number = 900;
-Code.testFuntion();
+Code.testFunction();
