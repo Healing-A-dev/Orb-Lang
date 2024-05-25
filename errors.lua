@@ -62,15 +62,15 @@ function error.newError(type,file,line,...)
         Complier = "Working on it!",
         Not_found = "Orb: <import> error\ntraceback:\n\t[orb]: file '"..__EXTRAINFO(...)[1].."' not found\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         FORMAT = "Orb: <format> error\ntraceback:\n\t[orb]: improper format typing\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
-        EOL = "Orb: <eol> error\ntraceback:\n\t[orb]: ';' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,false),
-        EOL_TABLE = "Orb: <eol> error\ntraceback:\n\t[orb]: ',' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,false),
+        EOL = "Orb: <eol> error\ntraceback:\n\t[orb]: ';' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        EOL_TABLE = "Orb: <eol> error\ntraceback:\n\t[orb]: ',' expected near '"..error.fetchPrevious(line).."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,true),
         STATEMENT_INIT = "Orb: <statement> error\ntraceback:\n\t[orb]: :{ expected to initiate "..__EXTRAINFO(...)[1].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,true),
         STATEMENT_END_FUNCTION = "Orb: <statement> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[1].." |starting at line: "..line.."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,true),
         STATEMENT_END_TABLE = "Orb: <statement> error\ntraceback:\n\t[orb]: } expected to close "..__EXTRAINFO(...)[1].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
-        ASSIGNMENT = "Orb: <assignment> error\ntraceback:\n\t[orb]: improper value "..__EXTRAINFO(...)[3]..__EXTRAINFO(...)[4].."assigned to variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[2].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,false),
-        COMPARISON = "Orb: <comparison> error\ntraceback:\n\t[orb]: attempt to compare",
-        UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,false),
-        UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value to unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK,false)
+        ASSIGNMENT = "Orb: <assignment> error\ntraceback:\n\t[orb]: improper value "..__EXTRAINFO(...)[3]..__EXTRAINFO(...)[4].."assigned to variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[2].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        COMPARISON = "Orb: <comparison> error\ntraceback:\n\t[orb]: attempt to compare "..__EXTRAINFO(...)[2].." with "..__EXTRAINFO(...)[1].." value "..__EXTRAINFO(...)[5].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value to unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK)
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"

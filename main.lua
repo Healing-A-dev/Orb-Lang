@@ -49,7 +49,7 @@ end
 -- Below is going to be the compiler (trasnpiler) for the language
 -- This file is going to be renamed to compiler.lua
 -- I still have a lot of stuff to do like table syntaxing and defs and built it http (socket) support
--- But once this is done ill start working on my bigger project >:)
+-- But once this is done I'll start working on my bigger project >:)
 -- Project Birdcage
 
 
@@ -75,14 +75,15 @@ for _,i in ipairs(syntax) do
     for s,t in pairs(fullTokens[_]) do
       __ADDVARS(_)
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
-        --If syntax check passed, add the statment to the stack
-          _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
+        --If syntax check passed, add the statment to the stack
+        expressions.parseExpression(_)
+        _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
         --For syntax and lexing reasons
-      elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.checkVar(t) then
+      elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.isArray(t) then
         _STACK:append({t[1],t[2],t[3],_})
       end
     end
@@ -114,7 +115,6 @@ end
 
 
 -- DEBUGGING --
-expressions.parseExpression(8)
 for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
@@ -133,9 +133,15 @@ end
 
 for _,i in pairs(fullTokens) do
   for s = 1, #i do
-    print(fullTokens[_][s][1].." -> "..fullTokens[_][s][2].." -> "..tostring(fullTokens[_][s][3]))
+    print(fullTokens[_][s][1]..": ["..fullTokens[_][s][2].."]: "..tostring(fullTokens[_][s][3]))
   end
   print()
 end]]
 
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
+
+local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
+if not utils.varCheck(_function).Real then
+  print("\027[91m\bNOT A REAL FUNCTION DUMMY \027[0m")
+end
+print(_function)

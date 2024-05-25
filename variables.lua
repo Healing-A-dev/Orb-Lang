@@ -3,15 +3,15 @@ local variables = {}
 local types = require("types")
 local error = require("errors")
 
-function variables.checkVar(var)
+function variables.isArray(var)
     if var[1]:find("SVARIABLE") then
-        if Variables.Static[var[2]] == "Array" then 
+        if Variables.Static[var[2]].Type == "Array" then 
             return true 
         else 
             return false 
         end
     else
-        if Variables.Global[var[2]] == "Array" then 
+        if Variables.Global[var[2]].Type == "Array" then 
             return true 
         else
             return false 

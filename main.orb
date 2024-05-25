@@ -1,11 +1,18 @@
 @format "std.io";
 
-set static master:String = "900";
-set static f:Number = 700;
+set static master:Char = "K";
+set static f:Any = 1000;
+set test:Array = {
+    "Hello",
+    "Moon"
+};
 
-func test():{
+static func Code.testFunction():{
     set Steam:Bool = false;
-    if (1000 > 900):{
+    if (1 > 9):{
         putln "How";
     }
 }
+
+set ooga:Number = 900;
+Code.testFuntion();

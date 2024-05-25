@@ -50,7 +50,7 @@ function types.getVarType(variable,Type)
                     line = _
                 elseif not i[s][1]:find("ANY") and i[s+1][1]:find("COLON") then
                     varType = i[s+2][2]
-                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" then
+                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" or i[s+4][1]:find("QUOTE") and varType == "Any" then
                         assignment = getValue(_)
                     else
                         assignment = i[s+4][2]
@@ -58,7 +58,7 @@ function types.getVarType(variable,Type)
                     line = _
                 elseif not i[s][1]:find("ANY") and i[s+2][1]:find("COLON") then
                     varType = i[s+3][2]
-                    if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" then
+                    if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" or i[s+5][1]:find("QUOTE") and varType == "Any" then
                         assignment = getValue(_)
                     else
                         assignment = i[s+5][2]

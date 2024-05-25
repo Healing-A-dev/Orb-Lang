@@ -150,9 +150,9 @@ end
 
 function utils.varCheck(var)
   if Variables.Global[var] ~= nil then
-    return {Real = true, Type = Variables.Global[var].Type}
+    return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "global"}
   elseif Variables.Static[var] ~= nil then
-    return {Real = true, Type = Variables.Static[var].Type}
+    return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "static"}
   else
     return {Real = nil, Type = nil}
   end
