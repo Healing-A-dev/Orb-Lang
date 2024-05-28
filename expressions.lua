@@ -8,8 +8,8 @@ local types = require("types")
 local Tokens = require("Tokens")
 local lexer = require("lexer")
 
---[[Expression Types]]
-function expressions.IF(string,line)
+
+function expressions.getArgs(string)
     local args = {}
     local argCount = {}
     local compareType = nil
@@ -20,6 +20,13 @@ function expressions.IF(string,line)
             args[#args+1] = arg
         end
     end
+    return args,argCount
+end
+
+--[[Expression Types]]
+function expressions.IF(string,line)
+    local compareType = nil
+    local args,argCount = expressions.getArgs(string)
     if #argCount > 1 then
         for _,i in pairs(args) do
             if tonumber(i) or tonumber(utils.varCheck(i).Value)then
@@ -76,6 +83,10 @@ function expressions.IF(string,line)
         end
         
     end
+end
+
+function expressions.FOR(string,line)
+
 end
 
 function expressions.parseExpression(line)
