@@ -49,4 +49,8 @@ function __ADDVARS(line)
     end
 end
 
+function variables.__ADDTEMPVAR(vname)
+    Variables.Temporary[vname] = {Type = "Number", Value = "TBD"}
+end
+
 return variables

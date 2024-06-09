@@ -7,13 +7,14 @@ local error = require("errors")
 local types = require("types")
 local Tokens = require("Tokens")
 local lexer = require("lexer")
+local variables = require("variables")
 
 
 function expressions.getArgs(string)
     local args = {}
     local argCount = {}
     local compareType = nil
-    local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1})
+    local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
     for arg in matchedArgs:gmatch("[%S+]+") do
         if not arg:match("[%==%>%<%<=%>=%!=%,]") then
             argCount[#argCount+1] = #argCount+1
@@ -25,6 +26,7 @@ end
 
 --[[Expression Types]]
 function expressions.IF(string,line)
+    print("RUNNING IF")
     local compareType = nil
     local args,argCount = expressions.getArgs(string)
     if #argCount > 1 then
@@ -81,20 +83,35 @@ function expressions.IF(string,line)
                 end
             end 
         end
-        
+    else
+        print("OOGIE BOOGIE")
+        os.exit() 
     end
 end
 
 function expressions.FOR(string,line)
-
+    local args, argCount = expressions.getArgs(string)
+    if #argCount > 1 then
+        for increment,i in pairs(args) do
+            local variable = utils.varCheck(i)
+            print(increment,i)
+            if not tonumber(i) and not variable.Real and string:find("%=") then
+                if increment == 1 then
+                    variables.__ADDTEMPVAR(i)
+                elseif increment > 1 then
+                    error.newError("ARGUMENT",currentFile,line,{i})
+                end
+            elseif not tonumber(i) and variable.Real and variable.Type ~= "Number" and string:find("%=") then
+                error.newError("FOR_KNOWN",currentFile,line,{i,variable.Class,variable.Type})
+            end
+        end
+    end
 end
 
 function expressions.parseExpression(line)
     local syntax = syntax[line]
     local expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
-    if expressionType == "IF" then
-        expressions[expressionType](syntax,line)
-    end
+    expressions[expressionType](syntax,line)
 end
 
 return expressions

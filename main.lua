@@ -9,7 +9,7 @@ local expressions = require("expressions")
 -- Some extra stuff needed for compilation (transpilation)
 os.execute('clear') -- Clearing the console
 pathToFile = {}
-Variables = {Global = {}, Static = {}}
+Variables = {Global = {}, Static = {},Temporary = {}}
 local _Compiled = {}
 
 _STACK = {
@@ -113,21 +113,20 @@ if _STACK:len() > 0 and _STACK:current()[3]:find("STATEMENT") then
   error.newError("STATEMENT_END_FUNCTION",currentFile,_STACK:current()[4],{_STACK:current()[2],"",_STACK:current()[5]})
 end
 
-
 -- DEBUGGING --
 for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
-print("-------------------")
+--print("-------------------")
 
-for _,i in pairs(Variables) do
+--[[for _,i in pairs(Variables) do
   print(_..":")
   for s,t in pairs(i) do
     print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
-end
+end]]
 
 --[[print("-------------------")
 
@@ -137,7 +136,6 @@ for _,i in pairs(fullTokens) do
   end
   print()
 end]]
-
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
 
-local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
+--local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
