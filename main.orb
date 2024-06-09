@@ -1,6 +1,6 @@
 @format "std.io";
 
-set test:String = "String";
+set static test:String = "String";
 set meme:Array = {
     "WEE",
     "a",
@@ -9,8 +9,8 @@ set meme:Array = {
     3
 };
 
-for (key,number in meme):{
-    putln "Hi ("/number/"x)";
-}
+
+putln "Hi ("/number/"x)";
+
 
 set Testies:Array = {"Left","Right"};

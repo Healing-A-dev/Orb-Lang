@@ -139,3 +139,49 @@ end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
 
 --local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
+for _,i in pairs(fullTokens) do
+  for s = 1, #i do
+    if _ > 1 then
+      local PRINT = false
+      local TOKEN,nextTOKEN = fullTokens[_][s][1],nil
+      local VALUE,nextVALUE = fullTokens[_][s][2],nil
+      if fullTokens[_][s+1] ~= nil then
+        nextTOKEN = fullTokens[_][s+1][1]
+        nextVALUE = fullTokens[_][s+1][2]
+      end
+
+      if TOKEN:find("COLON") and (nextVALUE:match("String") or nextVALUE:match("Number") or nextVALUE:match("Char") or nextVALUE:match("Array") or nextVALUE:match("Bool") or nextVALUE:match("Any")) then
+        VALUE = "*#SKIP#*"
+        fullTokens[_][s+1][2] = "*#SKIP#*"
+      end
+
+      if TOKEN:match("<EOL>") then
+        VALUE = "end"
+      elseif TOKEN:match("CONCAT") then
+        VALUE = ".."
+      elseif TOKEN:match("STATIC") then
+        VALUE = "local "
+      elseif TOKEN:match("PUTLN") then
+        VALUE = "print("
+        PUTLN = true
+      elseif TOKEN:match("TYPE_EOL") and PUTLN then
+        VALUE = ")"..VALUE
+        PUTLN = false
+      elseif not TOKEN:match("STRING") and VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") then
+        VALUE = ""..VALUE.." "
+      end
+
+      if VALUE ~= "*#SKIP#*" then
+        if not VALUE:match("set") then
+          _Compiled[#_Compiled+1] = VALUE
+        end
+      end
+    end
+  end
+end
+
+print(table.concat(_Compiled,""))
+local test = io.open("TEMP.lua","a+")
+test:write(table.concat(_Compiled))
+test:close()
+dofile("TEMP.lua")

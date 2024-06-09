@@ -113,7 +113,6 @@ function table.position(t,item) -- Just returns the position of and item in a ta
   end
 end
 
-
 function string.position(string,phrase,line)
   --If there is no table for the current line, make one
   if phraseTable[line] == nil then phraseTable[line] = {} end
