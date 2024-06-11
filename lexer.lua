@@ -12,7 +12,8 @@ function lexer.createToken(ttf,line)
   local Keywords = {}
   assignedToken[line] = {}
   assigned_Token[line] = {}
-  for s in ttf:gmatch("([^%s]+)") do
+
+  for s in ttf:gmatch("%s?.+%s?") do
     assignedToken[line][#assignedToken[line]+1] = s
   end
   for _,i in pairs(assignedToken[line]) do

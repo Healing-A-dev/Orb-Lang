@@ -165,13 +165,14 @@ for _,i in pairs(fullTokens) do
         VALUE = "print("
         PUTLN = true
       elseif TOKEN:match("TYPE_EOL") and PUTLN then
-        VALUE = ")"..VALUE
+        VALUE = ")\r"
         PUTLN = false
-      elseif not TOKEN:match("STRING") and VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") then
+
+      elseif VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") and nextTOKEN ~= nil and not nextTOKEN:match("CONCAT") then
         VALUE = ""..VALUE.." "
       end
 
-      if VALUE ~= "*#SKIP#*" then
+      if VALUE:gsub("%s+","") ~= "*#SKIP#*" then
         if not VALUE:match("set") then
           _Compiled[#_Compiled+1] = VALUE
         end
@@ -180,8 +181,8 @@ for _,i in pairs(fullTokens) do
   end
 end
 
-print(table.concat(_Compiled,""))
-local test = io.open("TEMP.lua","a+")
-test:write(table.concat(_Compiled))
+--print(table.concat(_Compiled,""))
+local test = io.open("TEMP.lua","w+")
+test:write(table.concat(_Compiled,""))
 test:close()
 dofile("TEMP.lua")

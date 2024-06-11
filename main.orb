@@ -9,8 +9,14 @@ set meme:Array = {
     3
 };
 
+set goober:String = "Ogga";
 
-putln "Hi ("/number/"x)";
+
 
 
 set Testies:Array = {"Left","Right"};
+
+putln Testies[1];
+putln meme[#meme];
+putln "Hi "/goober/"!";
+putln test;

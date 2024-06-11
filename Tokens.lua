@@ -57,6 +57,7 @@ Tokens = {
     OTOKEN_TYPE_LTHAN = function() return "<" end,
     OTOKEN_TYPE_EPOINT = function() return "!" end,
     OTOKEN_TYPE_EOL = function() return ";" end,
+    OTOKEN_TYPE_SPACE = function() return " " end,
 --ANYTHING AFTER THIS POINT IS JUST TO INCLUDING EVERY CHARACTER ON A STANDARD KEYBOARD
     OTOKEN_FILL_QMARK = function() return "?" end,
     OTOKEN_FILL_SQUIGGLE = function() return "~" end,
