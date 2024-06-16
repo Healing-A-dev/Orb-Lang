@@ -1,12 +1,11 @@
 @fmt "std.io";
 
-set static Test:Array = {
-    "Name",
-    "Bool",
-    "Number",
-    "String",
-};
+set static Test:Array = {};
 
-for (<key:Any,value:String> in Tesft):{
+for (<key:Any,value:String> in Test):{
     putln key,value;
+}
+
+if (Name == "STUART"):{
+    putln "NO";
 }

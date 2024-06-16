@@ -37,7 +37,8 @@ function expressions.IF(string,line)
                     if not tonumber(t) and t:match("%w+") then
                         local variable = utils.varCheck(t)
                         if not variable.Real and not t:find('[%"%\']') then
-                            error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
+                            --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
+                            error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                         elseif not variable.Real and t:find('[%"%\']') then
                             error.newError("COMPARISON",currentFile,line,{compareType,type(t):lower().." "..t,args[1],args[2],"'"..tostring(init).."'"})
                         elseif variable.Real and variable.Type ~= "Number" then
@@ -54,7 +55,8 @@ function expressions.IF(string,line)
                     if t ~= "true" and t ~= "false" then
                         local variable = utils.varCheck(t)
                         if not variable.Real and t ~= "true" and t ~= "false" then
-                            error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
+                            --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
+                            error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                         elseif variable.Real and variable.Type ~= "Bool" then
                             if variable.Type == "Any" and variable.Value ~= ("true" or "false") or variable.Type ~= "Any" then
                                 error.newError("COMPARISON",currentFile,line,{compareType,variable.Class.." variable '"..t.."' |varType: "..variable.Type.."|",args[1],args[2],"'"..tostring(init).."'"})
@@ -73,7 +75,8 @@ function expressions.IF(string,line)
                         elseif tonumber(t) then
                             error.newError("COMPARISON",currentFile,line,{compareType,"number",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
                         end
-                        error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
+                        --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
+                        error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                     elseif variable.Real and variable.Type ~= "String" then
                         if variable.Type == "Any" and not variable.Value:match("[%\"%.+%\']") and not variable.Value:match("[%'%.+%']") or variable.Type ~= "Any" then
                             error.newError("COMPARISON",currentFile,line,{compareType,variable.Class.." variable '"..t.."' |varType: "..variable.Type.."|",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
@@ -112,7 +115,6 @@ function expressions.FOR(string,line)
                         for var in lineHold:gmatch("[%S+]+") do
                             if not var:match("[%==%>%<%<=%>=%!=%,]") then
                                 variables.__ADDTEMPVAR(var,line)
-                                --print(var:gsub(":%w+",""))
                             end   
                         end
                         if args[3] == "in" then
@@ -120,7 +122,7 @@ function expressions.FOR(string,line)
                             if not var.Real then
                                 error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[4]})
                             elseif var.Real and var.Type ~= "Array" then
-                                error.newError("FOR_KNOWN",currentFile,line,{args[4],var.Class,var.Type})
+                                error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[4],var.Class,var.Type})
                             end
                         end
                     end

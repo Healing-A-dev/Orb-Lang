@@ -80,8 +80,8 @@ for _,i in ipairs(syntax) do
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
         --If syntax check passed, add the statment to the stack
-        expressions.parseExpression(_)
         _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
+        expressions.parseExpression(_)
         --For syntax and lexing reasons
       elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.isArray(t) then
         _STACK:append({t[1],t[2],t[3],_})
