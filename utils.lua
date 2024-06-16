@@ -16,7 +16,9 @@ function utils.stringify(toStingify)
 end
 
 function utils.getFunctionName(line)
-  return syntax[line]:match("func.+%("):gsub("func%s+",""):gsub("%(","")
+  local Fname = syntax[line]:match("func.+%(") or syntax[line]:match(".+%s?=%s?func%s?%(")
+  Fname = Fname:gsub("func",""):gsub("[%=%s+%(]","")
+  return Fname:gsub("[%s+%@]","")
 end
 
 --Does what it says...inverts the keys and values of a table

@@ -71,7 +71,8 @@ function error.newError(type,file,line,...)
         COMPARISON = "Orb: <comparison> error\ntraceback:\n\t[orb]: attempt to compare "..__EXTRAINFO(...)[2].." with "..__EXTRAINFO(...)[1].." value "..__EXTRAINFO(...)[5].."\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         UNKNOWN_TYPE = "Orb: <type> error\ntraceback:\n\t[orb]: unknown type '"..__EXTRAINFO(...)[2].."' assigned to variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         UNKNOWN_VAR = "Orb: <assignment> error\ntraceback:\n\t[orb]: attempt to assign value to unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
-        FOR_KNOWN = "Orb: <argumrnt> error\n\ttraceback:\n\t[orb]: attempt to increment "..__EXTRAINFO(...)[2].." variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[3].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK)
+        FOR_KNOWN = "Orb: <argumrnt> error\ntraceback:\n\t[orb]: attempt to increment "..__EXTRAINFO(...)[2].." variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[3].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback:\n\t[orb]: attempt to call unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"

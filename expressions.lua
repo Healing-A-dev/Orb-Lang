@@ -15,7 +15,7 @@ function expressions.getArgs(string)
     local argCount = {}
     local compareType = nil
     local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
-    for arg in matchedArgs:gmatch("[%S+]+") do
+    for arg in matchedArgs:gsub("[<>]",""):gmatch("[%S+]+") do
         if not arg:match("[%==%>%<%<=%>=%!=%,]") then
             argCount[#argCount+1] = #argCount+1
             args[#args+1] = arg
@@ -26,7 +26,6 @@ end
 
 --[[Expression Types]]
 function expressions.IF(string,line)
-    print("RUNNING IF")
     local compareType = nil
     local args,argCount = expressions.getArgs(string)
     if #argCount > 1 then
@@ -93,9 +92,9 @@ function expressions.FOR(string,line)
     local args, argCount = expressions.getArgs(string)
     if #argCount > 1 then
         for increment,i in pairs(args) do
+            i = i:gsub(":%w+","")
             local variable = utils.varCheck(i)
-            print(increment,i)
-            if not tonumber(i) and not variable.Real and string:find("%=") then
+           --[[if not tonumber(i) and not variable.Real and string:find("%=") then
                 if increment == 1 then
                     variables.__ADDTEMPVAR(i)
                 elseif increment > 1 then
@@ -103,14 +102,43 @@ function expressions.FOR(string,line)
                 end
             elseif not tonumber(i) and variable.Real and variable.Type ~= "Number" and string:find("%=") then
                 error.newError("FOR_KNOWN",currentFile,line,{i,variable.Class,variable.Type})
-            end
+            end]]
+            if not tonumber(i) and not variable.Real then
+                if string:find("%=") then
+
+                else
+                    if syntax[line]:match("<.+>") then
+                        local lineHold = syntax[line]:match("<.+>"):gsub("[<>]",""):gsub(","," , ")
+                        for var in lineHold:gmatch("[%S+]+") do
+                            if not var:match("[%==%>%<%<=%>=%!=%,]") then
+                                variables.__ADDTEMPVAR(var,line)
+                                --print(var:gsub(":%w+",""))
+                            end   
+                        end
+                        if args[3] == "in" then
+                            local var = utils.varCheck(args[4])
+                            if not var.Real then
+                                error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[4]})
+                            elseif var.Real and var.Type ~= "Array" then
+                                error.newError("FOR_KNOWN",currentFile,line,{args[4],var.Class,var.Type})
+                            end
+                        end
+                    end
+                end
+            end 
         end
     end
 end
 
 function expressions.parseExpression(line)
     local syntax = syntax[line]
-    local expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
+    local expressionType = ""
+    if syntax:match("%w+%s?%(") then
+        expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
+    end
+    if not expressionType:find("IF") and not expressionType:find("FOR") then
+        return
+    end
     expressions[expressionType](syntax,line)
 end
 

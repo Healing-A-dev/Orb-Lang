@@ -103,7 +103,7 @@ function lexer.lex(program)
         end
       end
       if not Skip then
-        if v[1]:find("IF") and not v[1]:find("ELIF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEF") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
+        if v[1]:find("IF") and not v[1]:find("ELIF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEFINE") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
         if v[1]:find("DIVIDE") then
@@ -160,6 +160,44 @@ function lexer.lex(program)
         fullTokens[_][s+1] = {fullTokens[_][s+1][1], function_name, nil}
       end
     end
+  end
+
+  for _,i in pairs(fullTokens) do
+    local isVar = false
+    local varType = ""
+    local hold = {BufferPos = 0, BufferEnd = 0}
+    for s = 1, #i do
+      local currentToken = fullTokens[_][s]
+      if currentToken ~= nil then
+        if currentToken[3] ~= nil and currentToken[3]:find("VARIABLE") and not isVar then
+          isVar = true
+          varType = currentToken[1]
+          hold.BufferPos = s
+          hold[1] = currentToken[2]
+        end
+        if isVar and not currentToken[1]:find("COLON") then
+          currentToken[1] = varType
+          currentToken[3] = "VARIABLE"
+          hold[1] = hold[1]..currentToken[2]:gsub(hold[1],"")
+        elseif currentToken[2]:find("%=") and isVar or currentToken[1]:find("COLON") and isVar then
+          hold.BufferEnd = s
+          fullTokens[_][hold.BufferPos] = {varType, hold[1], "VARIABLE"}
+          for k = hold.BufferPos+1, hold.BufferEnd-1 do
+            fullTokens[_][k] = nil
+          end
+          isVar = false
+          varType = ""
+        end
+      end
+    end
+    for _,i in pairs(fullTokens) do
+      for s = 1, #i do
+        if s > #i then s = #i-1 end
+          if i[s] == nil then
+            table.remove(fullTokens[_],s)
+          end
+        end
+      end
   end
   return tokenTable, split, syntax
 end

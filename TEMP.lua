@@ -1,1 +1,0 @@
-local test = "String ";meme = {"WEE ","a ","1 ",2 ,3} ;goober = "Ogga ";Testies = { "Left ", "Right "} ;print(Testies [ 1 ] )print(meme [ # meme ] )print("Hi "..goober.."! ")print(test )

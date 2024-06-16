@@ -1,22 +1,12 @@
-@format "std.io";
+@fmt "std.io";
 
-set static test:String = "String";
-set meme:Array = {
-    "WEE",
-    "a",
-    "1",
-    2,
-    3
+set static Test:Array = {
+    "Name",
+    "Bool",
+    "Number",
+    "String",
 };
 
-set goober:String = "Ogga";
-
-
-
-
-set Testies:Array = {"Left","Right"};
-
-putln Testies[1];
-putln meme[#meme];
-putln "Hi "/goober/"!";
-putln test;
+for (<key:Any,value:String> in Tesft):{
+    putln key,value;
+}

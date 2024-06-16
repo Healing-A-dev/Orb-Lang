@@ -58,12 +58,12 @@ function syntax.nextLine(line) if syntax[line+1] ~= nil then return syntax[line+
 pathToFile[#pathToFile+1] = currentFile -- Adding file to path
 
 -- ERROR CHECKING --
-if currentFile == "main" and not syntax[1]:find('@format "std.io"') then
+if currentFile == "main" and not syntax[1]:find('@fmt "std.io"') then
   error.newError("FORMAT",currentFile,1)
 elseif currentFile ~= "main" then
-  if not syntax[1]:find('@format') then
+  if not syntax[1]:find('@fmt') then
     error.newError("FORMAT",currentFile,1)
-  elseif syntax[1]:find('@format ".+"') and not syntax[1]:find('"lib.module"') then
+  elseif syntax[1]:find('@fmt ".+"') and not syntax[1]:find('"lib.module"') then
     error.newError("FORMAT",currentFile,1,{syntax[1]:match('%s+')})
   end
 end
@@ -90,6 +90,9 @@ for _,i in ipairs(syntax) do
     --Check to see if "}" is found and is the closing part of a statement or table
     if __ENDCHAR(_).Token:find("EOL") and _STACK:len() > 0 and lexer.fetchToken(__ENDCHAR(_).oneBefore):find("CBRACE")  or __ENDCHAR(_).Token:find("CBRACE") and _STACK:len() > 0 then
       if _STACK:current()[3] ~= "VARIABLE" and #i:gsub("%s+","") == 1 then
+        if _STACK:current()[2]:upper() == Tokens.OTOKEN_KEYWORD_FOR() then
+          Variables.Temporary = {}
+        end
         fullTokens[_][#fullTokens[_]][1] = Tokens.OTOKEN_KEY_EOL()
         _STACK:pop()
       elseif _STACK:current()[3] == "VARIABLE" then
@@ -118,15 +121,15 @@ for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
---print("-------------------")
+print("-------------------")
 
---[[for _,i in pairs(Variables) do
+for _,i in pairs(Variables) do
   print(_..":")
   for s,t in pairs(i) do
     print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
-end]]
+end
 
 --[[print("-------------------")
 
@@ -149,12 +152,10 @@ for _,i in pairs(fullTokens) do
         nextTOKEN = fullTokens[_][s+1][1]
         nextVALUE = fullTokens[_][s+1][2]
       end
-
       if TOKEN:find("COLON") and (nextVALUE:match("String") or nextVALUE:match("Number") or nextVALUE:match("Char") or nextVALUE:match("Array") or nextVALUE:match("Bool") or nextVALUE:match("Any")) then
         VALUE = "*#SKIP#*"
         fullTokens[_][s+1][2] = "*#SKIP#*"
       end
-
       if TOKEN:match("<EOL>") then
         VALUE = "end"
       elseif TOKEN:match("CONCAT") then
@@ -167,15 +168,8 @@ for _,i in pairs(fullTokens) do
       elseif TOKEN:match("TYPE_EOL") and PUTLN then
         VALUE = ")\r"
         PUTLN = false
-
       elseif VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") and nextTOKEN ~= nil and not nextTOKEN:match("CONCAT") then
         VALUE = ""..VALUE.." "
-      end
-
-      if VALUE:gsub("%s+","") ~= "*#SKIP#*" then
-        if not VALUE:match("set") then
-          _Compiled[#_Compiled+1] = VALUE
-        end
       end
     end
   end

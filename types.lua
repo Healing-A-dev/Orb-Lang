@@ -21,6 +21,9 @@ local allowedTypes = {
     },
     Any = {
         required = "."
+    },
+    Function = {
+        required = "func"
     }
 }
 
@@ -129,6 +132,17 @@ function types.getVarType(variable,Type)
         return {Type = varType, Value = assignment}
     end
 end
+
+function types.checkType(variable,line)
+    local varType = variable:match(":%w+"):gsub("%:","")
+    local varName = variable:match(".+:"):gsub("%:","")
+    for _,i in pairs(allowedTypes) do
+        if varType == _ then
+            return {Type = varType, Name = varName}
+        end
+    end
+    error.newError("UNKNOWN_TYPE",currentFile,line,{varName,varType})
+end 
 
 
 return types
