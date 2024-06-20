@@ -2,6 +2,7 @@ local variables = {}
 
 local types = require("types")
 local error = require("errors")
+local utils = require("utils")
 
 function variables.isArray(var)
     if var[1]:find("SVARIABLE") then

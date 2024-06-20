@@ -58,7 +58,7 @@ function error.newError(type,file,line,...)
         return table
     end
 
-    local types = {
+    local errors = {
         Complier = "Working on it!",
         Not_found = "Orb: <import> error\ntraceback:\n\t[orb]: file '"..__EXTRAINFO(...)[1].."' not found\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
         FORMAT = "Orb: <format> error\ntraceback:\n\t[orb]: improper format typing\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line,
@@ -78,7 +78,7 @@ function error.newError(type,file,line,...)
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"
     end
-    print(types[type])
+    print(errors[type])
     os.exit()
 end
 

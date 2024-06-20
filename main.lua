@@ -1,6 +1,6 @@
 -- File Imports--
 local error = require("errors")
-local lexer = require("lexer")
+local lexer = require("src/lexer")
 local utils = require("utils")
 local Tokens = require("Tokens")
 local variables = require("variables")
@@ -75,13 +75,16 @@ for _,i in ipairs(syntax) do
     for s,t in pairs(fullTokens[_]) do
       __ADDVARS(_)
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
+
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
+
         --If syntax check passed, add the statment to the stack
         _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
         expressions.parseExpression(_)
+
         --For syntax and lexing reasons
       elseif t[3] == "VARIABLE" and __ENDCHAR(_).Token:find("OBRACE") and variables.isArray(t) then
         _STACK:append({t[1],t[2],t[3],_})
@@ -121,7 +124,7 @@ for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
-print("-------------------")
+--[[print("-------------------")
 
 for _,i in pairs(Variables) do
   print(_..":")
@@ -129,7 +132,7 @@ for _,i in pairs(Variables) do
     print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
-end
+end]]
 
 --[[print("-------------------")
 
@@ -161,21 +164,22 @@ for _,i in pairs(fullTokens) do
       elseif TOKEN:match("CONCAT") then
         VALUE = ".."
       elseif TOKEN:match("STATIC") then
-        VALUE = "local "
+        VALUE = "local"
       elseif TOKEN:match("PUTLN") then
         VALUE = "print("
         PUTLN = true
       elseif TOKEN:match("TYPE_EOL") and PUTLN then
-        VALUE = ")\r"
+        VALUE = ")"
         PUTLN = false
       elseif VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") and nextTOKEN ~= nil and not nextTOKEN:match("CONCAT") then
-        VALUE = ""..VALUE.." "
+        VALUE = ""..VALUE..""
       end
     end
+    _Compiled[#_Compiled+1] = VALUE
   end
 end
 
---print(table.concat(_Compiled,""))
+print(table.concat(_Compiled,""))
 local test = io.open("TEMP.lua","w+")
 test:write(table.concat(_Compiled,""))
 test:close()

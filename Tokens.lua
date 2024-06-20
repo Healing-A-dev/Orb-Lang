@@ -14,6 +14,10 @@ Tokens = {
     OTOKEN_KEY_ESCAPE = function() return "\\" end,
     OTOKEN_KEY_OR = function() return "||" end,
     OTOKEN_KEY_AND = function() return "&&" end,
+    OTOKEN_KEY_EQUALTO = function() return "==" end,
+    OTOKEN_KEY_LESSTHAN_EQUALTO = function() return "<=" end,
+    OTOKEN_KEY_GREATERTHAN_EQUALTO = function() return ">=" end,
+    OTOKEN_KEY_NOT_EQUALTO = function() return "!=" end,
     --OTOKEN_KEY_IDENTIFIER = function() return ":%w+" end,
 --------------[Keywords (17 for now)]---------------
     OTOKEN_KEYWORD_FUNCTION = function() return "FUNC" end,
@@ -57,9 +61,9 @@ Tokens = {
     OTOKEN_TYPE_LTHAN = function() return "<" end,
     OTOKEN_TYPE_EPOINT = function() return "!" end,
     OTOKEN_TYPE_EOL = function() return ";" end,
-    OTOKEN_TYPE_SPACE = function() return " " end,
 --ANYTHING AFTER THIS POINT IS JUST TO INCLUDING EVERY CHARACTER ON A STANDARD KEYBOARD
     OTOKEN_FILL_QMARK = function() return "?" end,
+    OTOKEN_FILL_SPACE = function() return " " end,
     OTOKEN_FILL_SQUIGGLE = function() return "~" end,
     OTOEKN_FILL_APOSTROPHE = function() return "`" end,
     OTOKEN_FILL_UNDERSCORE = function() return "_" end,

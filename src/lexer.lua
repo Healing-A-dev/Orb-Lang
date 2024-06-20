@@ -26,6 +26,11 @@ function lexer.createToken(ttf,line)
           assigned_Token[line][#assigned_Token[line]+1] = {sepStr, k}
         end
       end
+      for sep in i:gmatch("%s+") do
+        if sep == v() then
+          assigned_Token[line][#assigned_Token[line]+1] = {sep, k}
+        end
+      end
       if type(tonumber(i:gsub("%p"," "):match("%d+"))):upper() == v() then --NUMBERS
         for test in i:gmatch("%d+") do
           assigned_Token[line][#assigned_Token[line]+1] = {test, k}
@@ -69,6 +74,7 @@ function lexer.lex(program)
   tokenTable = {}
   phraseTable = {}
   fullTokens = {}
+  fullTokens_SYNTAX = {}
   Variables.Static = {}
   local isString = {isString = false, stringSE = nil}
   if not program:find("%<lua>") then
@@ -106,29 +112,54 @@ function lexer.lex(program)
         if v[1]:find("IF") and not v[1]:find("ELIF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEFINE") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
-        if v[1]:find("DIVIDE") then
-          if prevToken ~= nil and prevToken[1]:find("NUMBER") then
-            v[1] = v[1]
-          elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") and not tokenTable[_][k+1][1]:find("NUMBER") then
-            v[1] = "OTOKEN_SPECIAL_CONCAT"
+        if prevToken ~= nil then
+          if v[1]:find("SPACE") then goto isSpace end
+          if v[1]:find("DIVIDE") then
+            if prevToken ~= nil and prevToken[1]:find("NUMBER") then
+              v[1] = v[1]
+            elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") and not tokenTable[_][k+1][1]:find("NUMBER") then
+              v[1] = "OTOKEN_SPECIAL_CONCAT"
+            end
           end
-        elseif prevToken ~= nil and prevToken[1]:find("STATIC") and not v[1]:find("FUNC") then
-          v[1] = "OTOKEN_SPECIAL_SVARIABLE"
-          v[3] = "VARIABLE"
-        elseif prevToken ~= nil and prevToken[1]:find("STATIC") and v[1]:find("FUNC") then
-          v[1] = "OTOKEN_SPECIAL_SFUNC"
-        elseif prevToken ~= nil and prevToken[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
-          v[1] = "OTOKEN_SPECIAL_GVARIABLE"
-          v[3] = "VARIABLE"
-        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
-          v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
-        elseif prevToken ~= nil and prevToken[1]:find("SFUNC") and prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
-          v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
-        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and not prevToken[1]:match("SFUNC") and not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
-          v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
-        elseif prevToken ~= nil and prevToken[1]:find("FUNC") and prevToken[1]:find("NAME") and not prevToken[1]:find("SFUNC") and not v[1]:find("OPAREN") then
-          v[1] = "OTOKEN_SPECIAL_FUNC_NAME_EXT"
+
+
+          if prevToken[1]:find("SET") then
+            if not v[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
+              v[1] = "OTOKEN_SPECIAL_GVARIABLE"
+              v[3] = "VARIABLE"
+            else
+
+            end
+          elseif prevToken[1]:find("STATIC") then
+            if not v[1]:find("SET") and not v[1]:find("FUNC") and v[1]:find("STRING") then
+              v[1] = "OTOKEN_SPECIAL_SVARIABLE"
+              v[3] = "VARIABLE"
+            elseif not v[1]:find("SET") and v[1]:find("FUNC") then
+              v[1] = "OTOKEN_SPECIAL_SFUNC"
+            else
+
+            end
+          elseif prevToken[1]:find("SFUNC") then
+            if not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
+              v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
+            elseif prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
+              v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
+            else
+
+            end
+          elseif prevToken[1]:find("FUNC") and not prevToken[1]:find("SFUNC") then
+            if not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
+              v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
+            elseif prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
+              v[1] = "OTOKEN_SPECIAL_FUNC_NAME_EXT"
+            else
+
+            end
+          end
         end
+
+        
+        ::isSpace:: --This is just to ignore spaces in the code 
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
           isString.stringSE = v[1]
@@ -139,7 +170,9 @@ function lexer.lex(program)
         if isString.isString and not v[1]:find(isString.stringSE) then v[1] = "OTOKEN_TYPE_STRING" v[3] = nil end
         fullTokens[_][#fullTokens[_]+1] = {v[1], v[2], v[3]}
       end
-      prevToken = {v[1], v[2]}
+      if not v[1]:find("SPACE") then
+        prevToken = {v[1], v[2]}
+      end
     end
   end
 
@@ -166,7 +199,7 @@ function lexer.lex(program)
     local isVar = false
     local varType = ""
     local hold = {BufferPos = 0, BufferEnd = 0}
-    for s = 1, #i do
+      for s = 1, #i do
       local currentToken = fullTokens[_][s]
       if currentToken ~= nil then
         if currentToken[3] ~= nil and currentToken[3]:find("VARIABLE") and not isVar then
@@ -175,7 +208,7 @@ function lexer.lex(program)
           hold.BufferPos = s
           hold[1] = currentToken[2]
         end
-        if isVar and not currentToken[1]:find("COLON") then
+        if isVar and not currentToken[1]:find("COLON") and not currentToken[1]:find("STATIC") then
           currentToken[1] = varType
           currentToken[3] = "VARIABLE"
           hold[1] = hold[1]..currentToken[2]:gsub(hold[1],"")

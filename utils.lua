@@ -157,7 +157,7 @@ function utils.varCheck(var)
   elseif Variables.Temporary[var] ~= nil then
     return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "static"}
   else
-    return {Real = nil, Type = nil}
+    return {Real = false, Type = nil}
   end
 end
 
@@ -171,6 +171,17 @@ function string.chop(string,locations)
     table.remove(splitString,#splitString)
   end
   return table.concat(splitString)
+end
+
+function utils.clearValue(t,value)
+  for _,i in pairs(t) do
+    for s = 1,#i do
+      if i[s] ~= nil and i[s][1] == value then
+        table.remove(t[_],s)
+      end
+    end
+  end
+  return t
 end
 
 return utils

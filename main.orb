@@ -1,11 +1,12 @@
 @fmt "std.io";
 
-set static Test:Array = {};
+set static Test:Array = {"Name","Bobert"};
+set Name:String = "STUART";
 
 for (<key:Any,value:String> in Test):{
     putln key,value;
 }
 
-if (Name == "STUART"):{
-    putln "NO";
+if (Name <= "STUART"):{
+    putln " NO ";
 }

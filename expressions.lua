@@ -6,7 +6,7 @@ local utils = require("utils")
 local error = require("errors")
 local types = require("types")
 local Tokens = require("Tokens")
-local lexer = require("lexer")
+local lexer = require("src/lexer")
 local variables = require("variables")
 
 
