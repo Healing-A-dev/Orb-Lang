@@ -1,12 +1,15 @@
 @fmt "std.io";
 
-set static Test:Array = {"Name","Bobert"};
-set Name:String = "STUART";
+set static test:Array = {1,2,3};
 
-for (<key:Any,value:String> in Test):{
-    putln key,value;
+for (<number:Number> in test):{
+    putln number;
 }
 
-if (Name <= "STUART"):{
-    putln " NO ";
-}
+## Single line comment?;
+
+!# 
+    its trying to do a thing -_-
+#!
+
+set static Name:String = "Healing";

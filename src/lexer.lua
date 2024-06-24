@@ -77,6 +77,7 @@ function lexer.lex(program)
   fullTokens_SYNTAX = {}
   Variables.Static = {}
   local isString = {isString = false, stringSE = nil}
+  local is_Multiline_Comment = false
   if not program:find("%<lua>") then
     program = program..".orb"
   end
@@ -104,12 +105,16 @@ function lexer.lex(program)
       local Skip = false
       for s,t in pairs(Tokens) do
         if prevToken ~= nil and prevToken[2]..v[2] == t() then
-          fullTokens[_][#fullTokens[_]] = {s,t()}
+          if s:find("COMMENT") then
+            fullTokens[_][#fullTokens[_]] = {s,t(),Tokens.OTOKEN_KEY_COMMENT()}
+          else
+            fullTokens[_][#fullTokens[_]] = {s,t()}
+          end
           Skip = true
         end
       end
       if not Skip then
-        if v[1]:find("IF") and not v[1]:find("ELIF") or v[1]:find("ELIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEFINE") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
+        if v[1]:find("IF") and not v[1]:find("ELSEIF") or v[1]:find("ELSEIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEFINE") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
         if prevToken ~= nil then
@@ -124,20 +129,32 @@ function lexer.lex(program)
 
 
           if prevToken[1]:find("SET") then
-            if not v[1]:find("SET") and not v[1]:find("STATIC") and not v[1]:find("FUNC") then
+            if not v[1]:find("KEYWORD") and not tonumber(v[2]) then
               v[1] = "OTOKEN_SPECIAL_GVARIABLE"
               v[3] = "VARIABLE"
-            else
-
+            elseif v[1]:find("KEYWORD") and not v[1]:find("STATIC") or tonumber(v[2]) then
+              if tonumber(v[2]) then
+                error.newError("SYNTAX_VAR",currentFile,_,{"number value",v[2]})
+              else
+                local keyword,word = v[1]:match("KEYWORD_"):gsub("_",""):lower(),v[1]:match("KEYWORD_%w+"):gsub("KEYWORD_",""):lower()
+                if word == "function" then word = "func " end
+                error.newError("SYNTAX_VAR",currentFile,_,{keyword,word})
+              end
             end
           elseif prevToken[1]:find("STATIC") then
-            if not v[1]:find("SET") and not v[1]:find("FUNC") and v[1]:find("STRING") then
+            if not v[1]:find("KEYWORD") and not tonumber(v[2]) then
               v[1] = "OTOKEN_SPECIAL_SVARIABLE"
               v[3] = "VARIABLE"
-            elseif not v[1]:find("SET") and v[1]:find("FUNC") then
+            elseif v[1]:find("KEYWORD") and v[1]:find("FUNC") then
               v[1] = "OTOKEN_SPECIAL_SFUNC"
             else
-
+              if tonumber(v[2]) then
+                error.newError("SYNTAX_VAR",currentFile,_,{"number value",v[2]})
+              else
+                local keyword,word = v[1]:match("KEYWORD_"):gsub("_",""):lower(),v[1]:match("KEYWORD_%w+"):gsub("KEYWORD_",""):lower()
+                if word == "function" then word = "func " end
+                error.newError("SYNTAX_VAR",currentFile,_,{keyword,word})
+              end
             end
           elseif prevToken[1]:find("SFUNC") then
             if not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
@@ -180,12 +197,21 @@ function lexer.lex(program)
     local prev = nil
     for s = 1, #i do
       local currentToken = fullTokens[_][s]
-      if prev ~= nil and prev[1]:find("ASSIGN") and not currentToken[1]:find("FUNC") and not currentToken[1]:find("STATIC") then
-        fullTokens[_][s][1] = "OTOKEN_SPECIAL_GVARIABLE_ANY"
-        fullTokens[_][s][3] = "VARIABLE"
-      elseif prev ~= nil and prev[1]:find("ASSIGN") and not currentToken[1]:find("FUNC") and currentToken[1]:find("STATIC") then
-        fullTokens[_][s+1][1] = "OTOKEN_SPECIAL_SVARIABLE_ANY"
-        fullTokens[_][s+1][3] = "VARIABLE"
+      if currentToken[1]:find("MLINE_COMMENT_START") then is_Multiline_Comment = true end
+      if is_Multiline_Comment and currentToken[1]:find("MLINE_COMMENT_END") then
+        is_Multiline_Comment = false
+      end
+      if prev ~= nil then
+        if prev[1]:find("QUOTE") and currentToken[1]:find("COMMENT") or prev[1]:find("STRING") and currentToken[1]:find("COMMENT") then currentToken[1] = "OTOKEN_TYPE_STRING"  currentToken[3] = nil end
+        if prev[1]:find("SLINE_COMMENT") and not currentToken[1]:find("EOL") then
+          currentToken[1] = "OTOKEN_SPECIAL_SLINE_COMMENT"
+          currentToken[3] = Tokens.OTOKEN_KEY_COMMENT()
+        elseif prev[1]:find("SLINE_COMMENT") and currentToken[1]:find("EOL") then
+          currentToken[3] = Tokens.OTOKEN_KEY_COMMENT()
+        elseif is_Multiline_Comment and not currentToken[1]:find("MLINE_COMMENT_END") then
+          currentToken[1] = "OTOKEN_SPECIAL_MLINE_COMMENT"
+          currentToken[3] = Tokens.OTOKEN_KEY_COMMENT()
+        end
       end
       prev = currentToken
       if currentToken[1]:find("FUNC") and not currentToken[1]:find("NAME") then
@@ -231,6 +257,10 @@ function lexer.lex(program)
           end
         end
       end
+  end
+  if is_Multiline_Comment then
+    print("orb: <syntax> error\ntraceback:\n\t[orb]: multiline comment not closed\n\t[file]: "..currentFile..".orb")
+    os.exit()
   end
   return tokenTable, split, syntax
 end

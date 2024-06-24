@@ -9,7 +9,6 @@ local Tokens = require("Tokens")
 local lexer = require("src/lexer")
 local variables = require("variables")
 
-
 function expressions.getArgs(string)
     local args = {}
     local argCount = {}
@@ -86,8 +85,12 @@ function expressions.IF(string,line)
             end 
         end
     else
-        print("OOGIE BOOGIE")
-        os.exit() 
+        if not tonumber(args[1]) and args[1]:match("%w+") then
+            local variable = utils.varCheck(args[1])
+            if not variable.Real then
+                error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[1]})
+            end
+        end
     end
 end
 
@@ -97,15 +100,6 @@ function expressions.FOR(string,line)
         for increment,i in pairs(args) do
             i = i:gsub(":%w+","")
             local variable = utils.varCheck(i)
-           --[[if not tonumber(i) and not variable.Real and string:find("%=") then
-                if increment == 1 then
-                    variables.__ADDTEMPVAR(i)
-                elseif increment > 1 then
-                    error.newError("ARGUMENT",currentFile,line,{i})
-                end
-            elseif not tonumber(i) and variable.Real and variable.Type ~= "Number" and string:find("%=") then
-                error.newError("FOR_KNOWN",currentFile,line,{i,variable.Class,variable.Type})
-            end]]
             if not tonumber(i) and not variable.Real then
                 if string:find("%=") then
 
@@ -117,7 +111,14 @@ function expressions.FOR(string,line)
                                 variables.__ADDTEMPVAR(var,line)
                             end   
                         end
-                        if args[3] == "in" then
+                        if args[2] == "in" then
+                            local var = utils.varCheck(args[3])
+                            if not var.Real then
+                                error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[3]})
+                            elseif var.Real and var.Type ~= "Array" then
+                                error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                            end
+                        elseif args[3] == "in" then
                             local var = utils.varCheck(args[4])
                             if not var.Real then
                                 error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[4]})
@@ -137,8 +138,9 @@ function expressions.parseExpression(line)
     local expressionType = ""
     if syntax:match("%w+%s?%(") then
         expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
+        if expressionType:lower() == "elif" then expressionType = "IF" end
     end
-    if not expressionType:find("IF") and not expressionType:find("FOR") then
+    if expressionType:lower() ~= ("if" and "for") then
         return
     end
     expressions[expressionType](syntax,line)

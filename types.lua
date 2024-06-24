@@ -36,6 +36,7 @@ function types.getVarType(variable,Type)
     local varType = nil
     local assignment = nil
     local line = 0
+    local fullTokens = removeValue(fullTokens,"SPACE")
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
             if i[s][2] == variable and i[s][3] == "VARIABLE" then

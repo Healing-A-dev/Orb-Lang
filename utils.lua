@@ -173,15 +173,17 @@ function string.chop(string,locations)
   return table.concat(splitString)
 end
 
-function utils.clearValue(t,value)
+function removeValue(t,value)
+  local out = {}
   for _,i in pairs(t) do
-    for s = 1,#i do
-      if i[s] ~= nil and i[s][1] == value then
-        table.remove(t[_],s)
+      out[_] = {}
+      for s = 1, #i do
+        if i[s] ~= nil and not i[s][1]:find(value) then
+          out[_][#out[_]+1] = i[s]
+        end
       end
-    end
   end
-  return t
+  return out
 end
 
 return utils

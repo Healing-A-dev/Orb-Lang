@@ -106,10 +106,10 @@ for _,i in ipairs(syntax) do
     if _STACK:len() > 0 then
       if _STACK:current()[3] == "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("COMMA") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not syntax.nextLine(_):find("%}") then
         error.newError("EOL_TABLE",currentFile,_)
-      elseif _STACK:current()[3] ~= "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
+      elseif _STACK:current()[3] ~= "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not fullTokens[_][#fullTokens[_]][3]:find("COMMENT") then
         error.newError("EOL",currentFile,_)
       end
-    elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") then
+    elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not fullTokens[_][#fullTokens[_]][3]:find("COMMENT") then
       error.newError("EOL",currentFile,_)
     end
   end
@@ -124,7 +124,7 @@ for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
---[[print("-------------------")
+print("-------------------")
 
 for _,i in pairs(Variables) do
   print(_..":")
@@ -132,7 +132,7 @@ for _,i in pairs(Variables) do
     print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
-end]]
+end
 
 --[[print("-------------------")
 
@@ -143,44 +143,3 @@ for _,i in pairs(fullTokens) do
   print()
 end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
-
---local _function = syntax[#syntax-0]:match("%s?.+%.?%w?%("):chop()
-for _,i in pairs(fullTokens) do
-  for s = 1, #i do
-    if _ > 1 then
-      local PRINT = false
-      local TOKEN,nextTOKEN = fullTokens[_][s][1],nil
-      local VALUE,nextVALUE = fullTokens[_][s][2],nil
-      if fullTokens[_][s+1] ~= nil then
-        nextTOKEN = fullTokens[_][s+1][1]
-        nextVALUE = fullTokens[_][s+1][2]
-      end
-      if TOKEN:find("COLON") and (nextVALUE:match("String") or nextVALUE:match("Number") or nextVALUE:match("Char") or nextVALUE:match("Array") or nextVALUE:match("Bool") or nextVALUE:match("Any")) then
-        VALUE = "*#SKIP#*"
-        fullTokens[_][s+1][2] = "*#SKIP#*"
-      end
-      if TOKEN:match("<EOL>") then
-        VALUE = "end"
-      elseif TOKEN:match("CONCAT") then
-        VALUE = ".."
-      elseif TOKEN:match("STATIC") then
-        VALUE = "local"
-      elseif TOKEN:match("PUTLN") then
-        VALUE = "print("
-        PUTLN = true
-      elseif TOKEN:match("TYPE_EOL") and PUTLN then
-        VALUE = ")"
-        PUTLN = false
-      elseif VALUE ~= "*#SKIP#*" and not TOKEN:match("QUOTE") and nextTOKEN ~= nil and not nextTOKEN:match("CONCAT") then
-        VALUE = ""..VALUE..""
-      end
-    end
-    _Compiled[#_Compiled+1] = VALUE
-  end
-end
-
-print(table.concat(_Compiled,""))
-local test = io.open("TEMP.lua","w+")
-test:write(table.concat(_Compiled,""))
-test:close()
-dofile("TEMP.lua")
