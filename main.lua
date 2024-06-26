@@ -75,14 +75,13 @@ for _,i in ipairs(syntax) do
     for s,t in pairs(fullTokens[_]) do
       __ADDVARS(_)
       if t[3] == "STATEMENT" and not t[1]:find("NAME") or t[3] == "STATEMENT_EXT" and not t[1]:find("NAME") then
-
+        _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
         --Throws error if proper initiation symbol is not found
         if not __ENDCHAR(_).Token:find("OBRACE") or __ENDCHAR(_).Token:find("OBRACE") and not lexer.fetchToken(__ENDCHAR(_).oneBefore):find("COLON") then
           error.newError("STATEMENT_INIT",currentFile,_,{t[2],_STACK:current()[2],fullTokens[_][s+1][2]})
         end
 
-        --If syntax check passed, add the statment to the stack
-        _STACK:append({t[1],t[2],t[3],_,fullTokens[_][s+1][2]})
+        --If syntax check passed then parse the expression
         expressions.parseExpression(_)
 
         --For syntax and lexing reasons
@@ -106,10 +105,10 @@ for _,i in ipairs(syntax) do
     if _STACK:len() > 0 then
       if _STACK:current()[3] == "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("COMMA") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not syntax.nextLine(_):find("%}") then
         error.newError("EOL_TABLE",currentFile,_)
-      elseif _STACK:current()[3] ~= "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not fullTokens[_][#fullTokens[_]][3]:find("COMMENT") then
+      elseif _STACK:current()[3] ~= "VARIABLE" and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and fullTokens[_][#fullTokens[_]][3] == nil then
         error.newError("EOL",currentFile,_)
       end
-    elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and not fullTokens[_][#fullTokens[_]][3]:find("COMMENT") then
+    elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and fullTokens[_][#fullTokens[_]][3] == nil then
       error.newError("EOL",currentFile,_)
     end
   end
@@ -124,7 +123,7 @@ for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
-print("-------------------")
+--[[print("-------------------")
 
 for _,i in pairs(Variables) do
   print(_..":")
@@ -132,7 +131,7 @@ for _,i in pairs(Variables) do
     print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
   end
   print()
-end
+end]]
 
 --[[print("-------------------")
 

@@ -96,13 +96,15 @@ end
 
 function expressions.FOR(string,line)
     local args, argCount = expressions.getArgs(string)
-    if #argCount > 1 then
+    if #argCount > 2 then
         for increment,i in pairs(args) do
             i = i:gsub(":%w+","")
             local variable = utils.varCheck(i)
             if not tonumber(i) and not variable.Real then
-                if string:find("%=") then
-
+                if not string:find("in") then
+                    if not string:find("for%s?%(.+%?%=") then
+                        print("NO EQUAL NEAR "..args[1])
+                    end
                 else
                     if syntax[line]:match("<.+>") then
                         local lineHold = syntax[line]:match("<.+>"):gsub("[<>]",""):gsub(","," , ")
@@ -130,6 +132,8 @@ function expressions.FOR(string,line)
                 end
             end 
         end
+    else
+        
     end
 end
 
@@ -140,7 +144,7 @@ function expressions.parseExpression(line)
         expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
         if expressionType:lower() == "elif" then expressionType = "IF" end
     end
-    if expressionType:lower() ~= ("if" and "for") then
+    if expressions[expressionType] == nil then
         return
     end
     expressions[expressionType](syntax,line)

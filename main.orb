@@ -1,15 +1,11 @@
 @fmt "std.io";
 
-set static test:Array = {1,2,3};
+set static test:Number = 100;
+set String:String = "UMMMM";
 
-for (<number:Number> in test):{
-    putln number;
+## Just a simple for loop test
+for (s, 2,5):{
+    putln "Nope";
 }
 
-## Single line comment?;
-
-!# 
-    its trying to do a thing -_-
-#!
-
-set static Name:String = "Healing";
+putln "Hello, World!";

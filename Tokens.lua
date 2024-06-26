@@ -3,7 +3,7 @@ local Tokens = {}
 Tokens = {
 --------------------[Keys]-----------------------
     OTOKEN_KEY_EOF = function() return "<EOF>" end,
-    OTOKEN_KEY_STATMENT = function() return "<STATMENT>" end,
+    OTOKEN_KEY_STATEMENT = function() return "<STATMENT>" end,
     OTOKEN_KEY_COMMENT = function() return "<COMMENT>" end,
     OTOKEN_KEY_METHOD = function() return "<METHOD>" end,
     OTOKEN_KEY_EOL = function() return "<EOL>" end,
