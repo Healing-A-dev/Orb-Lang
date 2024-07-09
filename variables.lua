@@ -55,7 +55,7 @@ function variables.__ADDTEMPVAR(vname,line)
     --local varLine = syntax[line]:match("<.+>")
     --for var in varLine:gmatch("%w+(:.+)?") do
     local variable = types.checkType(vname,line)
-    Variables.Temporary[variable.Name] = {Type = variable.Type, Value = "TBD"}
+    Variables.Temporary[variable.Name] = {Type = variable.Type, Value = "TBD", Creation = line}
     --end
 end
 

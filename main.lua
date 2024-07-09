@@ -45,6 +45,13 @@ function __ENDCHAR(lineNumber,seek)
   return {Character = lastValue, Token = lexer.fetchToken(lastValue), oneBefore = tmp[#tmp-1] or tmp[#tmp], Position = position}
 end
 
+function __REMOVETEMPVAR(line)
+  for _,i in pairs(Variables.Temporary) do
+    if i.Creation == line then
+      Variables.Temporary[_] = nil
+    end
+  end
+end
 
 -- Below is going to be the compiler (trasnpiler) for the language
 -- This file is going to be renamed to compiler.lua
@@ -92,8 +99,8 @@ for _,i in ipairs(syntax) do
     --Check to see if "}" is found and is the closing part of a statement or table
     if __ENDCHAR(_).Token:find("EOL") and _STACK:len() > 0 and lexer.fetchToken(__ENDCHAR(_).oneBefore):find("CBRACE")  or __ENDCHAR(_).Token:find("CBRACE") and _STACK:len() > 0 then
       if _STACK:current()[3] ~= "VARIABLE" and #i:gsub("%s+","") == 1 then
-        if _STACK:current()[2]:upper() == Tokens.OTOKEN_KEYWORD_FOR() then
-          Variables.Temporary = {}
+        if _STACK:current()[2]:upper() == Tokens.OTOKEN_KEYWORD_FOR() or _STACK:current()[2]:upper() == Tokens.OTOKEN_KEYWORD_FUNCTION()then
+          __REMOVETEMPVAR(_STACK:current()[4])
         end
         fullTokens[_][#fullTokens[_]][1] = Tokens.OTOKEN_KEY_EOL()
         _STACK:pop()
@@ -123,15 +130,17 @@ for _,i in ipairs(_STACK) do
   print("{[".._.."] "..table.concat(i,", ").."}\n")
 end
 
---[[print("-------------------")
+print("-------------------")
 
 for _,i in pairs(Variables) do
   print(_..":")
   for s,t in pairs(i) do
-    print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|")
+    if type(t) == "table" then
+      print(" - "..s..": "..t.Type.." |Value: "..t.Value.."|\tLine Created: "..tostring(t.Creation))
+    end
   end
   print()
-end]]
+end
 
 --[[print("-------------------")
 
@@ -142,3 +151,72 @@ for _,i in pairs(fullTokens) do
   print()
 end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
+
+function expr(string)
+  local items = {}
+  local previousItem = nil
+  local operations = {
+    clearNot = function(t,evalSymbol)
+      local filtered = {}
+      for _,i in pairs(t) do
+        if _ == 1 then
+          if t[_+1] == evalSymbol then
+            filtered[#filtered+1] = i
+          end
+        elseif _ > 1 and _ < #t then
+          if t[_+1] == evalSymbol or t[_-1] == evalSymbol then
+            filtered[#filtered+1] = i
+          end
+        elseif _ == #t then
+          if t[_-1] == evalSymbol then
+            filtered[#filtered+1] = i
+          end
+        end
+      end
+      return filtered
+    end
+  }
+
+  operations["*"] = function(nums)
+    local numbers = operations.clearNot(nums,"*")
+    local product = 1
+    if #numbers > 1 then
+      local product = 1
+      for _,i in pairs(numbers) do
+        product = product * tonumber(i)
+      end
+      print(product)
+      return product
+    else
+      print("NOT ENOUGH NUMBER")
+      os.exit()
+    end
+  end
+  for item in string:gmatch(".") do
+    if previousItem ~= nil and tonumber(item) and not tonumber(previousItem) then
+      items[#items+1] = item
+    elseif previousItem ~= nil and previousItem == "." and tonumber(item) then
+      print("WHYYYY")
+      items[#items] = previousItem..item
+    elseif previousItem ~= nil and tonumber(item) and tonumber(previousItem) then
+      items[#items] = previousItem..item
+    elseif previousItem == nil or not tonumber(item) then
+      items[#items+1] = item
+    end
+    previousItem = item
+  end
+  --print(#items)
+  for _,i in pairs(items) do
+    print(i)
+  end
+  for symbol,operation in pairs(operations) do
+    if string:match(symbol) then
+      operation(items)
+    end
+  end
+end
+
+
+
+s = "4+0.5*67"
+print(expr(s))

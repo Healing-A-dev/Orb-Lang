@@ -99,6 +99,7 @@ function types.getVarType(variable,Type)
                 if varChecks.Type ~= varType then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
+                return {Type = varType, Value = varChecks.Value}
             else
                 return {Type = varType, Value = assignment}
             end
@@ -109,6 +110,7 @@ function types.getVarType(variable,Type)
                 if varChecks.Type ~= varType then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
+                return {Type = varType, Value = varChecks.Value}
             else
                 return {Type = varType, Value = assignment}
             end

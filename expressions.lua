@@ -96,7 +96,7 @@ end
 
 function expressions.FOR(string,line)
     local args, argCount = expressions.getArgs(string)
-    if #argCount > 2 then
+    if #argCount >= 2 then
         for increment,i in pairs(args) do
             i = i:gsub(":%w+","")
             local variable = utils.varCheck(i)
@@ -117,15 +117,23 @@ function expressions.FOR(string,line)
                             local var = utils.varCheck(args[3])
                             if not var.Real then
                                 error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[3]})
-                            elseif var.Real and var.Type ~= "Array" then
-                                error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                            elseif var.Real then
+                                if var.Type ~= "Any" and var.Type ~= "Array" then
+                                    error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                                elseif var.Type == "Any" and var.Value  ~= "{" then
+                                    error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                                end
                             end
                         elseif args[3] == "in" then
                             local var = utils.varCheck(args[4])
                             if not var.Real then
                                 error.newError("UNKNOWN_VAR_CALL",currentFile,line,{args[4]})
-                            elseif var.Real and var.Type ~= "Array" then
-                                error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[4],var.Class,var.Type})
+                            elseif var.Real then
+                                if var.Type ~= "Any" and var.Type ~= "Array" then
+                                    error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                                elseif var.Type == "Any" and var.Value  ~= "{" then
+                                    error.newError("FOR_KNOWN_TABLE",currentFile,line,{args[3],var.Class,var.Type})
+                                end
                             end
                         end
                     end
@@ -133,7 +141,18 @@ function expressions.FOR(string,line)
             end 
         end
     else
-        
+        print("NOT ENOUGH ARGS")
+        os.exit()
+    end
+end
+
+function expressions.FUNCTION(string,line)
+    local args, argCount = expressions.getArgs(string)
+    for _,i in pairs(args) do
+        if not i:match("%:%w+") then
+            i = i..":Any"
+        end
+        variables.__ADDTEMPVAR(i,line)
     end
 end
 
@@ -141,13 +160,17 @@ function expressions.parseExpression(line)
     local syntax = syntax[line]
     local expressionType = ""
     if syntax:match("%w+%s?%(") then
-        expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+",""):upper()
-        if expressionType:lower() == "elif" then expressionType = "IF" end
+        expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+","")
+        if expressionType:lower() == "elif" then expressionType = "if" end
     end
-    if expressions[expressionType] == nil then
+    if expressions[expressionType:upper()] == nil and not utils.varCheck(expressionType).Real then
         return
     end
-    expressions[expressionType](syntax,line)
+    if utils.varCheck(expressionType).Real then
+        expressions[utils.varCheck(expressionType).Type:upper()](syntax,line)
+    else
+        expressions[expressionType:upper()](syntax,line)
+    end
 end
 
 return expressions

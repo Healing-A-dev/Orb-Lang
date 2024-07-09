@@ -1,11 +1,7 @@
 @fmt "std.io";
 
-set static test:Number = 100;
-set String:String = "UMMMM";
-
-## Just a simple for loop test
-for (s, 2,5):{
-    putln "Nope";
-}
+set x:Number = 3;
+set y:Number = 4;
+set z:Number = y;
 
 putln "Hello, World!";
