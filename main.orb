@@ -2,6 +2,15 @@
 
 set x:Number = 3;
 set y:Number = 4;
-set z:Number = y;
+set z:Number = y + x;
+set static words:String = "Oooga ooga booga";
 
 putln "Hello, World!";
+
+set array:Array = {1,2,3,4,5,6,7,8,9,0};
+set array2:Array = array;
+
+for (<inc:Number, i:String> in array):{
+    putln i;
+    set static V:Any = inc;
+}

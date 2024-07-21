@@ -136,6 +136,9 @@ function expressions.FOR(string,line)
                                 end
                             end
                         end
+                    else
+                        print("NO ARGS FOUND")
+                        os.exit()
                     end
                 end
             end 

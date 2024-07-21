@@ -27,9 +27,14 @@ local allowedTypes = {
     }
 }
 
-local function getValue(line)
+local function getValue(line,option)
     local toSearch = syntax[line]
-    return toSearch:match(allowedTypes["String"].required[1]) or toSearch:match(allowedTypes["String"].required[2])
+    local hold = {}
+    --if option ~= "Array" then
+        return toSearch:match("%=.+"):chop({#toSearch:match("%=.+")}):gsub("=","")
+    --else
+
+    --end
 end
 
 function types.getVarType(variable,Type)
@@ -46,9 +51,9 @@ function types.getVarType(variable,Type)
                         assignment = getValue(_)
                     else
                         if i[s-3] == nil then
-                            assignment = i[s-2][2]
+                            assignment = getValue(_,varType)
                         else
-                            assignment = i[s-3][2]
+                            assignment = getValue(_,varType)
                         end
                     end
                     line = _
@@ -57,7 +62,7 @@ function types.getVarType(variable,Type)
                     if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" or i[s+4][1]:find("QUOTE") and varType == "Any" then
                         assignment = getValue(_)
                     else
-                        assignment = i[s+4][2]
+                        assignment = getValue(_,varType)
                     end
                     line = _
                 elseif not i[s][1]:find("ANY") and i[s+2][1]:find("COLON") then
@@ -65,7 +70,7 @@ function types.getVarType(variable,Type)
                     if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" or i[s+5][1]:find("QUOTE") and varType == "Any" then
                         assignment = getValue(_)
                     else
-                        assignment = i[s+5][2]
+                        assignment = getValue(_,varType)
                     end
                     line = _
                 elseif not i[s][1]:find("ANY") and not i[s+1][1]:find("COLON") then
@@ -74,13 +79,13 @@ function types.getVarType(variable,Type)
                         if i[s+3][1]:find("QUOTE") then 
                             assignment = getValue(_) 
                         else 
-                            assignment = i[s+3][2]
+                            assignment = getValue(_,varType)
                         end
                     else
                         if i[s+4][1]:find("QUOTE") then 
                             assignment = getValue(_) 
                         else 
-                            assignment = i[s+4][2]
+                            assignment = getValue(_,varType)
                         end
                     end
                     line = _
@@ -88,10 +93,11 @@ function types.getVarType(variable,Type)
             end
         end
     end
+    assignmentSUB = assignment:gsub("%s+","")
     if allowedTypes[varType] == nil then
         error.newError("UNKNOWN_TYPE",currentFile,line,{variable,varType})
     elseif type(allowedTypes[varType].required) ~= "table" and assignment ~= nil then
-        local varChecks = utils.varCheck(assignment)
+        local varChecks = utils.varCheck(assignmentSUB)
         if varType ~= "Number" then
             if not assignment:match(allowedTypes[varType].required) and not varChecks.Real then
                 error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
@@ -104,19 +110,24 @@ function types.getVarType(variable,Type)
                 return {Type = varType, Value = assignment}
             end
         else
-            if not tonumber(assignment) and not varChecks.Real then
-                error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
-            elseif not tonumber(assignment) and varChecks.Real then
+            if not tonumber(assignmentSUB) and not varChecks.Real then
+                for _,i in pairs(assignmentSUB:index()) do
+                    if not utils.varCheck(i).Real then 
+                        error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
+                    end
+                end
+            elseif not tonumber(assignmentSUB) and varChecks.Real then
                 if varChecks.Type ~= varType then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
                 return {Type = varType, Value = varChecks.Value}
             else
+                print(tonumber(assignmentSUB),utils.varCheck(assignmentSUB:index()[1]).Real)
                 return {Type = varType, Value = assignment}
             end
         end
     elseif type(allowedTypes[varType].required) == "table" and assignment ~= nil then
-        local varChecks = utils.varCheck(assignment)
+        local varChecks = utils.varCheck(assignmentSUB)
         for _,i in pairs(allowedTypes[varType]) do
             if type(i[2]) ~= "Number" then
                 if not assignment:match(i[1]) and not assignment:match(i[2]) and not varChecks.Real then
@@ -127,7 +138,7 @@ function types.getVarType(variable,Type)
                     end
                 end
             else
-                if assignment:match(i[1]) and assignment:len() > i[3] or not assignment:match(i[1]) or assignment:match("%d+") then
+                if assignment:match(i[1]) and assignmentSUB:len() > i[3] or not assignment:match(i[1]) or assignment:match("%d+") then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
                 end
             end

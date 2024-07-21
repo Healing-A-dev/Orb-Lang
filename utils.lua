@@ -161,6 +161,14 @@ function utils.varCheck(var)
   end
 end
 
+function string.index(string,index)
+  local out = {}
+  for split in string:gmatch("[^%+^%-^%^^%*^%/]+") do
+    out[#out+1] = split
+  end
+  return out
+end
+
 function string.chop(string,locations)
   local splitString = string:split()
   if locations ~= nil then
