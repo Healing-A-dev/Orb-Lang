@@ -15,10 +15,14 @@ function utils.stringify(toStingify)
   return ss, syn
 end
 
-function utils.getFunctionName(line)
-  local Fname = syntax[line]:match("func.+%(") or syntax[line]:match(".+%s?=%s?func%s?%(")
-  Fname = Fname:gsub("func",""):gsub("[%=%s+%(]","")
-  return Fname:gsub("[%s+%@]","")
+function utils.getFunctionName(line,dec)
+    if dec == nil then
+        local Fname = syntax[line]:match("func.+%(") or syntax[line]:match(".+%s?=%s?func%s?%(")
+        Fname = Fname:gsub("func",""):gsub("[%=%s+%(]","")
+        return Fname:gsub("[%s+%@]","")
+    else
+        return syntax[line]:match(".+%("):gsub("[%=%s+%(]",""):gsub("[%s+%@]","")
+    end
 end
 
 --Does what it says...inverts the keys and values of a table
@@ -149,16 +153,28 @@ function string.position(string,phrase,line)
   return {Start = phraseTable[line][phrase].Start, End = phraseTable[line][phrase].End, Phrase = ophrase}
 end
 
-function utils.varCheck(var)
-  if Variables.Global[var] ~= nil then
-    return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "global"}
-  elseif Variables.Static[var] ~= nil then
-    return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "static"}
-  elseif Variables.Temporary[var] ~= nil then
-    return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "static"}
-  else
-    return {Real = false, Type = nil}
-  end
+function utils.varCheck(var,isFunction)
+    if not isFunction then
+        if Variables.Global[var] ~= nil then
+            return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "global"}
+        elseif Variables.Static[var] ~= nil then
+            return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "static"}
+        elseif Variables.Temporary[var] ~= nil then
+            return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "static"}
+        else
+            return {Real = false, Type = nil}
+        end
+    else
+        if Variables.Global[var] ~= nil and Variables.Global[var].Type == "Function" then
+            return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "global"}
+        elseif Variables.Static[var] ~= nil and Variables.Static[var].Type == "Function" then
+            return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "static"}
+        elseif Variables.Temporary[var] ~= nil and Variables.Temporary[var].Type == "Function" then
+            return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "static"}
+        else
+            return {Real = false, Type = nil}
+        end
+    end
 end
 
 function string.index(string,index)
@@ -192,6 +208,14 @@ function removeValue(t,value)
       end
   end
   return out
+end
+
+function string.replace(string,valueToReplace,replacementValue)
+    local splitStr = string:split()
+    local Slocation, Elocation = string:find(valueToReplace)
+    if Elocation > Slocation then table.remove(splitStr,Elocation) end
+    splitStr[Slocation] = replacementValue
+    return table.concat(splitStr)
 end
 
 return utils

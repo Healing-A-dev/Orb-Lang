@@ -6,12 +6,13 @@ local Tokens = require("Tokens")
 local variables = require("variables")
 local expressions = require("expressions")
 
+
 -- Some extra stuff needed for compilation (transpilation)
 os.execute('clear') -- Clearing the console
 pathToFile = {}
 Variables = {Global = {}, Static = {},Temporary = {}}
 local _Compiled = {}
-
+local _PrevToken = ""
 _STACK = {
   pop = function(self)
     table.remove(self,#self)
@@ -119,6 +120,20 @@ for _,i in ipairs(syntax) do
     elseif _STACK:len() == 0 and not fullTokens[_][#fullTokens[_]][1]:find("EOL") and not fullTokens[_][#fullTokens[_]][1]:find("OBRACE") and fullTokens[_][#fullTokens[_]][3] == nil then
       error.newError("EOL",currentFile,_)
     end
+  end 
+  
+  local __CLEARED_fullTokens = removeValue(fullTokens,"SPACE")
+  for s,t in pairs(__CLEARED_fullTokens[_]) do
+    if t[1]:match("OPAREN") then
+        if __CLEARED_fullTokens[_][s-1][1]:match("STRING") then
+            if not utils.varCheck(utils.getFunctionName(_,true),true).Real then
+                local functionName = utils.getFunctionName(_,true)
+                error.newError("UNKNOWN_FUNCTION_CALL",currentFile,_,{functionName})
+            else
+                
+            end
+        end
+    end
   end
 end
 
@@ -127,11 +142,7 @@ if _STACK:len() > 0 and _STACK:current()[3]:find("STATEMENT") then
 end
 
 -- DEBUGGING --
-for _,i in ipairs(_STACK) do
-  print("{[".._.."] "..table.concat(i,", ").."}\n")
-end
-
---[[print("-------------------")
+print("-------------------")
 
 for _,i in pairs(Variables) do
   print(_..":")
@@ -141,7 +152,7 @@ for _,i in pairs(Variables) do
     end
   end
   print()
-end]]
+end
 
 --[[print("-------------------")
 
@@ -152,7 +163,3 @@ for _,i in pairs(fullTokens) do
   print()
 end]]
 print("\027[94m".."No errors!!! :D".."\027[0m") --Happy messege :D
-
-s = "return 4^2+0.05*67*13^2"
-loop = load(s)()
-print(loop)

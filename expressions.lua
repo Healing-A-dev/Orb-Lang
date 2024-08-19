@@ -9,10 +9,13 @@ local Tokens = require("Tokens")
 local lexer = require("src/lexer")
 local variables = require("variables")
 
-function expressions.getArgs(string)
+function expressions.getArgs(string,line,statementType)
     local args = {}
     local argCount = {}
     local compareType = nil
+    if not string:match("%(.+%):{") then 
+        error.newError("ARGUMENT_NUMBER",currentFile,line,{statementType}) 
+    end
     local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
     for arg in matchedArgs:gsub("[<>]",""):gmatch("[%S+]+") do
         if not arg:match("[%==%>%<%<=%>=%!=%,]") then
@@ -26,7 +29,7 @@ end
 --[[Expression Types]]
 function expressions.IF(string,line)
     local compareType = nil
-    local args,argCount = expressions.getArgs(string)
+    local args,argCount = expressions.getArgs(string,line,"if")
     if #argCount > 1 then
         for _,i in pairs(args) do
             if tonumber(i) or tonumber(utils.varCheck(i).Value)then
@@ -36,7 +39,6 @@ function expressions.IF(string,line)
                     if not tonumber(t) and t:match("%w+") then
                         local variable = utils.varCheck(t)
                         if not variable.Real and not t:find('[%"%\']') then
-                            --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
                             error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                         elseif not variable.Real and t:find('[%"%\']') then
                             error.newError("COMPARISON",currentFile,line,{compareType,type(t):lower().." "..t,args[1],args[2],"'"..tostring(init).."'"})
@@ -54,7 +56,6 @@ function expressions.IF(string,line)
                     if t ~= "true" and t ~= "false" then
                         local variable = utils.varCheck(t)
                         if not variable.Real and t ~= "true" and t ~= "false" then
-                            --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init).."'"})
                             error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                         elseif variable.Real and variable.Type ~= "Bool" then
                             if variable.Type == "Any" and variable.Value ~= ("true" or "false") or variable.Type ~= "Any" then
@@ -74,7 +75,6 @@ function expressions.IF(string,line)
                         elseif tonumber(t) then
                             error.newError("COMPARISON",currentFile,line,{compareType,"number",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
                         end
-                        --error.newError("COMPARISON",currentFile,line,{compareType,"unknown variable '"..t.."'",args[1],args[2],"'"..tostring(init):gsub("[%\"%']","").."'"})
                         error.newError("UNKNOWN_VAR_CALL",currentFile,line,{t})
                     elseif variable.Real and variable.Type ~= "String" then
                         if variable.Type == "Any" and not variable.Value:match("[%\"%.+%\']") and not variable.Value:match("[%'%.+%']") or variable.Type ~= "Any" then
@@ -95,7 +95,7 @@ function expressions.IF(string,line)
 end
 
 function expressions.FOR(string,line)
-    local args, argCount = expressions.getArgs(string)
+    local args, argCount = expressions.getArgs(string,line,"for")
     if #argCount >= 2 then
         for increment,i in pairs(args) do
             i = i:gsub(":%w+","")
@@ -137,20 +137,16 @@ function expressions.FOR(string,line)
                             end
                         end
                     else
-                        print("NO ARGS FOUND")
-                        os.exit()
+                        error.newError("ARGUMENT_NUMBER",currentFile,line,{"for"})
                     end
                 end
             end 
         end
-    else
-        print("NOT ENOUGH ARGS")
-        os.exit()
     end
 end
 
 function expressions.FUNCTION(string,line)
-    local args, argCount = expressions.getArgs(string)
+    local args, argCount = expressions.getArgs(string,line,"func")
     for _,i in pairs(args) do
         if not i:match("%:%w+") then
             i = i..":Any"
@@ -158,6 +154,8 @@ function expressions.FUNCTION(string,line)
         variables.__ADDTEMPVAR(i,line)
     end
 end
+
+
 
 function expressions.parseExpression(line)
     local syntax = syntax[line]

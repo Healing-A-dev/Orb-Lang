@@ -1,16 +1,16 @@
 @fmt "std.io";
 
 set x:Number = 3;
+set x1:Number = x + 7;
 set y:Number = 4;
-set z:Number = y + x;
-set static words:String = "Oooga ooga booga";
+set static test:String = "Hi";
+set static z:Number = x + y + 3 + x1;
 
-putln "Hello, World!";
-
-set array:Array = {1,2,3,4,5,6,7,8,9,0};
-set array2:Array = array;
-
-for (<inc:Number, i:String> in array):{
-    putln i;
-    set static V:Any = inc;
+func testFunc(<dataSet>,<value:String>):{
+    set static Names:Array = {"JOSH","JOHN","JACOB","JAKOBI","JABE"};
+    for (<string:String>, <num:Number> in Names):{
+        putln string;
+    }
 }
+
+testFunc();

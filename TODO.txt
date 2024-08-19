@@ -1,9 +1,9 @@
 >> ADD FUNCTION AND FUNCTION ARGUMENT CHECKING:
-    > Function calling
-    > Making sure extra arguments are not being added
+    > Function calling [DONE]
+    > Making sure extra arguments are not being added [LITERALLY DOESN'T MATTER]
 
 >> FINISH EXPRESSIONS BACKEND:
-    > Finish "For" Statement
+    > Finish "For" Statement [DONE]
     > Create and finish "While" Statement
 
 >> CREATE AST, COMPILER, AND STANDARD LIBRARIES:

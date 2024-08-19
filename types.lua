@@ -105,24 +105,27 @@ function types.getVarType(variable,Type)
                 if varChecks.Type ~= varType then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
-                return {Type = varType, Value = varChecks.Value}
+                return {Type = varType, Value = varChecks.Value:gsub("%s+","")}
             else
                 return {Type = varType, Value = assignment}
             end
         else
             if not tonumber(assignmentSUB) and not varChecks.Real then
                 for _,i in pairs(assignmentSUB:index()) do
-                    if not utils.varCheck(i).Real then 
-                        error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
+                    if not tonumber(i) then
+                        if not utils.varCheck(i).Real then
+                            error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
+                        end
+                        assignmentSUB = assignmentSUB:replace(i,utils.varCheck(i).Value)
                     end
                 end
+                return {Type = varType, Value = load("return "..assignmentSUB)()}
             elseif not tonumber(assignmentSUB) and varChecks.Real then
                 if varChecks.Type ~= varType then
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
                 return {Type = varType, Value = varChecks.Value}
             else
-                print(tonumber(assignmentSUB),utils.varCheck(assignmentSUB:index()[1]).Real)
                 return {Type = varType, Value = assignment}
             end
         end

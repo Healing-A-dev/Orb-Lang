@@ -74,8 +74,9 @@ function error.newError(type,file,line,...)
         FOR_KNOWN_INCREMENT = "Orb: <argument> error\ntraceback:\n\t[orb]: attempt to increment "..__EXTRAINFO(...)[2].." variable '"..__EXTRAINFO(...)[1].."' |varType: "..__EXTRAINFO(...)[3].."|\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         FOR_KNOWN_TABLE = "Orb: <argument> error\ntraceback:\n\t[orb]: bad argument #3 to 'for' statement (array expected, got "..__EXTRAINFO(...)[3]:lower().." |varName: "..__EXTRAINFO(...)[1].."|)\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback:\n\t[orb]: attempt to call unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
+        UNKNOWN_FUNCTION_CALL = "Orb: <call> error\ntraceback:\n\t[orb]: attempt to call unknown function '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         SYNTAX_VAR = "Orb: <syntax> error\ntraceback:\n\t[orb]: cannot assign value to "..__EXTRAINFO(...)[1].." '"..__EXTRAINFO(...)[2]:gsub("%s+","").."'\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK),
-        ARGUMRNT_NUMBER = "Orb: <argument> error\ntraceback:\n\t[orb]: "
+        ARGUMENT_NUMBER = "Orb: <argument> error\ntraceback:\n\t[orb]: invalid number of arguments defined in "..__EXTRAINFO(...)[1].."\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK)
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"
