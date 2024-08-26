@@ -11,10 +11,10 @@ if [ -z $1 ]; then
         end
         return out[#out-1]..out[#out]
     end
+    Variables = {Global = {}, Static = {},Temporary = {}};
     while true do
         local writevar = '>>'
         local exe = ''
-        Variables = {Global = {}, Static = {},Temporary = {}};
         Transpiler = require('transpiler');
         Runtime = require('runtime');
         syntax = {};
