@@ -38,7 +38,7 @@ Tokens = {
     OTOKEN_KEYWORD_STATIC = function() return "STATIC" end,
     OTOKEN_KEYWORD_INCLUDING = function() return "INCLUDING" end,
 ------------------------[Others]-------------------------
-    OTOKEN_TYPE_STRING = function() return "STRING" end,
+    OTOKEN_TYPE_COMMONS = function() return "STRING" end,
     OTOKEN_TYPE_NUMBER = function() return "NUMBER" end,
     OTOKEN_TYPE_OPAREN = function() return "(" end,
     OTOKEN_TYPE_CPAREN = function() return ")" end,

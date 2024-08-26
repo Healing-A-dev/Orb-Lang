@@ -26,7 +26,7 @@ function lexer.createToken(ttf,line)
           assigned_Token[line][#assigned_Token[line]+1] = {sepStr, k}
         end
       end
-      for sep in i:gmatch("%s+") do
+      for sep in i:gmatch("%W") do
         if sep == v() then
           assigned_Token[line][#assigned_Token[line]+1] = {sep, k}
         end
@@ -78,26 +78,27 @@ function lexer.lex(program)
   Variables.Static = {}
   local isString = {isString = false, stringSE = nil}
   local is_Multiline_Comment = false
-  if not program:find("%<lua>") then
-    program = program..".orb"
+  if not program:find("%s+") then
+      if not program:find("%.lua") then
+        program = program..".orb"
+      end 
+      f = io.open(program,"r") or error.newError("Not_found",currentFile,1,{program})
+      local lines = f:lines()
+      split, syntax = utils.stringify(lines)
+      f:close()
   end
-  f = io.open(program,"r") or error.newError("Not_found",currentFile,1,{program})
-  local lines = f:lines()
-  split, syntax = utils.stringify(lines)
-  f:close()
-  for _,i in pairs(syntax) do --Gets tokens
-    lexer.createToken(i,_)
-  end
-
-  for _,i in pairs(syntax) do --Arranges collected tokens
-    tokenTable[_] = {}
-    for k,v in pairs(assigned_Token[_]) do
-      for s,t in spairs(v) do
-        tokenTable[_][syntax[_]:position(v[1],_).Start] = {v[2],v[1]}
+    for _,i in pairs(syntax) do --Gets tokens
+      lexer.createToken(i,_)
+    end
+    
+    for _,i in pairs(syntax) do --Arranges collected tokens
+      tokenTable[_] = {}
+      for k,v in pairs(assigned_Token[_]) do
+        for s,t in spairs(v) do
+          tokenTable[_][syntax[_]:position(v[1],_).Start] = {v[2],v[1]}
+        end
       end
     end
-  end
-  
   for _,i in spairs(syntax) do --Adjusts accordingly
     local prevToken = nil
     fullTokens[_] = {}
@@ -174,8 +175,6 @@ function lexer.lex(program)
             end
           end
         end
-
-        
         ::isSpace:: --This is just to ignore spaces in the code 
         if not isString.isString and v[1]:find("QUOTE") then
           isString.isString = true
@@ -216,7 +215,11 @@ function lexer.lex(program)
       prev = currentToken
       if currentToken[1]:find("FUNC") and not currentToken[1]:find("NAME") then
         function_name = utils.getFunctionName(_)
-        fullTokens[_][s+1] = {fullTokens[_][s+1][1], function_name, nil}
+        local startpoint = s+1
+        while not fullTokens[_][startpoint][2]:find("%w") do
+            startpoint = startpoint + 1
+        end
+        fullTokens[_][startpoint] = {fullTokens[_][s+1][1], function_name, nil}
       end
     end
   end

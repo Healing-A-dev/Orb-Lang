@@ -14,7 +14,7 @@ local allowedTypes = {
         required = {"'.+'", '".+"'}
     },
     Array = {
-        required = "%{"
+        required = "^%{"
     },
     Bool = {
         required = {"true", "false"}
@@ -26,6 +26,10 @@ local allowedTypes = {
         required = "func"
     }
 }
+
+function getAllowedTypes()
+    return allowedTypes
+end
 
 local function getValue(line,option)
     local toSearch = syntax[line]
@@ -99,6 +103,7 @@ function types.getVarType(variable,Type)
     elseif type(allowedTypes[varType].required) ~= "table" and assignment ~= nil then
         local varChecks = utils.varCheck(assignmentSUB)
         if varType ~= "Number" then
+            assignment = assignment:gsub("^%s+","")
             if not assignment:match(allowedTypes[varType].required) and not varChecks.Real then
                 error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
             elseif not assignment:match(allowedTypes[varType].required) and varChecks.Real then
@@ -110,11 +115,14 @@ function types.getVarType(variable,Type)
                 return {Type = varType, Value = assignment}
             end
         else
-            if not tonumber(assignmentSUB) and not varChecks.Real then
+            if not tonumber(assignmentSUB) and not varChecks.Real and assignmentSUB:find("[%+%-%/%*%^]") then
                 for _,i in pairs(assignmentSUB:index()) do
                     if not tonumber(i) then
                         if not utils.varCheck(i).Real then
-                            error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
+                            error.newError("UNKNOWN_VAR_CALL",currentFile,line,{i})
+                        end
+                        if utils.varCheck(i).Type ~= "Number" then
+                            error.newError("ARITHMETIC_NON_NUMBER",currentFile,line,{utils.varCheck(i).Type,i})
                         end
                         assignmentSUB = assignmentSUB:replace(i,utils.varCheck(i).Value)
                     end
@@ -125,6 +133,8 @@ function types.getVarType(variable,Type)
                     error.newError("ASSIGNMENT",currentFile,line,{variable,varType,"'"..assignment.."'"," |varType: "..varChecks.Type.."| "})
                 end
                 return {Type = varType, Value = varChecks.Value}
+            elseif not tonumber(assignmentSUB) and not varChecks.Real then
+                error.newError("ASSIGNMENT",currentFile,line,{variable,varType})
             else
                 return {Type = varType, Value = assignment}
             end

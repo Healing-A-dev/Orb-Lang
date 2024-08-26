@@ -48,7 +48,7 @@ function error.newError(type,file,line,...)
         table[0] = _STACK
         for i = 1, MAXPROCESSLENGTH do
             if PROCESS[i] == "func" then
-                table[#table+1] = PROCESS[i].."tion '"..PROCESS[3].."'"
+                table[#table+1] = PROCESS[i].."tion '"..tostring(PROCESS[3]).."'"
             elseif PROCESS[i] == "if" or PROCESS[i] == "elif" or PROCESS[i] == "for" or PROCESS[i] == "while" or PROCESS[i] == "including" then
                 table[#table+1] = PROCESS[i].." statement"
             else
@@ -76,18 +76,18 @@ function error.newError(type,file,line,...)
         UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback:\n\t[orb]: attempt to call unknown variable '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         UNKNOWN_FUNCTION_CALL = "Orb: <call> error\ntraceback:\n\t[orb]: attempt to call unknown function '"..__EXTRAINFO(...)[1].."'\n\t[file]: "..table.concat(pathToFile,"\\")..".orb\n\t[line]: "..line..readStack(_STACK),
         SYNTAX_VAR = "Orb: <syntax> error\ntraceback:\n\t[orb]: cannot assign value to "..__EXTRAINFO(...)[1].." '"..__EXTRAINFO(...)[2]:gsub("%s+","").."'\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK),
-        ARGUMENT_NUMBER = "Orb: <argument> error\ntraceback:\n\t[orb]: invalid number of arguments defined in "..__EXTRAINFO(...)[1].."\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK)
+        ARGUMENT_NUMBER = "Orb: <argument> error\ntraceback:\n\t[orb]: invalid number of arguments defined in "..__EXTRAINFO(...)[1].."\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK),
+        ARITHMETIC_NON_NUMBER = "Orb: <arithmetic> error\ntraceback:\n\t[orb]: attempt to perferm arithmetic operation on variable '"..__EXTRAINFO(...)[2].."' |varType: "..__EXTRAINFO(...)[1].."|\n\t[file]: "..file..".orb\n\t[line]: "..line..readStack(_STACK) 
     }
     if line == nil then
         types["Not_found"] = "Orb: error\ntraceback\n\t[orb]: missing input file"
     end
     if errors[type] ~= nil then
         print(errors[type])
-        os.exit()
     else
         print(type)
-        os.exit()
     end
+    os.exit()
 end
 
 

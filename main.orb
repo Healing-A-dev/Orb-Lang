@@ -1,16 +1,11 @@
 @fmt "std.io";
 
-set x:Number = 3;
-set x1:Number = x + 7;
-set y:Number = 4;
-set static test:String = "Hi";
-set static z:Number = x + y + 3 + x1;
-
-func testFunc(<dataSet>,<value:String>):{
-    set static Names:Array = {"JOSH","JOHN","JACOB","JAKOBI","JABE"};
-    for (<string:String>, <num:Number> in Names):{
-        putln string;
-    }
+@including:{
+    "Testfile": TestFile;
 }
 
-testFunc();
+func Name():{
+    putln "My name is Bob";
+}
+
+Name();

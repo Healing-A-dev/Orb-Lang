@@ -21,7 +21,7 @@ function utils.getFunctionName(line,dec)
         Fname = Fname:gsub("func",""):gsub("[%=%s+%(]","")
         return Fname:gsub("[%s+%@]","")
     else
-        return syntax[line]:match(".+%("):gsub("[%=%s+%(]",""):gsub("[%s+%@]","")
+        return syntax[line]:match(".+%("):gsub("[%=%s+%(]",""):gsub("[%s+%@]",""):match("[%w?%.?]+%w+$")
     end
 end
 
@@ -166,11 +166,11 @@ function utils.varCheck(var,isFunction)
         end
     else
         if Variables.Global[var] ~= nil and Variables.Global[var].Type == "Function" then
-            return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "global"}
+            return {Real = true, Type = Variables.Global[var].Type, Value = Variables.Global[var].Value, Class = "Global"}
         elseif Variables.Static[var] ~= nil and Variables.Static[var].Type == "Function" then
-            return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "static"}
+            return {Real = true, Type = Variables.Static[var].Type, Value = Variables.Static[var].Value, Class = "Static"}
         elseif Variables.Temporary[var] ~= nil and Variables.Temporary[var].Type == "Function" then
-            return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "static"}
+            return {Real = true, Type = Variables.Temporary[var].Type, Value = Variables.Temporary[var].Value, Class = "Temporary"}
         else
             return {Real = false, Type = nil}
         end
@@ -213,7 +213,11 @@ end
 function string.replace(string,valueToReplace,replacementValue)
     local splitStr = string:split()
     local Slocation, Elocation = string:find(valueToReplace)
-    if Elocation > Slocation then table.remove(splitStr,Elocation) end
+    if Elocation > Slocation then 
+        for s = Slocation+1, Elocation do
+            splitStr[s] = nil
+        end
+    end
     splitStr[Slocation] = replacementValue
     return table.concat(splitStr)
 end

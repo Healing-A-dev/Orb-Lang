@@ -13,14 +13,16 @@ function expressions.getArgs(string,line,statementType)
     local args = {}
     local argCount = {}
     local compareType = nil
-    if not string:match("%(.+%):{") then 
+    if not string:match("%(.+%):{") and statementType ~= "func" then 
         error.newError("ARGUMENT_NUMBER",currentFile,line,{statementType}) 
     end
-    local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
-    for arg in matchedArgs:gsub("[<>]",""):gmatch("[%S+]+") do
-        if not arg:match("[%==%>%<%<=%>=%!=%,]") then
-            argCount[#argCount+1] = #argCount+1
-            args[#args+1] = arg
+    if string:match("%(.+%):{") then
+        local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
+        for arg in matchedArgs:gsub("[<>]",""):gmatch("[%S+]+") do
+            if not arg:match("[%==%>%<%<=%>=%!=%,]") then
+                argCount[#argCount+1] = #argCount+1
+                args[#args+1] = arg
+            end
         end
     end
     return args,argCount
@@ -145,17 +147,20 @@ function expressions.FOR(string,line)
     end
 end
 
-function expressions.FUNCTION(string,line)
+function expressions.FUNCTION(string,line,functionName)
     local args, argCount = expressions.getArgs(string,line,"func")
     for _,i in pairs(args) do
         if not i:match("%:%w+") then
             i = i..":Any"
         end
         variables.__ADDTEMPVAR(i,line)
+        Variables[utils.varCheck(functionName,true).Class][functionName].Args[types.checkType(i).Name] = {types.checkType(i).Type}
     end
 end
 
+function expressions.WHILE(syntax,line)
 
+end
 
 function expressions.parseExpression(line)
     local syntax = syntax[line]
@@ -168,7 +173,7 @@ function expressions.parseExpression(line)
         return
     end
     if utils.varCheck(expressionType).Real then
-        expressions[utils.varCheck(expressionType).Type:upper()](syntax,line)
+        expressions[utils.varCheck(expressionType).Type:upper()](syntax,line,expressionType)
     else
         expressions[expressionType:upper()](syntax,line)
     end

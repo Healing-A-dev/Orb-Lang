@@ -4,6 +4,7 @@ local types = require("types")
 local error = require("errors")
 local utils = require("utils")
 
+
 function variables.isArray(var)
     if var[1]:find("SVARIABLE") then
         if Variables.Static[var[2]].Type == "Array" then 
@@ -35,15 +36,15 @@ function __ADDVARS(line)
             end
             if i[1]:find("GVARIABLE") and not i[1]:find("ANY") or i[1]:find("FUNC_NAME") and not i[1]:find("SFUNC") and not i[1]:find("EXT") then
                 local var = i[2]
-                if i[1]:find("FUNC") then
-                    Variables.Global[var] = {Type = "Function", Value = var}
+                if i[1]:find("FUNC") and not utils.varCheck(i[2]).Real then
+                    Variables.Global[var] = {Type = "Function", Value = var, Args = {}}
                 elseif not i[1]:find("FUNC") and Variables.Static[var] == nil then
                     Variables.Global[var] = {Type = types.getVarType(var).Type, Value = types.getVarType(var).Value}
                 end
             elseif i[1]:find("SVARIABLE") and not i[1]:find("ANY") or i[1]:find("SFUNC_NAME") and not i[1]:find("EXT") then
                 local var = i[2]
-                if i[1]:find("SFUNC") then
-                    Variables.Static[var] = {Type = "Function", Value = var}
+                if i[1]:find("SFUNC") and not utils.varCheck(i[2]).Real then
+                    Variables.Static[var] = {Type = "Function", Value = var, Args = {}}
                 else
                     Variables.Static[var] = {Type = types.getVarType(var).Type, Value = types.getVarType(var).Value}
                 end
