@@ -19,9 +19,9 @@ function expressions.getArgs(string,line,statementType)
     if string:match("%(.+%):{") then
         local matchedArgs = string:match("%(.+%):{"):gsub(":{",""):chop({1,#string:match("%(.+%):{"):gsub(":{","")-1}):gsub(","," , ")
         for arg in matchedArgs:gsub("[<>]",""):gmatch("[%S+]+") do
-            if not arg:match("[%==%>%<%<=%>=%!=%,]") then
+            if not arg:match("[%==%>%<%<=%>=%!=%,%+%-%^%*%/]") then
                 argCount[#argCount+1] = #argCount+1
-                args[#args+1] = arg
+                args[#args+1] = arg:gsub("[%(%)]","")
             end
         end
     end
@@ -165,8 +165,8 @@ end
 function expressions.parseExpression(line)
     local syntax = syntax[line]
     local expressionType = ""
-    if syntax:match("%w+%s?%(") then
-        expressionType = syntax:match("%w+%s?%("):chop():gsub("%s+","")
+    if syntax:match("%S+%s?%(") then
+        expressionType = syntax:match("%S+%s?%("):chop():gsub("%s+","")
         if expressionType:lower() == "elif" then expressionType = "if" end
     end
     if expressions[expressionType:upper()] == nil and not utils.varCheck(expressionType).Real then
