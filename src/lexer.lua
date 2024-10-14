@@ -18,7 +18,7 @@ function lexer.createToken(ttf,line)
   end
   for _,i in pairs(assignedToken[line]) do
     for k,v in pairs(Tokens) do
-      for sepStr in i:gmatch("%w+") do --STRINGS
+      for sepStr in i:gmatch("%w+") do --STRINGSprint("FOUND A PLUSSSS")
         if sepStr:upper() == v() or type(sepStr):upper() == v() and not table.search(Keywords,sepStr) and not tonumber(sepStr) then
           if tostring(k):find("KEYWORD") then
             Keywords[#Keywords+1] = sepStr
@@ -78,11 +78,12 @@ function lexer.lex(program)
   Variables.Static = {}
   local isString = {isString = false, stringSE = nil}
   local is_Multiline_Comment = false
+  local f
   if not program:find("%s+") then
-      if not program:find("%.lua") then
+      if not program:find("%..+$") then
         program = program..".orb"
-      end 
-      f = io.open(program,"r") or error.newError("Not_found",currentFile,1,{program})
+      end
+      f = io.open(program,"r")
       local lines = f:lines()
       split, syntax = utils.stringify(lines)
       f:close()
@@ -94,12 +95,13 @@ function lexer.lex(program)
     for _,i in pairs(syntax) do --Arranges collected tokens
       tokenTable[_] = {}
       for k,v in pairs(assigned_Token[_]) do
-        for s,t in spairs(v) do
-          tokenTable[_][syntax[_]:position(v[1],_).Start] = {v[2],v[1]}
+        for s,t in ipairs(v) do
+            tokenTable[_][syntax[_]:position(v[1],_).Start] = {v[2],v[1]}
         end
       end
     end
-  for _,i in spairs(syntax) do --Adjusts accordingly
+    
+  for _,i in ipairs(syntax) do --Adjusts accordingly
     local prevToken = nil
     fullTokens[_] = {}
     for k,v in spairs(tokenTable[_]) do
@@ -118,14 +120,16 @@ function lexer.lex(program)
         if v[1]:find("IF") and not v[1]:find("ELSEIF") or v[1]:find("ELSEIF") or v[1]:find("FOR") and not v[1]:find("FORMAT") or v[1]:find("WHILE") or v[1]:find("DEFINE") and not v[1]:find("DEFCALL") or v[1]:find("INCLUDING") or v[1]:find("FUNC") then
           v[3] = "STATEMENT"
         end
+        if v[1]:find("SPACE") then
+            goto isSpace 
+        end
         if prevToken ~= nil then
-          if v[1]:find("SPACE") then goto isSpace end
-          if v[1]:find("DIVIDE") then
-            if prevToken ~= nil and prevToken[1]:find("NUMBER") then
-              v[1] = v[1]
-            elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") and not tokenTable[_][k+1][1]:find("NUMBER") then
+          if v[1]:find("SQUIGGLE") then
+            -- if prevToken ~= nil and prevToken[1]:find("NUMBER") then
+              -- v[1] = v[1]
+            -- elseif prevToken ~= nil and not prevToken[1]:find("NUMBER") and not tokenTable[_][k+1][1]:find("NUMBER") then
               v[1] = "OTOKEN_SPECIAL_CONCAT"
-            end
+            -- end
           end
 
 
@@ -160,16 +164,10 @@ function lexer.lex(program)
           elseif prevToken[1]:find("SFUNC") then
             if not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
               v[1] = "OTOKEN_SPECIAL_SFUNC_NAME"
+              v[2] = ""
             elseif prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
               v[1] = "OTOKEN_SPECIAL_SFUNC_NAME_EXT"
-            else
-
-            end
-          elseif prevToken[1]:find("FUNC") and not prevToken[1]:find("SFUNC") then
-            if not prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
-              v[1] = "OTOKEN_SPECIAL_FUNC_NAME"
-            elseif prevToken[1]:find("NAME") and not v[1]:find("OPAREN") then
-              v[1] = "OTOKEN_SPECIAL_FUNC_NAME_EXT"
+              v[2] = ""
             else
 
             end
@@ -219,7 +217,12 @@ function lexer.lex(program)
         while not fullTokens[_][startpoint][2]:find("%w") do
             startpoint = startpoint + 1
         end
-        fullTokens[_][startpoint] = {fullTokens[_][s+1][1], function_name, nil}
+        fullTokens[_][startpoint] = {"OTOKEN_SPECIAL_FUNC_NAME", function_name, nil}
+        startpoint = startpoint + 1
+        while not fullTokens[_][startpoint][2]:find("%(") do
+            fullTokens[_][startpoint][2] = ""
+            startpoint = startpoint + 1
+        end
       end
     end
   end
@@ -252,15 +255,17 @@ function lexer.lex(program)
         end
       end
     end
+    
     for _,i in pairs(fullTokens) do
       for s = 1, #i do
         if s > #i then s = #i-1 end
           if i[s] == nil then
-            table.remove(fullTokens[_],s)
+            fullTokens[_] = nil
           end
         end
       end
-  end
+    end
+    
   if is_Multiline_Comment then
     print("orb: <syntax> error\ntraceback:\n\t[orb]: multiline comment not closed\n\t[file]: "..currentFile..".orb")
     os.exit()
