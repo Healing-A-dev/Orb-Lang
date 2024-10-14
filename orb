@@ -13,7 +13,7 @@ if [ -z $1 ]; then
     end
     Variables = {Global = {}, Static = {},Temporary = {}};
     while true do
-        local writevar = '>>'
+        local writevar = '>'
         local exe = ''
         Transpiler = require('transpiler');
         Runtime = require('runtime');
@@ -22,7 +22,7 @@ if [ -z $1 ]; then
         syntax[#syntax+1] = io.read();
         if endings(syntax[#syntax]) == ':{' then
             repeat
-                io.write((writevar..writevar):gsub('^%>','')..' ')
+                io.write(writevar..writevar..' ')
                 local s = io.read()
                 syntax[#syntax+1] = s
             until s == '}'
