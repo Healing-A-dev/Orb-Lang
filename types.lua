@@ -24,7 +24,7 @@ local allowedTypes = {
     },
     Function = {
         required = "func"
-    }
+    },
 }
 
 function getAllowedTypes()
@@ -45,54 +45,55 @@ function types.getVarType(variable,Type)
     local varType = nil
     local assignment = nil
     local line = 0
-    local fullTokens = removeValue(fullTokens,"SPACE")
     for _,i in pairs(fullTokens) do
         for s = 1, #i do
-            if i[s][2] == variable and i[s][3] == "VARIABLE" then
-                if i[s][1]:find("ANY") and Type ~= nil then
-                    varType = Type
-                    if i[s-2][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then
-                        assignment = getValue(_)
-                    else
-                        if i[s-3] == nil then
-                            assignment = getValue(_,varType)
+            if not i[s][1]:match("SPACE") then
+                if i[s][2] == variable and i[s][3] == "VARIABLE" then
+                    if i[s][1]:find("ANY") and Type ~= nil then
+                        varType = Type
+                        if i[s-2][1]:find("QUOTE") and varType == "String" or i[s-2][1]:find("QUOTE") and varType == "Char" then
+                            assignment = getValue(_)
+                        else
+                            if i[s-3] == nil then
+                                assignment = getValue(_,varType)
+                            else
+                                assignment = getValue(_,varType)
+                            end
+                        end
+                        line = _
+                    elseif not i[s][1]:find("ANY") and i[s+1][1]:find("COLON") then
+                        varType = i[s+2][2]
+                        if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" or i[s+4][1]:find("QUOTE") and varType == "Any" then
+                            assignment = getValue(_)
                         else
                             assignment = getValue(_,varType)
                         end
-                    end
-                    line = _
-                elseif not i[s][1]:find("ANY") and i[s+1][1]:find("COLON") then
-                    varType = i[s+2][2]
-                    if i[s+4][1]:find("QUOTE") and varType == "String" or i[s+4][1]:find("QUOTE") and varType == "Char" or i[s+4][1]:find("QUOTE") and varType == "Any" then
-                        assignment = getValue(_)
-                    else
-                        assignment = getValue(_,varType)
-                    end
-                    line = _
-                elseif not i[s][1]:find("ANY") and i[s+2][1]:find("COLON") then
-                    varType = i[s+3][2]
-                    if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" or i[s+5][1]:find("QUOTE") and varType == "Any" then
-                        assignment = getValue(_)
-                    else
-                        assignment = getValue(_,varType)
-                    end
-                    line = _
-                elseif not i[s][1]:find("ANY") and not i[s+1][1]:find("COLON") then
-                    varType = "Any"
-                    if not i[s][1]:find("SVARIABLE") then
-                        if i[s+3][1]:find("QUOTE") then 
-                            assignment = getValue(_) 
-                        else 
+                        line = _
+                    elseif not i[s][1]:find("ANY") and i[s+2][1]:find("COLON") then
+                        varType = i[s+3][2]
+                        if i[s+5][1]:find("QUOTE") and varType == "String" or i[s+5][1]:find("QUOTE") and varType == "Char" or i[s+5][1]:find("QUOTE") and varType == "Any" then
+                            assignment = getValue(_)
+                        else
                             assignment = getValue(_,varType)
                         end
-                    else
-                        if i[s+4][1]:find("QUOTE") then 
-                            assignment = getValue(_) 
-                        else 
-                            assignment = getValue(_,varType)
+                        line = _
+                    elseif not i[s][1]:find("ANY") and not i[s+1][1]:find("COLON") then
+                        varType = "Any"
+                        if not i[s][1]:find("SVARIABLE") then
+                            if i[s+3][1]:find("QUOTE") then 
+                                assignment = getValue(_) 
+                            else 
+                                assignment = getValue(_,varType)
+                            end
+                        else
+                            if i[s+4][1]:find("QUOTE") then 
+                                assignment = getValue(_) 
+                            else 
+                                assignment = getValue(_,varType)
+                            end
                         end
+                        line = _
                     end
-                    line = _
                 end
             end
         end
@@ -118,13 +119,16 @@ function types.getVarType(variable,Type)
             if not tonumber(assignmentSUB) and not varChecks.Real and assignmentSUB:find("[%+%-%/%*%^]") then
                 for _,i in pairs(assignmentSUB:index()) do
                     if not tonumber(i) then
-                        if not utils.varCheck(i).Real then
-                            error.newError("UNKNOWN_VAR_CALL",currentFile,line,{i})
+                        i = i:gsub("[%(%)]","")
+                        if not tonumber(i) then
+                            if not utils.varCheck(i).Real then
+                                error.newError("UNKNOWN_VAR_CALL",currentFile,line,{i})
+                            end
+                            if utils.varCheck(i).Type ~= "Number" then
+                                error.newError("ARITHMETIC_NON_NUMBER",currentFile,line,{utils.varCheck(i).Type,i})
+                            end
+                            assignmentSUB = assignmentSUB:replace(i,utils.varCheck(i).Value)
                         end
-                        if utils.varCheck(i).Type ~= "Number" then
-                            error.newError("ARITHMETIC_NON_NUMBER",currentFile,line,{utils.varCheck(i).Type,i})
-                        end
-                        assignmentSUB = assignmentSUB:replace(i,utils.varCheck(i).Value)
                     end
                 end
                 return {Type = varType, Value = load("return "..assignmentSUB)()}
