@@ -1,7 +1,7 @@
 Blocks = {}
-local function partialBuild(name)
+local function partialBuild(name,file)
     Blocks[name] = {}
-    Blocks[name].runFile = arg[1]..".orb"
+    Blocks[name].runFile = arg[1]
     Blocks[name].run = function()
         local runFileLines = {}
         local blockLines = {}
@@ -124,6 +124,10 @@ local function Build(file)
     -- ADDING UTILITY FUNCTIONS TO ALL BLOCKS IN THE BLOCK TABLE --
     for name,i in pairs(Blocks) do
         if type(i) == "table" then
+            local Name = {}
+            Name["name*"] = name
+            Name["name"] = name:match("%/%S+$")
+            if Name["name"] == nil then Name["name"] = Name["name*"] else Name["name"] = Name["name"]:gsub("%/","") end
             Blocks[name].run = function()
                 local toRun = {}
                 for _,i in ipairs(Blocks[name]) do
@@ -158,17 +162,46 @@ local function Build(file)
                 if path ~= "" and not io.open(path) then
                     path = path.."/"
                     local toMake = ""
-                    for pathName in path:gmatch("%w+") do
-                        os.execute("mkdir "..toMake..pathName)
+                    for pathName in path:gmatch("[^%/]+") do
+                        os.execute("mkdir '"..toMake..pathName.."'")
                         toMake = toMake..pathName.."/"
                     end
                 end
                 local toRun = {}
-                for _,i in ipairs(Blocks[name]) do
-                    toRun[#toRun+1] = i
+                if Blocks[name] ~= nil then
+                    for _,i in ipairs(Blocks[name]) do
+                        toRun[#toRun+1] = i
+                    end
+                else
+                    for _,i in ipairs(holdBlocks[name]) do -- Edit this if you renameed the Blocks table
+                        toRun[#toRun+1] = i
+                    end
+                end
+                if name:find(".+/.+") then
+                    local name = name:gsub("%/[^%/]+$","")
+                    os.execute("mkdir -p '"..path.."/"..name.."'")
                 end
                 local BlockFile = io.open(path..name..ext,"w+")
-                BlockFile:write("local "..name.." = {}\n\n"..table.concat(toRun,"\n").."\n\nreturn "..name)
+                local Header,Footer = "local "..name.." = {}","return "..name
+                if __HEADER ~= nil then
+                    __HEADER = __HEADER:gsub("['\"]","")
+                    if __HEADER:find(":.+$") then
+                        local toReplace = __HEADER:match("%$%S+"):gsub("[%:%s+%$]","")
+                        Header = __HEADER:gsub(":%s+%$%w+",Name[toReplace:lower()]):gsub("%*$",""):gsub("^%s+","")
+                    else
+                        Header = __HEADER
+                    end
+                end
+                if __FOOTER ~= nil then
+                    __FOOTER = __FOOTER:gsub("['\"]","")
+                    if __FOOTER:find(":.+$") then 
+                        local toReplace = __FOOTER:match("%$%S+"):gsub("[%:%s+%$]","")
+                        Footer = __FOOTER:gsub(":%s+%$%w+",Name[toReplace:lower()]):gsub("%*$",""):gsub("^%s+","")
+                    else
+                        Footer = __FOOTER
+                    end
+                end
+                BlockFile:write(Header.."\n\n"..table.concat(toRun,"\n").."\n\n"..Footer)
                 BlockFile:close()
                 return path..name
             end
@@ -200,7 +233,9 @@ local function Build(file)
             local File = io.open(FileName,"w+")
             File:write(table.concat(filelines,"\n"))
             File:close()
-            dofile(FileName)
+            if FileName:find("%.lua$") then
+                dofile(FileName)
+            end
             local File = io.open(FileName,"w+")
             File:write(table.concat(fileStore,"\n"))
             File:close()
@@ -209,15 +244,14 @@ local function Build(file)
 end
 
 -- Block Utility Functions
-function Blocks.NewBlock(BlockName,extension,skip_nil_blocks)
-    partialBuild(BlockName)
-    local skip_nil_blocks = skip_nil_blocks or true
+function Blocks.NewBlock(BlockName,extension,runFile,skip_nil_blocks)
+    partialBuild(BlockName,runFile)
     -- ADDING BLOCK EXTENSIONS --
     for ext in extension.extensions:gmatch("%S+") do
-        if Blocks[ext] == nil and not skip_nil_blocks then
-            error("Blocks <Error>"..arg[0]..": Block '"..ext.."' does not exsit")
-        elseif ext == ".VOID" and extension.extensions:gsub("%s+","") == ".VOID" then
+        if ext == ".VOID" and extension.extensions:gsub("%s+","") == ".VOID" then
             return
+        elseif Blocks[ext] == nil and not skip_nil_blocks then
+            error("Blocks <Error>"..arg[0]..": Block '"..ext.."' does not exsit")
         else
             Blocks[BlockName][ext] = Blocks[ext]
         end
@@ -238,15 +272,25 @@ function Blocks.WriteToBlock(BlockName, Data_To_Write)
     end
 end
 
-function Blocks.ShowAllBlocks()
-    for _,i in pairs(Blocks) do
-        if type(i) == "table" then
-            print("Block: ".._)
+function Blocks.ShowAllBlocks(command)
+    local madeBlocks = {}
+    if command ~= "-s" then
+        for _,i in pairs(Blocks) do
+            if type(i) == "table" then
+                print("Block: ".._)
+            end
         end
+    else
+        for _,i in pairs(Blocks) do
+            if type(i) == "table" and madeBlocks[_] == nil then
+                madeBlocks[_] = i
+            end
+        end
+        return madeBlocks
     end
 end
 
-function Blocks.BuildFromFile(file,ext)
+function Blocks.BuildFromFile(file,ext,isCommandLine)
     local ext = ext or ".lua"
     local toBuild = ""
     if arg[1] == nil and file == nil then
@@ -254,9 +298,10 @@ function Blocks.BuildFromFile(file,ext)
         os.exit()
     end
     if file ~= nil and file:find("%..+") then ext = "" end
-    if arg[1] == nil then toBuild = file..ext else toBuild = arg[1] end
+    if arg[1] == nil or arg[1] == "-e" or isCommandLine then toBuild = file..ext else toBuild = arg[1] end
     local Blocks = Build(toBuild)
     Blocks.Run()
     return {Lines = Blocks.Lines}
 end
+
 return Blocks
