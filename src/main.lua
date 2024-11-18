@@ -15,12 +15,18 @@ Variables = {
     Global = {
         asString = {Type = "Function", Value = "", Args = {}, Return_Type = "String"},
         asNumber = {Type = "Function", Value = "", Args = {}, Return_Type = "Number"},
-        asArray = {Type = "Function", Value = "", Args = {}, Return_Type = "Array"}
+        asArray  = {Type = "Function", Value = "", Args = {}, Return_Type = "Array"}
     },
     Static = {},
     Temporary = {}
 }
 
+--Create variable table shorthands for ease of use
+_GLOBALS = Variables.Global
+--Adding shorthands to Variables table to allow orb to call them
+Variables.Global["_GLOBALS"] = _GLOBALS
+
+--Transpilation
 Runtime.run()
 runOrder[#runOrder+1] = currentFile
 Blocks.NewBlock(runOrder[#runOrder],{extensions = ".VOID"},true)
@@ -29,7 +35,8 @@ for _,i in pairs(Transpiler.translate()) do
     local toWrite = table.concat(i):gsub(extraWords[1].."%(%)",table.concat(extraWords)..";"):gsub("->.+$","")
     Blocks.WriteToBlock(currentFile,toWrite)
 end
+
+--File running
 for _,i in ipairs(runOrder) do
     Blocks[i].run()
 end
---Blocks["main.orb"].contents()
