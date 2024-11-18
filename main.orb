@@ -1,7 +1,12 @@
 @fmt "std.io";
-@including lib/String;
-@including lib/System;
+//@including lib/String;
+//@including lib/System;
 
-putln "Hello,World";
+set static x:Number = 7.5;
+set static y:Number = 2.5;
 
-System.execute() -> ("cd; blocks; cd Code/Orb-Lang");
+func Add(num1:Number, num2:Number):{
+    putln num1+num2;
+}
+
+Add() -> (x,y);
