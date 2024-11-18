@@ -1,0 +1,7 @@
+@fmt "std.io";
+@including lib/String;
+@including lib/System;
+
+putln "Hello,World";
+
+System.execute() -> ("cd; blocks; cd Code/Orb-Lang");

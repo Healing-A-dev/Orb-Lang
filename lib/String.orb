@@ -1,0 +1,76 @@
+@fmt "lib.module";
+
+set String:Array = {};
+
+func LUA_FCALL(lib:String,name:String,arg1:Any,arg2:Any,arg3:Any,arg4:Any,arg5:Any):{
+  if (arg1 != nil):{
+      return _G[lib][name](arg1,arg2,arg3,arg4,arg5);
+  }
+  return _G[lib][name]();
+}
+
+func String.length(string:String):{
+    return LUA_FCALL("string","len",string);
+}
+
+func String.match(string:String, value:String):{
+    return LUA_FCALL("string","match",string,value);
+}
+
+func String.gsub(string:String,toChange:String,newValue:String):{
+    return LUA_FCALL("string","gsub",string,toChange,newValue);
+}
+
+func String.startsWith(string:String, value:String):{
+    set static begining:Any = LUA_FCALL("string","match",string,"^.");
+    if (begining == value):{
+        return true;
+    }
+    return false;
+}
+
+func String.endsWith(string:String, value:String):{
+    set static ending:Any = LUA_FCALL("string","match",string,".$");
+    if (ending == value):{
+        return true;
+    }
+    return false;
+}
+
+func String.split(string:String):{
+    set static iter:Number = 1;
+    set split:Array = {};
+    while (iter <= String.length(string)):{
+        set static letter:String = LUA_FCALL("string","sub",string,iter,iter);
+        split[#split+1] = letter;
+        iter = iter + 1;
+    }
+    return split;
+}
+
+func String.contains(string:String, value:String, rScope:Number, lScope:Number):{
+    set static split:Any = String.split(string);
+    if (rScope != nil):{
+        set static iter:Number = 1;
+        while (iter <= rScope):{
+            split[iter] = "";
+            iter = iter + 1;
+        }
+    }
+    if (lScope != nil):{
+        set static iter:Number = 1;
+        while (iter < lScope):{
+            split[#split - iter] = "";
+            iter = iter + 1;
+        }
+    }
+    split = LUA_FCALL("table","concat",split);
+    if (LUA_FCALL("string","find",split,value)):{
+        return true;
+    }
+    return false;
+}
+
+func String.asString(string:String):{
+    return LUA_FCALL("utils","asString",string);
+}
