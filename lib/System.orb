@@ -1,0 +1,25 @@
+@fmt "lib.module";
+
+set System:Array = {};
+System.Console = {};
+
+func LUA_FCALL(lib:String,name:String,args:String,moreargs:String,evenmoreargs:String):{
+  if (args != nil):{
+    return _G[lib][name](args,moreargs,evenmoreargs);
+  }
+  return _G[lib][name]();
+}
+
+func System.read(words:String):{
+  words = words or "";
+  put words;
+  return LUA_FCALL("io","read");
+}
+
+func System.Console.clear():{
+  return LUA_FCALL("os","execute","clear");
+}
+
+func System.execute(arg):{
+  return LUA_FCALL("os","execute",arg);
+}
