@@ -1,12 +1,22 @@
 @fmt "std.io";
-//@including lib/String;
-//@including lib/System;
 
+//Multiline Comment Below <- This is a single line comment btw
+!#
+    Importing String adds 100ms of delay
+    @including lib/String;
+    Importing System adds 20ms of delay
+    @including lib/System;
+#!
+
+//Testing function call syntaxing
 set static x:Number = 7.5;
 set static y:Number = 2.5;
-
-func Add(num1:Number, num2:Number):{
+func Add(num1:Number,num2:Number):{
     putln num1+num2;
 }
 
 Add() -> (x,y);
+
+putln _GLOBALS.asString.Type;
+set Name:String = asArray() -> ("Bobert");
+putln Name[2];
