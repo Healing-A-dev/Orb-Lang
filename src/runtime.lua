@@ -187,8 +187,8 @@ function runtime.run(file)
                         local strEnd = false
                         local i = i:match("->%s?%(.+%)") or ""
                         i = i:gsub("->%s?",""):gsub("^%(",""):gsub("%)$","")
-                        for arg in i:gmatch("[%S^%,]+") do
-                            arg = arg:gsub("%(%)$",""):gsub("^%(",""):gsub("%)$","")
+                        for arg in i:gmatch("[^%,]+") do
+                            arg = arg:gsub("%(%)$",""):gsub("^%(",""):gsub("%)$",""):gsub("%s+$",""):gsub("^%s+","")
                             if arg:find("^['\"]") and not arg:find("['\"]$") then
                                 isString = true
                             elseif arg:find("['\"]$") and isString then
