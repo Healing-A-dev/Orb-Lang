@@ -1,3 +1,0 @@
-@fmt "lib.module";
-
-set x:String = "1";
