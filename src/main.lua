@@ -15,7 +15,8 @@ Variables = {
     Global = {
         asString = {Type = "Function", Value = "", Args = {}, Return_Type = "String"},
         asNumber = {Type = "Function", Value = "", Args = {}, Return_Type = "Number"},
-        asArray  = {Type = "Function", Value = "", Args = {}, Return_Type = "Array"}
+        asArray  = {Type = "Function", Value = "", Args = {}, Return_Type = "Array"},
+        putln = {Type = "Function", Value = "", Args = {}, Return_Type = "String"}
     },
     Static = {},
     Temporary = {}
@@ -32,7 +33,9 @@ runOrder[#runOrder+1] = currentFile
 Blocks.NewBlock(runOrder[#runOrder],{extensions = ".VOID"},true)
 for _,i in pairs(Transpiler.translate()) do
     local extraWords = Buffer[_] or {"","","","","","","","","",""}
+    print(table.concat(extraWords))
     local toWrite = table.concat(i):gsub(extraWords[1].."%(%)",table.concat(extraWords)..";"):gsub("->.+$","")
+    print(toWrite)
     Blocks.WriteToBlock(currentFile,toWrite)
 end
 
