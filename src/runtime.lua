@@ -204,7 +204,7 @@ function runtime.run(file)
                             elseif arg:find("^['\"]") and arg:find("['\"]$") then
                                 args[#args+1] = arg
                             else
-                                if not utils.varCheck(arg).Real and not isString then
+                                if not utils.varCheck(arg).Real and not isString and not arg:find("['\"]") then
                                     error.newError("UNKNOWN_VAR_CALL",currentFile,_,{arg})
                                 else
                                     args[#args+1] = arg
