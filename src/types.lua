@@ -132,7 +132,9 @@ function types.getVarType(variable,Type)
                                 error.newError("UNKNOWN_VAR_CALL",currentFile,line,{i})
                             end
                             if utils.varCheck(i).Type ~= "Number" then
-                                error.newError("ARITHMETIC_NON_NUMBER",currentFile,line,{utils.varCheck(i).Type,i})
+                                if utils.varCheck(i).Type == "Function" and Variables[utils.varCheck(i,true).Class][i].Return_Type ~= "Number" or utils.varCheck(i).Type ~= "Function" then
+                                    error.newError("ARITHMETIC_NON_NUMBER",currentFile,line,{utils.varCheck(i).Type,i})
+                                end
                             end
                             assignmentSUB = assignmentSUB:replace(i,utils.varCheck(i).Value)
                         end
@@ -169,6 +171,14 @@ function types.getVarType(variable,Type)
         end
         return {Type = varType, Value = assignment}
     end
+end
+
+function types.getFunctionType(functionName,line)
+    local functionReturnType = syntax[line]:match("%:%s?%w+%s?%:%{$"):gsub("[%:%{%s]","")
+    if allowedTypes[functionReturnType] == nil then
+        error.newError("UNKNOWN_TYPE",currentFile,line,{functionName,functionReturnType})
+    end
+    return functionReturnType
 end
 
 function types.checkType(variable,line)
