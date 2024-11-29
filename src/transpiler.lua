@@ -29,9 +29,12 @@ function transpiler.translate() -- No input need because im super smart >:)
                         goto passThrough
                     end
                     if t[1]:find("ASSIGN") then
-                        local arguments = syntax[_]:match("%(%)%s?->%s?%(.+%)"):gsub("%(%)%s?->%s?","")
+                        local arguments = syntax[_]:match("%(%)%s?%-%>%s?%(.+%)"):gsub("%(%)%s?%-%>%s?","")
                         local functionName = syntax[_]:match("=.+%(%)") or syntax[_]:match("%W?%w+%(%)")
                         functionName = functionName:gsub("[%(%)=%s]","")
+                        if functionName == Tokens.OTOKEN_KEYWORD_PUTLN():lower() then
+                            functionName = "print"
+                        end
                         Buffer[_] = {}
                         Buffer[_][#Buffer[_]+1] = functionName
                         Buffer[_][#Buffer[_]+1] = arguments
@@ -58,8 +61,7 @@ function transpiler.translate() -- No input need because im super smart >:)
                     translated[_][#translated[_]] = nil
                 end
                 if t[2] == Tokens.OTOKEN_KEYWORD_PUTLN():lower() then
-                    t[2] = "print("
-                    fullTokens[_][#fullTokens[_]][2] = ");"
+                    t[2] = "print"
                 elseif t[2] == Tokens.OTOKEN_KEYWORD_PUT():lower() then
                     t[2] = "io.write("
                     fullTokens[_][#fullTokens[_]][2] = ");"
