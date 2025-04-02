@@ -1,16 +1,15 @@
-
 -- Orbit to Lua transpiler
 -- Used to return function and module values and update variable data accordingly
 -- Does NOT work with the current orbit tokens stored in the lexer.tokens table [WILL FIX IN THE FUTURE FOR IMPROVED PERFORMANCE]
--- Does nNOT include any form of error checking since it should've already been handled by the compiler
+-- Does NOT include any form of error checking since it should've already been handled by the compiler
 
 
 --[[LUA Transpiler]]--
 local initVM = {}
 
 --[[Imports]]--
-local Variables     = require("src/variables")
-local Tokens        = require("src/tokens")
+local Variables = require("src/variables")
+local Tokens    = require("src/tokens")
 
 --[[Instance Variables]]--
 local string_init_character = nil
@@ -21,7 +20,6 @@ initVM = {
         Init = {},
         End = {}
     },
-    Out = {}
 }
 
 --[[Orbit -> Lua Lexer]]--
@@ -102,11 +100,10 @@ function initVM.lex(self,program)
             self.Tokens[_][1] = "\nend"
             table.remove(self.Stack.Init,#self.Stack.Init)
         end
-        self.Out[#self.Out+1] = self.Tokens[_][1]
     end
 end
 
---[[OLua -> Lua Parser]]--
+--[[Lua Code Finalizer & Executor]]--
 function initVM.execute(self,Line_Data)
     local out = ""
     local function_data = ""
@@ -142,10 +139,6 @@ function initVM.UpdateOrbitValues(self,program)
         end
     end
     self:execute(program.Line_Data)
-    --[[for _,i in pairs(self.Tokens) do
-        print(i[1])
-    end]]
-    --print(program.Function_Data[1][1])
 end
 
 return initVM
