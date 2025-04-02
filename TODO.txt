@@ -7,8 +7,8 @@ FEATURES:
 		- Must throw a compiler warning if something went wrong in the module
 		- Cannot use an exessive amount of resources, as they will be compiled everytime they are called (for total isolation from the main program besides given arguments)
 
-	- Implement Function Call:	[CURRENTLY WOKRING ON IT]
-		- Create user function calls and argument overflow error
+	- Implement Function Call:	[DONE]
+		- Create user function calls
 
 	- Implement Linking:
 		- Link Certain functions, Modules, Files, etc without having to import an entire file
@@ -28,7 +28,7 @@ FEATURES:
 		- Create an assembly wrapper in lua (MAYBE | NOT LIKELY)
 			- Be able to run and compile assembly files using an assembly wrapper written in lua
 
-	- Create a simple Lua transpiler:	[CURRENT WORKING ON IT <in hand with> Function/Module Calling]
+	- Create a simple Lua transpiler:	[BASE COMPLETED: Need to implement updating variables in the function]
 		- Converts Orbit functions & modules into Lua
 		- Runs functions/modules, but only updates variables in Orbit
 			- Converters the function/module into lua code that will be ran using the load() function
@@ -37,13 +37,6 @@ FEATURES:
 			Orbit Code:
 				func add(x1,x2) {
 					ret x1 + x2
-				}
-
-				z = add(x,y)
-
-			OLua Code:
-				function add(x1,x2) {
-					return x1 + x2
 				}
 
 				z = add(x,y)
