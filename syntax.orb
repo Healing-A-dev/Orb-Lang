@@ -1,0 +1,72 @@
+/=
+	Modules:
+		Description: Modules are essetially they're own file/program and will be executed as such.
+		Creating Modules:
+
+			mod <module_name> {
+				code
+				more code
+				even more code
+			}
+
+		Calling Modules:
+
+			[Option 1]: Calling with defined arguments
+
+				@<module_name>()
+			
+				@<module_name>::<function/module_name>()
+
+			Note: Only objects inside the parenthesis will be used as arguments
+
+			[Option 2]: Calling with implied arguments
+
+				@<module_name>
+
+				@<module_name>::<function/module_name>
+
+			Note: EVERYTHING after the module call will be used as an input argument
+
+
+
+	Functions:
+		Description: Functions are...well just functions nothing too special there.
+		Creating Functions:
+
+			[Option 1]: Basic Functions
+
+				func <function_name> (a,b,c,...) {
+					code
+				}
+
+			[Option 2]: Functions with no input arguments
+
+				func <function_name> {
+					code
+				}
+
+		Calling Functions:
+
+			[Option 1]: Basic Functions
+
+				<function_name>(arg1,arg2,arg3,...)
+
+
+			[Option 2]: Function with no input arguments
+
+				<function_name>()
+
+			Note: Passing arguments into a function that can take no arguments WILL throw an error.
+
+
+	Importing:
+		Description: An Orb[it] module that handles file importing
+		Importing A File:
+
+		[Option 1]: Implied argument
+			@including <file_name>
+
+		[Option 2]: Defined argument
+			@including(<file_name>)
+
+=/

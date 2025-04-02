@@ -1,0 +1,62 @@
+TODO LIST:
+
+FEATURES:
+	- Implement Modules:
+		- Anything inside of a module should be ignored until the module is called
+		- Must exit safely without interrupting the main program (until an error OUTSIDE of the module is encountered)
+		- Must throw a compiler warning if something went wrong in the module
+		- Cannot use an exessive amount of resources, as they will be compiled everytime they are called (for total isolation from the main program besides given arguments)
+
+	- Implement Function Call:	[CURRENTLY WOKRING ON IT]
+		- Create user function calls and argument overflow error
+
+	- Implement Linking:
+		- Link Certain functions, Modules, Files, etc without having to import an entire file
+		- Does not affect data in the file for the linked function/module/file
+
+	- Finish Implementing Arrays:
+		- Make values in an array callable (ex. Names{1})
+		- Make values reassignable
+		- Zero based indexing...?
+			- I kinda like 1 based indexing though...I just makes sense..
+
+	- Create an assembly compiler:
+		- Compiles Orbit source code into assembly via the x-oVM
+		- Will use something known as "As is values", meaning no mathematical or concatenation operations will happen at compile time
+		- There will be NO functions or anything of that sort either
+
+		- Create an assembly wrapper in lua (MAYBE | NOT LIKELY)
+			- Be able to run and compile assembly files using an assembly wrapper written in lua
+
+	- Create a simple Lua transpiler:	[CURRENT WORKING ON IT <in hand with> Function/Module Calling]
+		- Converts Orbit functions & modules into Lua
+		- Runs functions/modules, but only updates variables in Orbit
+			- Converters the function/module into lua code that will be ran using the load() function
+			eg:
+
+			Orbit Code:
+				func add(x1,x2) {
+					ret x1 + x2
+				}
+
+				z = add(x,y)
+
+			OLua Code:
+				function add(x1,x2) {
+					return x1 + x2
+				}
+
+				z = add(x,y)
+
+			Lua Code:
+				function add(x1,x2)
+					return x1 + x2
+				end
+
+				Variables.static.z.Value = add(x,y)
+
+		- May be included in the x-oVM (Will have to rewrite in orb to ONLY update values and not compile again...because yeah...saving reasources and time)
+	
+BUG FIXES:
+	- Fix concatenation
+	- Fix quotations in comments not working [throws unfinished string error] (DONE..?)
