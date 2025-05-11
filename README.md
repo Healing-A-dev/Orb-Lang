@@ -22,5 +22,6 @@ Number = "9000"                   # No erroes since Number was previous declared
 Array  = ["Hello", "World"]       # No erroes since Array was previous declared
 
 Message = "Hello World"         # Throws an undeclared variable error since 'Message' was no declared and data is trying to get assigned to it
+
+# NOTE: When reassigning variables, the ':=' can simply be '=' since ':=' is used to declare variables, however it is still okay if you choose to use ':=' to reassign variables.
 ```
-When reassigning variables, the ':=' can simply be '=' since ':=' is used to declare variables, however it is still okay if you choose to use ':=' to reassign variables.
