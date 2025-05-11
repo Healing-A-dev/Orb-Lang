@@ -28,7 +28,7 @@ FEATURES:
 		- Create an assembly wrapper in lua (MAYBE | NOT LIKELY)
 			- Be able to run and compile assembly files using an assembly wrapper written in lua
 
-	- Create a simple Lua transpiler:	[BASE COMPLETED: Need to implement updating variables in the function]
+	- Create a simple Lua transpiler:	[CORE COMPLETED: Need to fixs arguments being converted to their orbit variable table values eg. VARIABLES.TEMPORARY.x1.VALUE should just be x1]
 		- Converts Orbit functions & modules into Lua
 		- Runs functions/modules, but only updates variables in Orbit
 			- Converters the function/module into lua code that will be ran using the load() function
@@ -43,7 +43,7 @@ FEATURES:
 
 			Lua Code:
 				function add(x1,x2)
-					return x1 + x2
+					return Variables.temporary[x1].Value + Variables.temporary[x2].Value
 				end
 
 				Variables.static.z.Value = add(x,y)
