@@ -1,4 +1,4 @@
-# ORB
+# ORB [WIP]
 Introducing Orb! A compiled programming language that is (suprisingly) not a C, Rust, Java, or Go clone. Being built on top of a custom VM and micro Lua transpilers 'Xohe', Orb is a very fast and rather lightweight language.
 
 # HOW TO:
