@@ -69,6 +69,73 @@ function variables.search(variable_name)
 end
 
 
+-- Get Variable Data Type
+local function getDataType(value,function_call)
+	local variable_type
+	parent_value = nil
+	local data_types = {
+		"string",
+		"number",
+		"array",
+		"bool",
+		"function"
+	}
+	if value:match("^['\"]") then
+		variable_type = data_types[1]
+	elseif value:match("^%[") then
+		variable_type = data_types[3]
+	elseif value:match("%d+") and not value:match("^['\"]") and not value:find("%a") then
+		variable_type = data_types[2]
+	elseif value == "true" or value == "false" then
+		variable_type = data_types[4]
+	elseif value == "" then
+		variable_type = "null"
+	else
+		if getVariableType(value) == nil and not function_call then
+			if value:find("[%^%-%+%^%*]") then
+				print("Need to eval value: "..value)
+				variables.eval(file.Line)
+				Error.new("UNKNOWN_VAR_CALL",file.Line,{value})
+			else
+				if value:find("%.") then
+					local parent_array = value:match("%S+%."):gsub("%.","")
+					local child_value = value:match("%.%S+"):gsub("%.","")
+					if variables.search(parent_array) == false then
+						Error.new("NULL_VALUE_INDEX",file.Line,{parent_array})
+					end
+					parent_value = variables.search(parent_array).Value
+					variable_type = "null"
+					value = "null"
+					goto skip_error
+				end
+				Error.new("UNKNOWN_VAR_CALL",file.Line,{value})
+				::skip_error::
+			end
+		end
+		if function_call then
+			value = value:gsub("%(.+%)","")
+		end
+		if not function_call then
+			--print(getVariableType(value))
+			variable_type = VARIABLES[getVariableType(value):upper()][value].Type
+			parent_value = VARIABLES[getVariableType(value):upper()][value].Value
+			parent_content = VARIABLES[getVariableType(value):upper()][value].Content
+		else
+			if not variables.search(value) then
+				Error.new("UNKNOWN_FUNCTION_CALL",file.Line,{value})
+			end
+			local data = Utils.getFunctionValue(value,Tokens,variables.search(value).Line_Created).Value
+			variable_type = getDataType(data,data:match("%S+%("))
+			parent_value = data
+			if parent_value == "" then
+				parent_value = "null"
+			end
+		end
+	end
+	return variable_type
+end
+
+
 -- Variable Eval
 function variables.eval(line,n_rea)
 	local n_rea = n_rea or false
@@ -109,9 +176,7 @@ function variables.eval(line,n_rea)
 	-- No operations found
 	local _,variable_class = variables.search(variable_name)
 	VARIABLES[variable_class:upper()][variable_name].Value = OPDATA or after_eq_data[#after_eq_data].Value
-	-- print(#after_eq_data)
-
-	--return {Type = "testing", Value = ""}
+	VARIABLES[variable_class:upper()][variable_name].Type = getDataType(VARIABLES[variable_class:upper()][variable_name].Value)
 end
 
 
@@ -168,74 +233,6 @@ local function concat(value, next_value, value_fcall, next_value_fcall)
 	end
 	
 	return "" -- Something is wrong
-end
-
-
--- Get Variable Data Type
-local function getDataType(value,function_call)
-	local variable_type
-	--print(value)
-	parent_value = nil
-	local data_types = {
-		"string",
-		"number",
-		"array",
-		"bool",
-		"function"
-	}
-	if value:match("^['\"]") then
-		variable_type = data_types[1]
-	elseif value:match("^%[") then
-		variable_type = data_types[3]
-	elseif value:match("%d+") and not value:match("^['\"]") and not value:find("%a") then
-		variable_type = data_types[2]
-	elseif value == "true" or value == "false" then
-		variable_type = data_types[4]
-	elseif value == "" then
-		variable_type = "null"
-	else
-		if getVariableType(value) == nil and not function_call then
-			if value:find("[%^%-%+%^%*]") then
-				print("Need to eval value: "..value)
-				variables.eval(file.Line)
-				Error.new("UNKNOWN_VAR_CALL",file.Line,{value})
-			else
-				if value:find("%.") then
-					local parent_array = value:match("%S+%."):gsub("%.","")
-					local child_value = value:match("%.%S+"):gsub("%.","")
-					if variables.search(parent_array) == false then
-						Error.new("NULL_VALUE_INDEX",file.Line,{parent_array})
-					end
-					parent_value = variables.search(parent_array).Value
-					variable_type = "null"
-					value = "null"
-					goto skip_error
-				end
-				Error.new("UNKNOWN_VAR_CALL",file.Line,{value})
-				::skip_error::
-			end
-		end
-		if function_call then
-			value = value:gsub("%(.?%)","")
-		end
-		if not function_call then
-			--print(getVariableType(value))
-			variable_type = VARIABLES[getVariableType(value):upper()][value].Type
-			parent_value = VARIABLES[getVariableType(value):upper()][value].Value
-			parent_content = VARIABLES[getVariableType(value):upper()][value].Content
-		else
-			if not variables.search(value) then
-				Error.new("UNKNOWN_FUNCTION_CALL",file.Line,{value})
-			end
-			local data = Utils.getFunctionValue(value,Tokens,variables.search(value).Line_Created).Value
-			variable_type = getDataType(data,data:match("%S+%("))
-			parent_value = data
-			if parent_value == "" then
-				parent_value = "null"
-			end
-		end
-	end
-	return variable_type
 end
 
 
