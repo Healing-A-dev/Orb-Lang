@@ -21,7 +21,7 @@ FEATURES:
 			- I kinda like 1 based indexing though...I just makes sense..
 
 	- Create an assembly compiler:
-		- Compiles Orbit source code into assembly via the x-oVM
+		- Compiles Orbit source code into assembly via 'Xohe'
 		- Will use something known as "As is values", meaning no mathematical or concatenation operations will happen at compile time
 		- There will be NO functions or anything of that sort either
 
