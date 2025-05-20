@@ -82,17 +82,22 @@ function utils.gatherArrayData(start_line, syntax_table)
 	end
 end
 
-function displayHelpMessage()
-	io.write([[Usage: orb <filename> <arguments>
+-- Help Message
+function displayHelpMessage(err)
+	local err = err or 0
+	io.write([[Usage: orb(c) <filename> <arguments>
 
 Commands:
     -h     |> Displays this message and exits
-    -v     |> Displays the current version
+    -v     |> Displays the current version and exits
     -ve    |> Displays warngins that occured during compilation (verbose)
+    -a     |> Compiler flag to generate only an assembly file of the specified program (orbc)
+    -o     |> Specify an output file (orbc)
 ]])
-	os.exit()
+	os.exit(err)
 end
 
+-- pcall Function Wrapper
 function call(function_name)
 	local status, error = pcall(function_name)
 	if not status then
