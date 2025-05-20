@@ -25,6 +25,9 @@ local allowedTypes = {
     Function = {
         required = "func"
     },
+    Void = {
+        required = "."
+    }
 }
 
 function getAllowedTypes()
