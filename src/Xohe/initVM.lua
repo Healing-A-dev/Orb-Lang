@@ -36,16 +36,19 @@ local Variables = require("src/variables")
 local Tokens    = require("src/tokens")
 local Builder   = require("src/Xohe/builder")
 local Compiler  = require("src/Xohe/compiler")
+local Utils     = require("src/utils")
 
 --[[Instance Variables]]--
 local string_init_character = nil
 local is_in_string = false
 local is_function = false
+warnings = ""
 initVM = {
     Tokens = {},
     Stack  = {
         Init = {},
     },
+    PUSH_OP = {}	-- Compiler Operations (ie. Write, Read, etc)
 }
 
 --[[Orbit -> OLua Lexer]]--
@@ -171,6 +174,11 @@ end
 function initVM.execute(self,Line_Data)
     local out = ""
     local function_data = ""
+    local function_stack = {}
+    local internal_functions = {
+        Name = "",
+        Functions = {}
+    }
 
     -- Combining OLua Code
     for _,i in pairs(self.Tokens) do
@@ -183,17 +191,46 @@ function initVM.execute(self,Line_Data)
             local skipper = 1
             while _+skipper <= #Line_Data do
                function_data = function_data..Line_Data[_+skipper].Value
+               if Line_Data[_+skipper].Value == Tokens.symbols.OTOKEN_KEY_OPAREN then
+                   function_stack[#function_stack+1] = 1
+                   if #function_stack > 1 then
+                       for s = #function_data, 1, -1 do
+                           local character = function_data:sub(s,s)
+                           if not character:match("[%,%(]") then
+                               internal_functions.Name = internal_functions.Name..character
+                            elseif character:match("[%,%(]") and #internal_functions.Name > 0 then
+                                table.insert(internal_functions.Functions,internal_functions.Name:reverse())
+                                internal_functions.Name = ""
+                                break
+                           end
+                       end
+                    end
+                elseif Line_Data[_+skipper].Value == Tokens.symbols.OTOKEN_KEY_CPAREN then
+                    table.remove(function_stack, #function_stack)
+               end
                skipper = skipper+1
             end
+            -- MUST FIX LATER FOR RECURSION PURPOSES
+            for _,Name in pairs(internal_functions.Functions) do
+               local Data = Variables.search(Name)
+               if Data then
+                    local Name = Name.."%(%)"
+                    function_data = function_data:gsub(Name, Data.Value)
+                    --print(function_data)
+                else
+                    print("UNKOWN FUNCTION CALL <"..Name..">")
+                end
+            end
+            -- END FIX AREA
             local variable_name = Line_Data[_-1].Value
             local variable_data, variable_type = Variables.search(variable_name)
             out = out.."\n\nVARIABLES."..variable_type:upper().."."..variable_name..".Value = "..function_data
         end
     end
 
-    -- Loading & Executing
-    os.execute("echo '"..out.."' > src/Xohe/out.lua")
-    load(out)()
+    -- Loading, Executing, & Collecting Warnings
+    LOAD = call(load(out)())
+    warnings = warnings..LOAD.."\n"
 end
 
 
@@ -217,5 +254,65 @@ function initVM.Generate(self,...)
     return true
 end
 
+
+
+-- Compiler Arguemnt Handler
+function initVM.GatherCompilerArguemnts()
+    if arg[1] == "-c" and arg[#arg] == ("orbc") then
+        COMPILER.FLAGS.EXECUTE = false
+        table.remove(arg,1)
+    elseif arg[1] == "-c" and arg[#arg] ~= ("orbc") then
+        print("[orb]: invalid option '"..arg[1].."'")
+        displayHelpMessage(1)
+    end
+    for _,i in pairs(arg) do
+    	if #arg == 0 then
+			os.exit()
+    	end
+        if i:find("%-") then
+            local arg_type = i:gsub("%-","")
+            if arg_type == "o" then
+                if not COMPILER.FLAGS.EXECUTE then
+                    COMPILER.FLAGS.OUTFILE = arg[_+1]
+                else
+                    print("[orb]: invalid option '"..arg[_].."'")
+                    displayHelpMessage(1)
+                end
+            elseif arg_type == "v" then
+                print("WIP")
+                os.exit()
+            elseif arg_type == "h" then
+                displayHelpMessage()
+            elseif arg_type == "ve" then
+                COMPILER.FLAGS.WARN = true
+                table.remove(arg,_)
+            elseif arg_type == "a" then
+                if not COMPILER.FLAGS.EXECUTE then
+                    COMPILER.FLAGS.ASM = true
+                    table.remove(arg,_)
+                else
+                    print("[orb]: invalid option '"..arg[_].."'")
+                    displayHelpMessage()
+                end
+            else
+                print("[orb]: invalid option '"..arg[_].."'")
+                displayHelpMessage(1)
+            end
+        end
+    end
+end
+
+
+-- Compiler write operation()
+function initVM.PUSH_OP.WRITE(value)
+	local value = value
+	if not variables.search(value) then
+		if not tonumber(value) then
+			value = value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
+		end
+	else
+		NASM.TEXT = NASM.TEXT.."WRITE "..value..", L_"..value
+	end
+end
 
 return initVM
