@@ -3,18 +3,23 @@ local compiler = {}
 --[[Imports]]--
 local Error = require("src/errors")
 
-local COMPILER = {
+
+--[[Compiler Table]]--
+COMPILER = {
     CREATED_FILES = {
         'src/Xohe/out.asm',
         'src/Xohe/out.o',
-        'src/Xohe/out.lua'
     },
-    FLAG = {
-        OUTFILE = ""
+    FLAGS = {
+        OUTFILE = nil,
+        EXECUTE = true,
+        ASM = false,
+        WARN = false,
     }
 }
 
-local NASM = {}
+--[[Compiler]]--
+NASM = {}
 NASM.MACROS = [[
 %macro WRITE 2
     mov rax, 1	                ; Write
@@ -52,22 +57,23 @@ section .data
 ]]
 
 NASM.TEXT = [[
-
 section .text
     global _start
     _start:
-        WRITE a, L_a
+    	WRITE a, L_a
 ]]
 
+-- Variable Data Collection
+-- Collects all global variables and static variables that are only included in the input file
 function gatherVariableData()
     local V = VARIABLES
     for _,variable in pairs(V.GLOBAL) do
         if variable.Type ==  "string" or variable.Type == "number" then
             local variable_value = variable.Value
             if not tonumber(variable_value) then
-                variable_value = variable_value:gsub("^['\"]",""):gsub("['\"]$","")
+                variable_value = variable_value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
             end
-            NASM.DATA = NASM.DATA.."\t"..tostring(_)..": db \""..variable_value.."\", 10\n"
+            NASM.DATA = NASM.DATA.."\t"..tostring(_)..": db \""..variable_value.."\", 0\n"
             NASM.DATA = NASM.DATA.."\t".."L_"..tostring(_)..": equ $-"..tostring(_).."\n\n"
         end
     end
@@ -86,15 +92,26 @@ function Compile()
     file:close()
 
     -- Executing file
-    if not SELF_EXECUTE then
-        if C_OUT == nil then
+    if not COMPILER.FLAGS.EXECUTE then
+        if COMPILER.FLAGS.OUTFILE == nil then
             Error.new("NO_OUTPUT")
         end
-        os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1]..' && ld -o '..C_OUT..' '..COMPILER.CREATED_FILES[2])
+        if not COMPILER.FLAGS.ASM then
+            os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1]..' && ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
+        else
+            local file = io.open(COMPILER.FLAGS.OUTFILE, "w+")
+            file:write(NASM.MACROS)
+            file:write(NASM.BSS)
+            file:write(NASM.DATA)
+            -- Program --
+            file:write(NASM.TEXT)
+            file:write("\t\tEXIT 0")
+            file:close()
+        end
     else
-        local C_OUT = "orb.out"
-        table.insert(COMPILER.CREATED_FILES, C_OUT)
-        os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1]..' && ld -o '..C_OUT..' '..COMPILER.CREATED_FILES[2].." && ./"..C_OUT)
+        COMPILER.FLAGS.OUTFILE = "orb.out"
+        table.insert(COMPILER.CREATED_FILES, COMPILER.FLAGS.OUTFILE)
+        os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1]..' && ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2].." && ./"..COMPILER.FLAGS.OUTFILE)
     end
 
     -- Cleaning
@@ -103,8 +120,5 @@ function Compile()
     end
     return true
 end
-
--- gatherVariableData()
--- Compile()
 
 return compiler
