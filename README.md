@@ -42,6 +42,6 @@ global func subtract(x, y) {
 Given the event that you have a function that does not take any arguments, in Orb, you won't even need to use and parenthesis for said function. ie:
 ```julia
 func sayHello {
-	put("Hello, World!")
+    put("Hello, World!")
 }
 ```
