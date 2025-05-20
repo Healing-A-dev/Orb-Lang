@@ -1,8 +1,1 @@
-@fmt "std.io"
-
-func Testing_Function_Calls() {
-    carlos := "THATS MY NAME"
-    ret carlos
-}
-
-global a := Testing_Function_Calls()
+global a := "Hello\nWorld\n!"
