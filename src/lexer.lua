@@ -268,7 +268,6 @@ function lexer.lex(file,safemode)
 			if is_value or is_array_value then
 				local if_global_value = lexer_tokens[s][_-2].Token:match("_GLOBAL$") or ""
 				if token.Token:match("OTOKEN_KEY_OBRACKET") then
-					--print(s)
 					Utils.gatherArrayData(s,lexer_tokens)
 				end
 				if not token.Token:match("CONCAT") then
