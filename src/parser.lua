@@ -4,7 +4,7 @@ local parser = {}
 local Variables = require("src/variables")
 local Function  = require("src/functions")
 local Error 	= require("src/errors")
-local Ast 		= require("src/ast")
+local Ast 	= require("src/ast")
 local Tokens	= require("src/tokens")
 local Module    = require("src/modules")
 
