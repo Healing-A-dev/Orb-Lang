@@ -1,16 +1,17 @@
 local variables = {}
 
---[[Imports]]--
+-- Imports --
 local Error = require("src/errors")
 local Utils = require("src/utils")
 local Token = require("src/tokens")
 
---[[Instance Variables]]--
+-- nstance Variables --
 local parent_value = nil
 local Tokens = nil
 local VarOps = {}
 
---[[Variable Operations]]--
+
+-- Variable Operations --
 function VarOps.ADD(value1,value2,l)
 	local value_of_value1, value_of_value2 = value1, value2
 
@@ -41,7 +42,7 @@ function VarOps.ADD(value1,value2,l)
 end
 
 
--- Get Variable Classification Type
+-- Get Variable Classification Type --
 local function getVariableType(variable)
 	if VARIABLES.STATIC[variable] then
 		return "static"
@@ -55,7 +56,7 @@ local function getVariableType(variable)
 end
 
 
--- Variable Search
+-- Variable Search --
 function variables.search(variable_name)
 	if VARIABLES.GLOBAL[variable_name] ~= nil then
 		return VARIABLES.GLOBAL[variable_name], "global"
@@ -69,7 +70,7 @@ function variables.search(variable_name)
 end
 
 
--- Inverse Variable Search (Value -> Variable)
+-- Inverse Variable Search (Value -> Variable) --
 function variables.inverseSearch(value)
 	local types = {"GLOBAL", "STATIC", "TEMPORARY"}
 	for _,i in pairs(types) do
@@ -84,7 +85,7 @@ function variables.inverseSearch(value)
 end
 
 
--- Get Variable Data Type
+-- Get Variable Data Type --
 local function getDataType(value,function_call)
 	local variable_type
 	parent_value = nil
@@ -151,7 +152,7 @@ local function getDataType(value,function_call)
 end
 
 
--- Variable Eval
+-- Variable Eval --
 function variables.eval(line,n_rea)
 	local n_rea = n_rea or false
 	local variable_name = nil
@@ -195,7 +196,7 @@ function variables.eval(line,n_rea)
 end
 
 
--- Concat Variable Values
+-- Concat Variable Values --
 local function concat(value, next_value, value_fcall, next_value_fcall)
 	local var_value, next_var_value, out = nil, nil, ""
 	if not value:match("['\"]") then
@@ -251,7 +252,7 @@ local function concat(value, next_value, value_fcall, next_value_fcall)
 end
 
 
--- Create Variable (Global/Static)
+-- Create Variable (Global/Static) --
 function variables.addVariable(tokens, add, token_table)
 	local var_name, var_value, var_data, var_line_created = {}, {}, {}, nil
 	local skip_token = false
@@ -297,7 +298,7 @@ function variables.addVariable(tokens, add, token_table)
 end
 
 
--- Create Temporary Variables
+-- Create Temporary Variables --
 function variables.addTempVariable(variable,parent,line)
 	VARIABLES["TEMPORARY"][variable] = {
 		Parent = {
