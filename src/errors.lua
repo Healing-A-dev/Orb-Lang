@@ -1,5 +1,6 @@
 local error = {}
 
+-- Error Data Reader/Processor
 local function __EXTRAINFO(PROCESS,SIZE)
 	local table,PROCESS = {}, PROCESS or {}
     local MAXPROCESSLENGTH = SIZE or 8
@@ -17,6 +18,8 @@ local function __EXTRAINFO(PROCESS,SIZE)
 	return table
 end
 
+
+-- Stack reader (reads the current stack)
 local function readStack()
 	local Stack = _STACK
 	for s = #Stack, 1, -1 do
@@ -32,7 +35,8 @@ local function readStack()
 	end
 end
 
---[[Errors]]--
+
+-- Errors --
 function error.new(type,line,...)
     local line = tostring(line) or nil
     local data = __EXTRAINFO(...)
