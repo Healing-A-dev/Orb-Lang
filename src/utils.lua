@@ -1,6 +1,6 @@
 local utils = {}
 
--- Get Function Return Value
+-- Get Function Return Value --
 function utils.getFunctionValue(function_name,tokens,line)
 	local stack_mini, out, set_out = {}, "", false
 	for s = line, #tokens do
@@ -29,7 +29,7 @@ function utils.getFunctionValue(function_name,tokens,line)
 end
 
 
--- String.Chop function
+-- String.Chop function --
 function string.chop(string,locations)
 	local split_string = {}
 	for letter in string:gmatch(".") do
@@ -45,7 +45,8 @@ function string.chop(string,locations)
 	return table.concat(splitString)
 end
 
--- Collecting Array Data
+
+-- Collecting Array Data [WIP] --
 function utils.gatherArrayData(start_line, syntax_table)
 	local array_stack_data, array_stack = {}, {}
 	local start = syntax_table[start_line]
@@ -82,7 +83,8 @@ function utils.gatherArrayData(start_line, syntax_table)
 	end
 end
 
--- Help Message
+
+-- Orb Help Message --
 function displayHelpMessage(err)
 	local err = err or 0
 	io.write([[Usage: orb(c) <filename> <arguments>
@@ -97,7 +99,8 @@ Commands:
 	os.exit(err)
 end
 
--- pcall Function Wrapper
+
+-- pcall Function Wrapper --
 function call(function_name)
 	local status, error = pcall(function_name)
 	if not status then
