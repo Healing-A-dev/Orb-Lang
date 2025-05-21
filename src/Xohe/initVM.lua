@@ -138,7 +138,6 @@ function initVM.lex(self,program)
         -- Statement Handling
         if self.Tokens[_][2] == "statement" or self.Tokens[_][1] == "{*" then
             self.Stack.Init[#self.Stack.Init+1] = self.Tokens[_][1]
-            --print(self.Stack.Init[#self.Stack.Init])
         end
 
         -- Changing '{' to the proper Lua equivalent
@@ -172,7 +171,8 @@ end
 
 --[[Lua Code Finalizer & Executor]]--
 function initVM.execute(self,Line_Data)
-    local out = ""
+    local out, buff = "", ""
+    local no_varaible_function_call = false
     local function_data = ""
     local function_stack = {}
     local internal_functions = {
@@ -225,16 +225,66 @@ function initVM.execute(self,Line_Data)
             local variable_name = Line_Data[_-1].Value
             local variable_data, variable_type = Variables.search(variable_name)
             out = out.."\n\nVARIABLES."..variable_type:upper().."."..variable_name..".Value = "..function_data
+        else
+        	no_variable_function_call = true
+        	local skipper = 1
+			while _+skipper <= #Line_Data do
+				function_data = function_data..Line_Data[_+skipper].Value
+				if Line_Data[_+skipper].Value == Tokens.symbols.OTOKEN_KEY_OPAREN then
+					function_stack[#function_stack+1] = 1
+					if #function_stack > 1 then
+						for s = #function_data, 1, -1 do
+							local character = function_data:sub(s,s)
+							if not character:match("[%,%(]") then
+								internal_functions.Name = internal_functions.Name..character
+							elseif character:match("[%,%(]") and #internal_functions.Name > 0 then
+								table.insert(internal_functions.Functions,internal_functions.Name:reverse())	
+								internal_functions.Name = ""
+								break
+							end
+						end
+        	        end
+					elseif Line_Data[_+skipper].Value == Tokens.symbols.OTOKEN_KEY_CPAREN then
+						table.remove(function_stack, #function_stack)
+					end
+				skipper = skipper+1
+			end
         end
+        -- FIX LATER
+		for _,Name in pairs(internal_functions.Functions) do
+			local Data = Variables.search(Name)
+			if Data then
+				local Name = Name.."%(%)"
+				function_data = function_data:gsub(Name, Data.Value)
+				--print(function_data)
+			else
+				print("UNKOWN FUNCTION CALL <"..Name..">")
+			end
+		end
     end
 
-    -- Loading, Executing, & Collecting Warnings
-    LOAD = call(load(out)())
+	-- CASE: Not assigning function call to variable (ex. a = b())
+    if no_variable_function_call then
+    	local stored_variable = ""
+		for _,i in pairs(Line_Data) do
+			local variable,classification = Variables.search(i.Value)
+			if variable ~= false and variable.Type ~= "function" and variable.Type ~= "mod" then
+				stored_variable = i.Value
+				buff = buff.."VARIABLES."..classification:upper().."."..i.Value..".Value"
+			else
+				buff = buff..i.Value
+			end
+		end
+    end
+
+	-- Loading, Executing, & Collecting Warnings
+    LOAD = call(load(out.."\n"..buff)())
     warnings = warnings..LOAD.."\n"
 end
 
 
 function initVM.UpdateOrbitValues(self,program)
+	self.Tokens = {}
     for _,tokens in pairs(program.Function_Data) do
         for _,data in pairs(tokens) do
             self:lex(data)
@@ -274,6 +324,8 @@ function initVM.GatherCompilerArguemnts()
             if arg_type == "o" then
                 if not COMPILER.FLAGS.EXECUTE then
                     COMPILER.FLAGS.OUTFILE = arg[_+1]
+                    table.remove(arg,_)
+                    table.remove(arg,_+1)
                 else
                     print("[orb]: invalid option '"..arg[_].."'")
                     displayHelpMessage(1)
@@ -303,15 +355,34 @@ function initVM.GatherCompilerArguemnts()
 end
 
 
--- Compiler write operation()
+
+-- [[BELOW ARE THE OPERATIONS FOR THE COMPILER THAT ARE CALLED THROUGH FUNCTIONS BUILT IN THE XOHE/builder File]] --
+
+
+-- Compiler ADD VARIABLE operation
+function initVM.PUSH_OP.ADDVAR(type, value)
+	local var, type, value = "Orb_CVARIABLE_0x0"..COMPILER.VARIABLES, type, value:gsub("\n","\\n")
+	if type == "STR" then
+		value = value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \"")
+	end
+	-- Incrementing compiler made variable count and adding compiler variable to .data
+	COMPILER.VARIABLES = COMPILER.VARIABLES + 1
+	NASM.DATA = NASM.DATA.."    "..var..": db \""..value.."\"\n"
+	NASM.DATA = NASM.DATA.."    L_"..var..": equ $-"..var.."\n\n"
+	return var
+end
+
+
+-- Compiler WRITE/PRINT operation
 function initVM.PUSH_OP.WRITE(value)
-	local value = value
-	if not variables.search(value) then
+	local value = Variables.inverseSearch(value) or value
+	if not Variables.search(value) then
 		if not tonumber(value) then
-			value = value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
+			local value = initVM.PUSH_OP.ADDVAR("STR", value)
+			NASM.TEXT = NASM.TEXT.."        WRITE "..value..", L_"..value.."\n"
 		end
 	else
-		NASM.TEXT = NASM.TEXT.."WRITE "..value..", L_"..value
+		NASM.TEXT = NASM.TEXT.."        WRITE "..value..", L_"..value.."\n"
 	end
 end
 
