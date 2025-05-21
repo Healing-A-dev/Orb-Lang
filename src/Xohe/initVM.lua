@@ -28,17 +28,17 @@
         VARIABLES.STATIC.a.Value = combine(VARIABLES.STATIC.x.Value, VARIABLES.STATICy.Value)
 ]]
 
---[[OLua Transpiler]]--
+-- OLua Transpiler --
 local initVM = {}
 
---[[Imports]]--
+-- Imports --
 local Variables = require("src/variables")
 local Tokens    = require("src/tokens")
 local Builder   = require("src/Xohe/builder")
 local Compiler  = require("src/Xohe/compiler")
 local Utils     = require("src/utils")
 
---[[Instance Variables]]--
+-- Instance Variables --
 local string_init_character = nil
 local is_in_string = false
 local is_function = false
@@ -51,7 +51,8 @@ initVM = {
     PUSH_OP = {}	-- Compiler Operations (ie. Write, Read, etc)
 }
 
---[[Orbit -> OLua Lexer]]--
+
+-- Orbit -> OLua Lexer --
 function initVM.lex(self,program)
     -- Mini Tokenizer
     for token in program:gmatch("%S+") do
@@ -169,7 +170,8 @@ function initVM.lex(self,program)
     end
 end
 
---[[Lua Code Finalizer & Executor]]--
+
+-- Lua Code Finalizer & Executor --
 function initVM.execute(self,Line_Data)
     local out, buff = "", ""
     local no_varaible_function_call = false
@@ -283,6 +285,7 @@ function initVM.execute(self,Line_Data)
 end
 
 
+-- Xohe Function Handler --
 function initVM.UpdateOrbitValues(self,program)
 	self.Tokens = {}
     for _,tokens in pairs(program.Function_Data) do
@@ -294,8 +297,7 @@ function initVM.UpdateOrbitValues(self,program)
 end
 
 
-
---[[XoheVM builtin functions]]--
+-- XoheVM Builtin Functions --
 function initVM.Generate(self,...)
     local exclusions = {...}
     for Function,_ in pairs(Builder.builtins) do
@@ -305,8 +307,7 @@ function initVM.Generate(self,...)
 end
 
 
-
--- Compiler Arguemnt Handler
+-- Compiler Arguemnt Handler --
 function initVM.GatherCompilerArguemnts()
     if arg[1] == "-c" and arg[#arg] == ("orbc") then
         COMPILER.FLAGS.EXECUTE = false
@@ -359,7 +360,7 @@ end
 -- [[BELOW ARE THE OPERATIONS FOR THE COMPILER THAT ARE CALLED THROUGH FUNCTIONS BUILT IN THE XOHE/builder File]] --
 
 
--- Compiler ADD VARIABLE operation
+-- Compiler ADD VARIABLE operation --
 function initVM.PUSH_OP.ADDVAR(type, value)
 	local var, type, value = "Orb_CVARIABLE_0x0"..COMPILER.VARIABLES, type, value:gsub("\n","\\n")
 	if type == "STR" then
@@ -373,7 +374,7 @@ function initVM.PUSH_OP.ADDVAR(type, value)
 end
 
 
--- Compiler WRITE/PRINT operation
+-- Compiler WRITE/PRINT operation --
 function initVM.PUSH_OP.WRITE(value)
 	local value = Variables.inverseSearch(value) or value
 	if not Variables.search(value) then
