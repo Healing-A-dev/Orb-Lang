@@ -1,25 +1,28 @@
 local parser = {}
 
---[[Imports]]--
+-- Imports --
 local Variables = require("src/variables")
 local Function  = require("src/functions")
 local Error 	= require("src/errors")
-local Ast 	= require("src/ast")
+local Ast       = require("src/ast")
 local Tokens	= require("src/tokens")
 local Module    = require("src/modules")
 
---[[Instance Variables]]--
+-- Instance Variables --
 file = {
 	Name = arg[1],
 	Line = 0
 }
 parser = {}
 
+
+-- Seek Function --
 local function seek(t,line,to_seek)
 	local to_seek = to_seek or 0
 	return t[line+to_seek]
 end
 
+-- Parser --
 function parser.parse(token_table)
 	for line = 1, #token_table do
 		file.Line = line
