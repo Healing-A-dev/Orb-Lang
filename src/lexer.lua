@@ -1,17 +1,16 @@
 local lexer = {}
 
---[[Imports]]--
+-- Imports --
 local Tokens = require("src/tokens")
 local Error	 = require("src/errors")
 local Utils  = require("src/utils")
 
---[[Instance Variables]]--
+-- Instance Variables --
 lexer = {
 	tokens = {},
 }
 
-
---[[Token Checker]]--
+-- Token Checker --
 local function isValidToken(token)
 	if #token == 1 then
 		for key,value in pairs(Tokens.symbols) do
@@ -33,7 +32,7 @@ local function isValidToken(token)
 	return {isToken = false}
 end
 
---[[Tokenizer]]--
+-- Tokenizer --
 function lexer.tokenize(string, line, isSafe)
 	if not isSafe then
 		lexer.tokens[line] = {}
@@ -63,7 +62,8 @@ function lexer.tokenize(string, line, isSafe)
 				lexer.tokens[line][#lexer.tokens[line]+1] = {Token = "OTOKEN_KEY_NAME", Value = token, isToken = false}
 			end
 		end
-	else	-- Safe Mode (aka Nested Lexing mode); Does not affect the main token table
+	else	
+		-- Safe Mode (aka Nested Lexing mode); Does not affect the main token table
 		lexer.tokens_safemode[line] = {}
 		local hold, iter = {},0
 		for character in string:gmatch(".") do
@@ -94,7 +94,7 @@ function lexer.tokenize(string, line, isSafe)
 	end
 end
 
---[[Token Adjuster]]--
+-- Token Adjuster --
 function lexer.adjust(safemode)
 
 	-- Variables
@@ -198,7 +198,7 @@ function lexer.adjust(safemode)
 	end
 end
 
---[[Lexing File]]--
+-- Lexing File --
 function lexer.lex(file,safemode)
 	-- Clearing safemode tokens and static variable tables
 	lexer.tokens_safemode = {}
@@ -232,7 +232,7 @@ function lexer.lex(file,safemode)
 	end
 	lexer.adjust(safemode)
 	
-	--[[Creating Function/Variable Tokens]]--
+	-- Creating Function/Variable Tokens --
 	for s = 1, #lexer_tokens do
 		local is_value = false
 		for _,token in pairs(lexer_tokens[s]) do
