@@ -26,7 +26,7 @@
         end
 
         VARIABLES.STATIC.a.Value = combine(VARIABLES.STATIC.x.Value, VARIABLES.STATICy.Value)
-]]
+]]--
 
 -- OLua Transpiler --
 local initVM = {}
