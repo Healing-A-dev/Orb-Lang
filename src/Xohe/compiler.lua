@@ -1,9 +1,9 @@
 local compiler = {}
 
---[[Imports]]--
+-- Imports --
 local Error = require("src/errors")
 
---[[Compiler Table]]--
+-- Compiler Table --
 COMPILER = {
     CREATED_FILES = {
         'src/Xohe/out.asm',
@@ -18,7 +18,8 @@ COMPILER = {
     VARIABLES = 0
 }
 
---[[Compiler]]--
+
+-- Compiler --
 NASM = {}
 NASM.MACROS = [[;;;;;;NASM MACROS;;;;;;
 %macro WRITE 2
@@ -64,7 +65,7 @@ section .text
 ]]
 
 -- Variable Data Collection
--- Collects all global variables and static variables that are only included in the input file
+-- Collects all global variables and static variables that are only included in the input file --
 function gatherVariableData()
     local V = VARIABLES
     for _,variable in pairs(V.GLOBAL) do
@@ -79,6 +80,7 @@ function gatherVariableData()
     end
 end
 
+-- Program Compilation --
 function Compile()
     gatherVariableData()
     local file = io.open("src/Xohe/out.asm","w+")
