@@ -16,9 +16,9 @@ _STACK = {
 --[[Imports]]--
 local start_time = os.time()
 local Tokens	 = require("src/tokens")
-local Lexer	 = require("src/lexer")
+local Lexer		 = require("src/lexer")
 local Parser 	 = require("src/parser")
-local Ast 	 = require("src/ast")
+local Ast 		 = require("src/ast")
 local Variable 	 = require("src/variables")
 local Utils 	 = require("src/utils")
 
