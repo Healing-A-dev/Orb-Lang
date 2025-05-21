@@ -1,4 +1,4 @@
---[[Setting Variable and Stack Tables]]--
+-- Setting Variable and Stack Tables --
 VARIABLES = {
 	GLOBAL = {
 		["null"] = {Type = "null", Value = "null"}
@@ -13,12 +13,12 @@ _STACK = {
 	FUNCTIONS = {}
 }
 
---[[Imports]]--
+-- Imports --
 local start_time = os.time()
 local Tokens	 = require("src/tokens")
-local Lexer      = require("src/lexer")
+local Lexer		 = require("src/lexer")
 local Parser 	 = require("src/parser")
-local Ast	 = require("src/ast")
+local Ast 		 = require("src/ast")
 local Variable 	 = require("src/variables")
 local Utils 	 = require("src/utils")
 
@@ -40,7 +40,7 @@ if #arg > 0 then
 	C = call(Compile())
 end
 
---[[Fun Data Stuff]]--
+-- Displaying Warnings --
 if COMPILER.FLAGS.WARN then
 	io.write("\nCompilation completed <"..os.time()-start_time.."s> with warning(s):\n\tXohe: "..A.."\n\tXohe: "..X.."\n\tXohe: "..LOAD.."\n\tLexer: "..L.."\n\tParser: "..P.."\n\tCompiler: "..C.."\n")
 elseif not COMPILER.FLAGS.WARN and not COMPILER.FLAGS.EXECUTE then
@@ -54,4 +54,3 @@ end
 		print(_.." | "..token.Token.." | "..token.Value)
 	end
 end]]
---print("a = "..VARIABLES.GLOBAL.a.Value)
