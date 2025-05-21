@@ -2,7 +2,7 @@ local lexer = {}
 
 --[[Imports]]--
 local Tokens = require("src/tokens")
-local Error  = require("src/errors")
+local Error	 = require("src/errors")
 local Utils  = require("src/utils")
 
 --[[Instance Variables]]--
