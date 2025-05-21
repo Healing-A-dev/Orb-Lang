@@ -18,7 +18,6 @@ local function __EXTRAINFO(PROCESS,SIZE)
 	return table
 end
 
-
 -- Stack reader (reads the current stack)
 local function readStack()
 	local Stack = _STACK
@@ -34,7 +33,6 @@ local function readStack()
 		print("\t\t^".." in "..Type.." | "..Stack[s].Line_Created)
 	end
 end
-
 
 -- Errors --
 function error.new(type,line,...)
