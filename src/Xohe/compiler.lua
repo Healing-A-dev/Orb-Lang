@@ -3,7 +3,6 @@ local compiler = {}
 --[[Imports]]--
 local Error = require("src/errors")
 
-
 --[[Compiler Table]]--
 COMPILER = {
     CREATED_FILES = {
@@ -15,12 +14,13 @@ COMPILER = {
         EXECUTE = true,
         ASM = false,
         WARN = false,
-    }
+    },
+    VARIABLES = 0
 }
 
 --[[Compiler]]--
 NASM = {}
-NASM.MACROS = [[
+NASM.MACROS = [[;;;;;;NASM MACROS;;;;;;
 %macro WRITE 2
     mov rax, 1	                ; Write
     mov rdi, 1                  ; STDOUT
@@ -46,6 +46,7 @@ NASM.MACROS = [[
 
 NASM.BSS = [[
 
+;;;;;;VARIABLE DATA;;;;;;
 section .bss
     read_buffer resb 128
     write_buffer resb 128
@@ -56,11 +57,10 @@ NASM.DATA = [[
 section .data
 ]]
 
-NASM.TEXT = [[
+NASM.TEXT = [[;;;;;;PROGRAM;;;;;;
 section .text
     global _start
     _start:
-    	WRITE a, L_a
 ]]
 
 -- Variable Data Collection
@@ -73,8 +73,8 @@ function gatherVariableData()
             if not tonumber(variable_value) then
                 variable_value = variable_value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
             end
-            NASM.DATA = NASM.DATA.."\t"..tostring(_)..": db \""..variable_value.."\", 0\n"
-            NASM.DATA = NASM.DATA.."\t".."L_"..tostring(_)..": equ $-"..tostring(_).."\n\n"
+            NASM.DATA = NASM.DATA.."    "..tostring(_)..": db \""..variable_value.."\", 0\n"
+            NASM.DATA = NASM.DATA.."    ".."L_"..tostring(_)..": equ $-"..tostring(_).."\n\n"
         end
     end
 end
@@ -88,7 +88,7 @@ function Compile()
     file:write(NASM.DATA)
     -- Porgram --
     file:write(NASM.TEXT)
-    file:write("\t\tEXIT 0")
+    file:write("        EXIT 0")
     file:close()
 
     -- Executing file
@@ -105,7 +105,7 @@ function Compile()
             file:write(NASM.DATA)
             -- Program --
             file:write(NASM.TEXT)
-            file:write("\t\tEXIT 0")
+            file:write("        EXIT 0")
             file:close()
         end
     else
