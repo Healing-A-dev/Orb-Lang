@@ -42,7 +42,7 @@ end
 
 --[[Fun Data Stuff]]--
 if COMPILER.FLAGS.WARN then
-	io.write("Compilation completed <"..os.time()-start_time.."s> with warning(s):\n\tXohe: "..A.."\n\tXohe: "..X.."\n\tXohe: "..LOAD.."\n\tLexer: "..L.."\n\tParser: "..P.."\n\tCompiler: "..C.."\n")
+	io.write("\nCompilation completed <"..os.time()-start_time.."s> with warning(s):\n\tXohe: "..A.."\n\tXohe: "..X.."\n\tXohe: "..LOAD.."\n\tLexer: "..L.."\n\tParser: "..P.."\n\tCompiler: "..C.."\n")
 elseif not COMPILER.FLAGS.WARN and not COMPILER.FLAGS.EXECUTE then
 	io.write("Compilation completed <"..os.time()-start_time.."s>\n")
 end
