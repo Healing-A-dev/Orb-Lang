@@ -1,1 +1,3 @@
-global a := "Hello\nWorld\n!"
+@fmt "std.io"
+
+put("Hello, World!\n")
