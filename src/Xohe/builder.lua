@@ -1,10 +1,11 @@
 local builder = {}
 
---[[Imports]]--
+-- Imports --
 local Lexer = require("src/lexer")
 local Parser = require("src/parser")
 local Functions = require("src/functions")
 
+-- Builtin Function Data --
 local function_data = {
     put = {
         "global func put(words) {",
@@ -15,6 +16,7 @@ local function_data = {
 
 }
 
+-- Creating Builtin Functions --
 builder.builtins = {}
 builder.builtins.put = {
     Type = "function",
