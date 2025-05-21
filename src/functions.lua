@@ -1,13 +1,13 @@
 local functions = {}
 
---[[Imports]]--
+-- Imports --
 local Error    = require("src/errors")
 local Variable = require("src/variables")
 
---[[Instance Variables]]--
+-- Instance Variables --
 functions = {}
 
---[[Function Return Value]]--
+-- Function Return Value --
 function functions.getValue(function_name, tokens, line)
 	local stack_mini, out, set_out, contents = {}, "", false, {}
 	for s = line, #tokens do
@@ -38,7 +38,7 @@ function functions.getValue(function_name, tokens, line)
 	return {Value = "null", Returned = false, Contents = contents}
 end
 
---[[New Functions]]--
+-- New Functions --
 function functions.new(tokens, add, token_table)
 	local function_name = nil
 	local function_variables = {}
