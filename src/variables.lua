@@ -69,6 +69,21 @@ function variables.search(variable_name)
 end
 
 
+-- Inverse Variable Search (Value -> Variable)
+function variables.inverseSearch(value)
+	local types = {"GLOBAL", "STATIC", "TEMPORARY"}
+	for _,i in pairs(types) do
+		for variable, v_value in pairs(VARIABLES[i]) do
+			if v_value.Value == value then
+				return variable
+			end
+		end
+	end
+	-- No value match was found
+	return nil
+end
+
+
 -- Get Variable Data Type
 local function getDataType(value,function_call)
 	local variable_type
