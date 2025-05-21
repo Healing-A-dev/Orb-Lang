@@ -60,7 +60,7 @@ tokens = {
 	}
 }
 
---[[Utility Functions]]--
+-- Utility Functions --
 function tokens.fetchCombinedValue(token1, token2)
 	for token,value in pairs(tokens.combined) do
 		if token1..token2 == value then
