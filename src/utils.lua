@@ -87,18 +87,32 @@ end
 -- Orb Help Message --
 function displayHelpMessage(err)
 	local err = err or 0
-	io.write([[Usage: orb(c) <filename> <arguments>
-
+	if COMPILER.FLAGS.EXECUTE then
+		io.write([[Usage: orb <filename> <arguments>
 Commands:
-    -h     |> Displays this message and exits
-    -v     |> Displays the current version and exits
-    -ve    |> Displays warngins that occured during compilation (verbose)
-    -a     |> Compiler flag to generate only an assembly file of the specified program (orbc)
-    -o     |> Specify an output file (orbc)
+    -h  [--help]       |> Displays this message and exits
+    -v  [--version]    |> Displays the current version and exits
+    -ve [--verbose]    |> Displays all commands used during compilation
+    -w  [--warnings]   |> Displays warngins that occured during compilation
 ]])
-	os.exit(err)
+		os.exit(err)
+	else
+		io.write([[Usage: orbc <filename> <arguments>
+Commands:
+    -h  [--help]       |> Displays this message and exits
+    -v  [--version]    |> Displays the current version and exits
+    -ve [--verbose]    |> Displays all commands used during compilation
+    -w  [--warnings]   |> Displays warngins that occured during compilation
+    -a                 |> Compiler flag to generate only an assembly file of the specified program
+    -o                 |> Specify an output file
+]])
+		os.exit(err)
+	end
 end
 
+function gatherFunctionName(str)
+    return str:match("%S+%("):gsub("%(","")
+end
 
 -- pcall Function Wrapper --
 function call(function_name)

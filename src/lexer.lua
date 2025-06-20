@@ -8,6 +8,7 @@ local Utils  = require("src/utils")
 -- Instance Variables --
 lexer = {
 	tokens = {},
+	static_variable_buffer = {}
 }
 
 -- Token Checker --
@@ -202,7 +203,11 @@ end
 function lexer.lex(file,safemode)
 	-- Clearing safemode tokens and static variable tables
 	lexer.tokens_safemode = {}
-	VARIABLES.STATIC = {}
+	if not safemode then
+		VARIABLES.STATIC = {}
+	else
+		lexer.static_variable_buffer = VARIABLES.STATIC
+	end
 
 	-- Variables
 	local counter = 1
@@ -281,6 +286,9 @@ function lexer.lex(file,safemode)
 				is_value = true
 			end
 		end
+	end
+	if safemode then
+		VARIABLES.STATIC = lexer.static_variable_buffer
 	end
 	return lexer_tokens
 end

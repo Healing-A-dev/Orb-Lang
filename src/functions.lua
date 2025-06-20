@@ -27,7 +27,6 @@ function functions.getValue(function_name, tokens, line)
 			end
 			if set_out then
 				out = out..i.Value
-				--print(out)
 			end
 			if i.Token:find("_RET") then
 				set_out = true
@@ -49,8 +48,8 @@ function functions.new(tokens, add, token_table)
 		elseif token.Token:find("GLOBAL$") then
 			function_classification = "global"
 		elseif token.Token == "OTOKEN_KEY_NAME" then
-			Variable.addTempVariable(token.Value,function_name,file.Line)
 			function_variables[#function_variables+1] = token.Value
+			Variable.addTempVariable(token.Value, function_name, file.Line, functions_variables)
 		end
 	end
 	

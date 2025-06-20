@@ -24,3 +24,29 @@ function ast.new(call,data)
 end
 
 return ast
+
+--[[
+
+
+a := 35
+b := 34
+
+func add(x, y) {
+	ret x + y
+}
+
+c := add(a, b)
+puts(c)
+
+
+-- AST VER --
+
+%add 2: 
+	push %1
+	push %2	
+%
+
+c db add: a:, b:
+call puts: c
+	
+]]

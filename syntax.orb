@@ -1,72 +1,137 @@
-/=
-	Modules:
-		Description: Modules are essetially they're own file/program and will be executed as such.
-		Creating Modules:
+/= Orb Syntaxing and Convention =/
 
-			mod <module_name> {
-				code
-				more code
-				even more code
+# Functions:
+	# Defining a function
+		<scope: none | global> func <name>(args) {
+		
+		}
+		
+		<scope: none | global> func <name> {
+			# Function with no arguments can be written as such
+		}
+
+	# Calling a function
+		foo(args)
+
+------------------------------------------------------------------------------------------
+
+# Variables:
+	# Declaring a new variable:
+		<scope: none | global> foo := bar
+
+	# Reassigning a variable
+		foo = bar
+
+	# Built-in variable functions:
+		.len()			# Returns the legnth of the variable
+		.str()			# Converts the value into a string (Returns false if not possible)
+		.num()			# Converts the value into a number (Returns false if not possible)	
+		
+	# Arrays:
+		# Declaring an array 
+			<scope: none | global> foo := [
+				bar := "Hello, World!"
+			]
+
+			foo{"buzz"} := "Buzz"
+		    foo.fizz := "Fizz"
+
+		# Calling an array value
+			foo{"bar"}		# Option 1
+			foo.bar			# Option 2
+
+		# Builtin array functions
+			.append(<value>)		# Inserts the value into the given array
+			.remove(<index>)		# Removes the value in the array at the given index
+			.len()					# Returns the length of the array
+			.concat(<value>)		# Concatinates all values in the array combining them with the given value (Throws error if value is not a string or number)
+			.invert()				# Switches the position of the keys and values (Key = value, value = Key)
+			.ipairs()				# Returns a loop iterating over all numerical key, value pairs in the array (key == null if no more values are found)
+			.pairs()				# Returns a loop iterating over all key, value pairs in the array (key == null if no more values are found)
+
+-------------------------------------------------------------------------------------------
+
+# Modules:
+	# Modules are a special type of function that is ran as it own sperate program. Meaning that any variables, imports, and even functions do not exist within the scope of the module.
+	# Defining a module:
+		<scope: none | global> mod <name>([], &m_args) {
+			
+		}
+
+	# Defining a module (with linked functions, variable, etc)
+		# Example program:
+		
+			@include("io")
+
+			global age := 3000
+			hobby := "Concrete"
+			
+			func greet() {
+				name := io.read("What is your name?\n")
+				putln("Hello, " << name)
+				ret name
 			}
 
-		Calling Modules:
+			mod dataCollection([&age => age, &hobby => hobby, &greet => greet, &io], &m_args) {
+				@include("os")
 
-			[Option 1]: Calling with defined arguments
-
-				@<module_name>()
-			
-				@<module_name>::<function/module_name>()
-
-			Note: Only objects inside the parenthesis will be used as arguments
-
-			[Option 2]: Calling with implied arguments
-
-				@<module_name>
-
-				@<module_name>::<function/module_name>
-
-			Note: EVERYTHING after the module call will be used as an input argument
-
-
-
-	Functions:
-		Description: Functions are...well just functions nothing too special there.
-		Creating Functions:
-
-			[Option 1]: Basic Functions
-
-				func <function_name> (a,b,c,...) {
-					code
+				# Making it slightly simpler to use the arguments (arg{foo} instead of &m_args{foo})
+				arg := &m_args
+				
+				Client := [
+					age := age,
+					hobby := hobby,
+					name := greet()
+				]
+				
+				name := &io.read("What is your name?\n")
+				if (name == Client.name) {
+					putln("WELCOME " << name << "\n")
+					putln("No need to get situated, we already have you covered.\n")
+					os.exit(0)
 				}
 
-			[Option 2]: Functions with no input arguments
 
-				func <function_name> {
-					code
+				# Creating a function to show off module function calling
+				func replaceClient {
+					# Function MUST be global if you want to use it outside the scope of the module
+					new_client = [
+						age = &io.read("Enter your age: "),
+						hobby = &io.read("Enter your favorite hobby: "),
+						name = name
+					]
+					ret new_client
 				}
 
-		Calling Functions:
+				global func displayClientData(table) {
+					# Iterating over every value in the table
+					while (key, value := table.pairs() && key != null) {
+						put("Client " << key << ": " << value)
+					}
+				}
 
-			[Option 1]: Basic Functions
+				if (arg{0} == "REPLACE_ACTIVE_CLIENT") {
+					Client = replaceClient()
+				} else {
+					putln("LEAVE NOW IMPOSTER!!!\n")
+					os.exit(1)
+				}
+				ret Client
+			}
 
-				<function_name>(arg1,arg2,arg3,...)
+		
+	# Calling a module:
+		# Example program using the program example above:
+			@dataCollection("REPLACE_ACTIVE_CLIENT")
+			@dataCollection::displayClientData()
 
+-------------------------------------------------------------------------------------------
 
-			[Option 2]: Function with no input arguments
-
-				<function_name>()
-
-			Note: Passing arguments into a function that can take no arguments WILL throw an error.
-
-
-	Importing:
-		Description: An Orb[it] module that handles file importing
-		Importing A File:
-
-		[Option 1]: Implied argument
-			@including <file_name>
-
-		[Option 2]: Defined argument
-			@including(<file_name>)
-
-=/
+# Built-in Functions:
+	puts(<value>)			# Prints the given data
+	typeof(<value>)			# Returns the type of the given value (Number, String, Array, Bool, Function, Module)
+	panic(<message>)		# Display and error with the given message; exits program
+	num(<value>)			# Converts the given value to a number if possible; returns false if not possible
+	str(<value>)			# Converts the given value to a string if possible; returns false if not possible
+	len(<value>)			# Returns the length of the given value (Arrays, and Strings); returns null if not possible
+	

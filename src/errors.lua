@@ -30,7 +30,7 @@ local function readStack()
 		elseif Type == "if" or Type == "elseif" or Type == "for" or Type == "while" then
 			Type = Type.." statment"
 		end
-		print("\t\t^".." in "..Type.." | "..Stack[s].Line_Created)
+		print("        ^".." in "..Type.." | "..Stack[s].Line_Created)
 	end
 end
 
@@ -41,26 +41,27 @@ function error.new(type,line,...)
 
 	-- Available Errors
     local errors = {
-		UNFINISHED_STRING = "Orb: <syntax> error\ntraceback\n\t[orb]: unfinished string near '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		STATEMENT_INIT = "Orb: <syntax> error\ntraceback\n\t[orb]: '{' expected near '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		STATEMENT_END = "Oorb: <syntax> error\ntraceback\n\t[orb]: '}' expected (to close '"..data[1].."' at line "..data[2]..")\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback\n\t[orb]: attempt to call unknwon variable '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		ARITHMETIC = "Orb: <FIXME> error\ntraceback\n\t[orb]: cannot perform arithmetic operation on "..data[1]..data[2]..data[3].." '"..data[4].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		UNEXPECTED_TOKEN = "Orb: <syntax> error\ntraceback\n\t[orb]: unexpected token '"..data[1].."' near '"..data[2].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		ASSIGN_TO_UNDECLARED = "Orb: <assignment> error\ntraceback\n\t[orb]: cannot assign data to undeclared variable '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		UNKNOWN_FUNCTION_CALL = "Orb: <call> error\ntraceback\n\t[orb]: attempt to call unknown function '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		NULL_VALUE_INDEX = "Orb: <call> error\ntraceback\n\t[orb]: attempt to index null value '"..data[1].."'\n\t[file]: "..arg[1].."\n\t[line]: "..line,
-		NO_OUTPUT = "Orb: \027[31m<compiler>\027[0m error\ntraceback\n\t[orb]: no output file specified"
+		UNFINISHED_STRING = "Orb: <syntax> error\ntraceback\n    [orb]: unfinished string near '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		STATEMENT_INIT = "Orb: <syntax> error\ntraceback\n    [orb]: '{' expected near '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		STATEMENT_END = "Oorb: <syntax> error\ntraceback\n    [orb]: '}' expected (to close '"..data[1].."' at line "..data[2]..")\n    [file]: "..arg[1].."\n    [line]: "..line,
+		UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback\n    [orb]: attempt to call unknwon variable '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		ARITHMETIC = "Orb: <FIXME> error\ntraceback\n    [orb]: cannot perform arithmetic operation on "..data[1]..data[2]..data[3].." '"..data[4].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		UNEXPECTED_TOKEN = "Orb: <syntax> error\ntraceback\n    [orb]: unexpected token '"..data[1].."' near '"..data[2].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		ASSIGN_TO_UNDECLARED = "Orb: <assignment> error\ntraceback\n    [orb]: cannot assign data to undeclared variable '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		UNKNOWN_FUNCTION_CALL = "Orb: <call> error\ntraceback\n    [orb]: attempt to call unknown function '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		NULL_VALUE_INDEX = "Orb: <call> error\ntraceback\n    [orb]: attempt to index null value '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
+		BAD_ARGUMENT = "Orb: <argument> error\ntraceback\n    [orb]: bad arguemnt #"..data[1].." in "..data[2]..". "..data[4].." expected, got '"..data[5].."'\n    [file]: "..arg[1].."\n    [line]: "..line
 	}
-	
+
     if errors[type] ~= nil then
 		-- Built-in Errors
         print(errors[type])
 		readStack()
     else
 		-- Custom Errors
-        print(type)
+		print("Orb: error\ntraceback\n    [orb]: "..type.."\n    [file]: "..arg[1].."\n    [line]: "..line)
     end
+    print("\n\027[91mexit status <1>\027[0m")
     os.exit(1)
 end
 

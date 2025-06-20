@@ -7,28 +7,22 @@ FEATURES:
 		- Must throw a compiler warning if something went wrong in the module
 		- Cannot use an exessive amount of resources, as they will be compiled everytime they are called (for total isolation from the main program besides given arguments)
 
-	- Implement Function Call:	[DONE]
-		- Create user function calls
-
-	- Implement Linking:
-		- Link Certain functions, Modules, Files, etc without having to import an entire file
-		- Does not affect data in the file for the linked function/module/file
-
 	- Finish Implementing Arrays:
 		- Make values in an array callable (ex. Names{1})
 		- Make values reassignable
 		- Zero based indexing...?
 			- I kinda like 1 based indexing though...I just makes sense..
 
-	- Create an assembly compiler:
+	- Create an assembly compiler:	[WIP]
 		- Compiles Orbit source code into assembly via 'Xohe'
 		- Will use something known as "As is values", meaning no mathematical or concatenation operations will happen at compile time
 		- There will be NO functions or anything of that sort either
 
-		- Create an assembly wrapper in lua (MAYBE | NOT LIKELY)
+		- Create an assembly wrapper in lua (MAYBE | NOT LIKELY) [DONE]
 			- Be able to run and compile assembly files using an assembly wrapper written in lua
 
-	- Create a simple Lua transpiler:	[CORE COMPLETED: Need to fixs arguments being converted to their orbit variable table values eg. VARIABLES.TEMPORARY.x1.VALUE should just be x1]
+	- Create a simple Lua transpiler:	[CORE COMPLETED: Need to fixs arguments being converted to their orbit variable table values ex. VARIABLES.TEMPORARY.x1.VALUE should just be x1]
+		- FIX: Random crap being added to the function calls (ex. VARIABLES.GLOBAL.a.Value = :=main():=main()main())
 		- Converts Orbit functions & modules into Lua
 		- Runs functions/modules, but only updates variables in Orbit
 			- Converters the function/module into lua code that will be ran using the load() function
@@ -51,5 +45,5 @@ FEATURES:
 		- May be included in the x-oVM (Will have to rewrite in orb to ONLY update values and not compile again...because yeah...saving reasources and time)
 	
 BUG FIXES:
-	- Fix concatenation
-	- Fix quotations in comments not working [throws unfinished string error] (DONE..?)
+	- Fix concatenation [WIP]
+	- Fix quotations in comments not working [throws unfinished string error] (DONE..? NO....)

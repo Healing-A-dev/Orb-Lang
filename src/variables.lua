@@ -43,7 +43,7 @@ end
 
 
 -- Get Variable Classification Type --
-local function getVariableType(variable)
+function variables.getVariableType(variable)
 	if VARIABLES.STATIC[variable] then
 		return "static"
 	elseif VARIABLES.GLOBAL[variable] then
@@ -87,6 +87,15 @@ end
 
 -- Get Variable Data Type --
 local function getDataType(value,function_call)
+	if function_call ~= nil then
+		function_call = true
+		local function_name = gatherFunctionName(value)
+		if VARIABLES[variables.getVariableType(function_name):upper()][function_name].Type ~= "function" then
+			Error.new("UNKNOWN_FUNCTION_CALL", file.Line, {function_name})
+		end
+	else
+		function_call = false
+	end
 	local variable_type
 	parent_value = nil
 	local data_types = {
@@ -107,7 +116,7 @@ local function getDataType(value,function_call)
 	elseif value == "" then
 		variable_type = "null"
 	else
-		if getVariableType(value) == nil and not function_call then
+		if variables.getVariableType(value) == nil and not function_call then
 			if value:find("[%^%-%+%^%*]") then
 				print("Need to eval value: "..value)
 				variables.eval(file.Line)
@@ -130,12 +139,12 @@ local function getDataType(value,function_call)
 		end
 		if function_call then
 			value = value:gsub("%(.+%)","")
+			value = value:match("%S+%("):gsub("%(","")
 		end
 		if not function_call then
-			--print(getVariableType(value))
-			variable_type = VARIABLES[getVariableType(value):upper()][value].Type
-			parent_value = VARIABLES[getVariableType(value):upper()][value].Value
-			parent_content = VARIABLES[getVariableType(value):upper()][value].Content
+			variable_type = VARIABLES[variables.getVariableType(value):upper()][value].Type
+			parent_value = VARIABLES[variables.getVariableType(value):upper()][value].Value
+			parent_content = VARIABLES[variables.getVariableType(value):upper()][value].Content
 		else
 			if not variables.search(value) then
 				Error.new("UNKNOWN_FUNCTION_CALL",file.Line,{value})
@@ -153,7 +162,7 @@ end
 
 
 -- Variable Eval --
-function variables.eval(line,n_rea)
+function variables.eval(line, n_rea)
 	local n_rea = n_rea or false
 	local variable_name = nil
 	local after_eq_data = {}
@@ -191,6 +200,8 @@ function variables.eval(line,n_rea)
 	end
 	-- No operations found
 	local _,variable_class = variables.search(variable_name)
+	print(_,variable_class,variable)
+	print(variable_class)
 	VARIABLES[variable_class:upper()][variable_name].Value = OPDATA or after_eq_data[#after_eq_data].Value
 	VARIABLES[variable_class:upper()][variable_name].Type = getDataType(VARIABLES[variable_class:upper()][variable_name].Value)
 end
@@ -233,7 +244,7 @@ local function concat(value, next_value, value_fcall, next_value_fcall)
 	elseif next_var_value == "null" then
 		Error.new("Attempt to concatinate a null value ")
 	end
-	
+
 	if var_value == nil and next_var_value == nil then
 		out = value:gsub("['\"]$","")..next_value:gsub("^['\"]","")
 		return out
@@ -247,7 +258,7 @@ local function concat(value, next_value, value_fcall, next_value_fcall)
 		out = value:gsub("['\"]$","")..next_var_value:gsub("^['\"]","")
 		return out
 	end
-	
+
 	return "" -- Something is wrong
 end
 
@@ -263,7 +274,7 @@ function variables.addVariable(tokens, add, token_table)
 	for _,token in pairs(tokens) do
 		--print(token.Token)
 		if not token.Token:find("VAREQL") and not token.Token:find("KEYWORD_GLOBAL") then
-			if token.Token:find("VALUE") and not skip_token  then 
+			if token.Token:find("VALUE") and not skip_token  then
 				var_value[#var_value+1] = token.Value
 			elseif token.Token:find("VALUE") and skip_token then
 				skip_token = false
@@ -271,7 +282,7 @@ function variables.addVariable(tokens, add, token_table)
 				var_value[#var_value] = tokens[_+1].Value
 				skip_token = true
 			end
-			if token.Token:find("NAME") then 
+			if token.Token:find("NAME") then
 				var_name[1] = token.Value
 				if token.Token:match("_GLOBAL$") then
 					var_name[2] = "global"
@@ -299,11 +310,13 @@ end
 
 
 -- Create Temporary Variables --
-function variables.addTempVariable(variable,parent,line)
+function variables.addTempVariable(variable, parent, line, position)
+	local position = position or 0
 	VARIABLES["TEMPORARY"][variable] = {
 		Parent = {
 			Name = parent,
-			Line_Created = line
+			Line_Created = line,
+			Position = position,
 		}
 	}
 end
