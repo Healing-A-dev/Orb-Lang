@@ -17,7 +17,7 @@ local function isValidToken(token)
 		for key,value in pairs(Tokens.symbols) do
 			if token == value then
 				return {Token = key, Value = token, isToken = true}
-			end			
+			end
 		end
 	elseif #token > 1 then
 		local token = token:gsub("^%s+","")
@@ -63,7 +63,7 @@ function lexer.tokenize(string, line, isSafe)
 				lexer.tokens[line][#lexer.tokens[line]+1] = {Token = "OTOKEN_KEY_NAME", Value = token, isToken = false}
 			end
 		end
-	else	
+	else
 		-- Safe Mode (aka Nested Lexing mode); Does not affect the main token table
 		lexer.tokens_safemode[line] = {}
 		local hold, iter = {},0
@@ -131,7 +131,7 @@ function lexer.adjust(safemode)
 				next_token = lexer_tokens[s][_+1].Token
 				next_token_value = lexer_tokens[s][_+1].Value
 			end
-			
+
 			-- Setting combination token values (ie. <=)
 			if next_token_value ~= nil then
 				combined_token = Tokens.fetchCombinedValue(token_value, next_token_value)
@@ -140,7 +140,7 @@ function lexer.adjust(safemode)
 					lexer_tokens[s][_+1] = nil
 				end
 			end
-			
+
 			-- Setting string literals
 			if token:find("QUOTE") and _ ~= skip then
 				local string_init_char, hold = token, {}
@@ -175,7 +175,7 @@ function lexer.adjust(safemode)
 					end
 				end
 			end
-			
+
 			-- Multi-line comments
 			if multi_line_comment and not lexer_tokens[s][_].Token:find("E_MULTI") then
 				lexer_tokens[s][_].Token = "OTOKEN_KEY_COMMENT"
@@ -185,7 +185,7 @@ function lexer.adjust(safemode)
 			if lexer_tokens[s][_].Token:find("S_MULTI") then
 				multi_line_comment = true
 			end
-			
+
 			-- Adding token to a table to be asjusted order wise (for future lexing reasons)
 			if token ~= "OTOKEN_KEY_SPACE" and token ~= "OTOKEN_KEY_TAB" then
 				fix[#fix+1] = lexer_tokens[s][_] -- Removing spaces and tokens marked for removal
@@ -236,7 +236,7 @@ function lexer.lex(file,safemode)
 		end
 	end
 	lexer.adjust(safemode)
-	
+
 	-- Creating Function/Variable Tokens --
 	for s = 1, #lexer_tokens do
 		local is_value = false
@@ -252,7 +252,7 @@ function lexer.lex(file,safemode)
 			if lexer_tokens[s][_+1] ~= nil then
 				next_token = lexer_tokens[s][_+1]
 			end
-			
+
 			-- Creating statement name tokens
 			if token.Statement and next_token.Token:find("NAME") then
 				local ext,class = token.Token:match("%w+$"), ""
@@ -263,12 +263,12 @@ function lexer.lex(file,safemode)
 				next_token.Token = "OTOKEN_KEY_"..class..ext.."_NAME"
 				next_token.isToken = true
 			end
-			
+
 			-- Global values
 			if token.Token == "OTOKEN_KEYWORD_GLOBAL" then
 				next_token.Token = next_token.Token.."_GLOBAL"
 			end
-			
+
 			-- Adding Value Tokens
 			if is_value or is_array_value then
 				local if_global_value = lexer_tokens[s][_-2].Token:match("_GLOBAL$") or ""

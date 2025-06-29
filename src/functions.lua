@@ -52,7 +52,7 @@ function functions.new(tokens, add, token_table)
 			Variable.addTempVariable(token.Value, function_name, file.Line, functions_variables)
 		end
 	end
-	
+
 	if add then
 		VARIABLES[function_classification:upper()][function_name] = {Value = functions.getValue(function_name,token_table,file.Line).Value, Type = "function", Line_Created = file.Line, Content = functions.getValue(function_name,token_table,file.Line).Contents}
 	end
@@ -60,4 +60,9 @@ function functions.new(tokens, add, token_table)
 	return {Name = function_name, Classification = function_classification, Arguments = function_Arguments}
 end
 
+-- New Statement Functions --
+-- statments in Orb will be handled as a form of functions (for my convinence and sandboxing)
+function functions.newStatement(tokens, type, add, token_table)
+    Error.new("TODO: Implement statment functions!")
+end
 return functions

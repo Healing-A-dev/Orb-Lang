@@ -4,7 +4,7 @@ ast = {}
 
 
 local function evaluate(Data)
-	
+
 	return Data --For now
 end
 
@@ -41,12 +41,12 @@ puts(c)
 
 -- AST VER --
 
-%add 2: 
+%add 2:
 	push %1
-	push %2	
+	push %2
 %
 
 c db add: a:, b:
 call puts: c
-	
+
 ]]

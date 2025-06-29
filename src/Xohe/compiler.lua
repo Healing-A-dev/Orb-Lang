@@ -6,7 +6,7 @@ local Error = require("src/errors")
 -- Compiler Table --
 COMPILER = {
     CREATED_FILES = {
-        'src/Xohe/out.asm',
+        'src/Xohe/out.s',
         'src/Xohe/out.o',
     },
     FLAGS = {
@@ -140,7 +140,7 @@ end
 -- Program Compilation --
 function Compile()
     gatherVariableData()
-    local file = io.open("src/Xohe/out.asm","w+")
+    local file = io.open(COMPILER.CREATED_FILES[1],"w+")
 
     -- Macros and variable data
     file:write(NASM.MACROS)
@@ -167,6 +167,9 @@ function Compile()
             print("<\027[95mCmd\027[0m> ld -o ".. COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
             os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
         else
+            if not COMPILER.FLAGS.OUTFILE:find("%.%S+$") then
+                COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE..".s"
+            end
             local file = io.open(COMPILER.FLAGS.OUTFILE, "w+")
             file:write(NASM.MACROS)
             file:write(NASM.BSS)

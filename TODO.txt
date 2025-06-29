@@ -43,7 +43,30 @@ FEATURES:
 				Variables.static.z.Value = add(x,y)
 
 		- May be included in the x-oVM (Will have to rewrite in orb to ONLY update values and not compile again...because yeah...saving reasources and time)
-	
+
 BUG FIXES:
 	- Fix concatenation [WIP]
 	- Fix quotations in comments not working [throws unfinished string error] (DONE..? NO....)
+	- Fix calling functions within the body of another function (ie. (FIXEDDDD :D, but very slow sadly)
+	    func main() {
+		    puts("Hello, World!\n")
+		}
+		main()
+		#Breaks the Xohe transpiler (thows nil function call error)
+	)
+		* IDEA: My current idea to fix this problem is to add the function it is trying to call to the load string AHEAD of the function that calls it.
+		* |> So in the example above (given how Orb processes functions) the order in which the functions are loaded into the string would be as following:
+		* |> 1. puts() => 2. main
+		* |> func puts(words) {
+			 	#Blah blah blah words
+			 }
+
+			 func main() {
+			 	puts("Hi")
+			 }
+
+			 main()
+		* |> This would would solve the entire problem...just have to figure out how to implement it without breaking or re-writting zeverything :D
+
+OPTIMIZATIONS:
+    - Optimize internal function calling (very slow at the moment given that the function that the XOHE function lexer is currently recursive which is rather slow)

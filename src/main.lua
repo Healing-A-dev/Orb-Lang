@@ -8,11 +8,8 @@ VARIABLES = {
 }
 
 _STACK = {
-    DATA = {},
-    RESERVE = {},
-    FUNCTIONS = {}
+    BUFFER = {}
 }
-
 _EXITCODE = 0
 
 -- Imports --
@@ -25,13 +22,13 @@ local Variable                = require("src/variables")
 local Utils                   = require("src/utils")
 
 -- Making the Variables table accessable to Orbit
-_V                            = VARIABLES
+_V = VARIABLES
 VARIABLES.GLOBAL["_V"]        = { Type = "array", Value = _V }
 VARIABLES.GLOBAL["_V.GLOBAL"] = { Type = "array", Value = _V.GLOBAL }
 VARIABLES.GLOBAL["_V.STATIC"] = { Type = "array", Value = _V.STATIC }
 
 -- Importing Xohe
-XOHE                          = require("src/Xohe/initVM")
+XOHE = require("src/Xohe/initVM")
 
 -- Compilation & Warning Collection --
 if #arg > 0 then
@@ -58,8 +55,17 @@ end
 
 
 --[[DEBUGGING]] --
---[[for s = 1, #Lexer.tokens do
+local o = ""
+for s = 1, #Lexer.tokens do
+	o = o..s..":\n"
 	for _,token in pairs(Lexer.tokens[s]) do
-		print(_.." | "..token.Token.." | "..token.Value)
+		o = o.."    ".._.." | "..token.Token.." | "..token.Value.."\n"
 	end
-end]]
+end
+local f = io.open("out.token","w+")
+f:write(o)
+f:close()
+-- Exit the program with the corresponding exit code
+if COMPILER.FLAGS.EXECUTE then
+    os.exit(_EXITCODE)
+end

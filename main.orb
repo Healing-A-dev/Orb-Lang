@@ -1,7 +1,8 @@
-a := (13 + 15) * 3
-b := "paul"
-#c = b()    Throws error because 1: c has not been declared, and 2: function 'b' does not exist
+func main() {
+    puts("Hello, World!\n")
+    x := 69420 * 13
+    puts(x << "\n")
+}
 
-panic("panic function test", 37)
-puts("Hello, World!\n")
- # puts is NOT a wrapper for print :)
+main()
+panic("EXITING PROGRAM!")

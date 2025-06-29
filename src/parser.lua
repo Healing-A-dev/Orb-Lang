@@ -70,6 +70,7 @@ function parser.parse(token_table)
 				if token.Token == "OTOKEN_TYPE_VALUE" and token.Value == Tokens.symbols.OTOKEN_KEY_OPAREN --[[and not token_table[line][_-1].Token:find("VAREQL")]] or token.Token == "OTOKEN_KEY_OPAREN" and token_table[line][_-1].Token == "OTOKEN_KEY_NAME" then
 					local to_call
 					local call_data = Variables.search(token_table[line][_-1].Value)
+					print(token_table[line][_-1].Value)
 					if type(call_data) == "table" then
 						to_call = call_data.Type
 					end
@@ -86,7 +87,7 @@ function parser.parse(token_table)
 				Function.new(token_table[line], true, token_table, line)
 				_STACK.DATA[#_STACK.DATA+1] = {Type = "FUNC", Name = token.Value, Line_Created = line}
 			elseif token.Token:find("MOD_NAME") then
-				Module.new(token_table[line], true, token_table, line)
+				Module.new(token_table[line], token_table, line)
 				_STACK.DATA[#_STACK.DATA+1] = {Type = "MOD", Name = token.Value, Line_Created = line}
 			end
 			-- Everything else

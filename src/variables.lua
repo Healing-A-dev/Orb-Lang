@@ -118,7 +118,8 @@ local function getDataType(value,function_call)
 	else
 		if variables.getVariableType(value) == nil and not function_call then
 			if value:find("[%^%-%+%^%*]") then
-				print("Need to eval value: "..value)
+				print("Need to evaluate value: "..value)
+				os.exit()
 				variables.eval(file.Line)
 				Error.new("UNKNOWN_VAR_CALL",file.Line,{value})
 			else

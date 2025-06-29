@@ -50,7 +50,7 @@ function error.new(type,line,...)
 		ASSIGN_TO_UNDECLARED = "Orb: <assignment> error\ntraceback\n    [orb]: cannot assign data to undeclared variable '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
 		UNKNOWN_FUNCTION_CALL = "Orb: <call> error\ntraceback\n    [orb]: attempt to call unknown function '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
 		NULL_VALUE_INDEX = "Orb: <call> error\ntraceback\n    [orb]: attempt to index null value '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
-		BAD_ARGUMENT = "Orb: <argument> error\ntraceback\n    [orb]: bad arguemnt #"..data[1].." in "..data[2]..". "..data[4].." expected, got '"..data[5].."'\n    [file]: "..arg[1].."\n    [line]: "..line
+		BAD_ARGUMENT = "Orb: <argument> error\ntraceback\n    [orb]: bad arguemnt #"..data[1].." in "..data[2].." |> "..data[4].." expected, got '"..data[5].."'\n    [file]: "..arg[1].."\n    [line]: "..line
 	}
 
     if errors[type] ~= nil then
@@ -59,7 +59,7 @@ function error.new(type,line,...)
 		readStack()
     else
 		-- Custom Errors
-		print("Orb: error\ntraceback\n    [orb]: "..type.."\n    [file]: "..arg[1].."\n    [line]: "..line)
+		print("Orb: <custom> error\ntraceback:\n    [orb]: "..type.."\n    [file]: "..arg[1].."\n    [line]: "..file.Line)
     end
     print("\n\027[91mexit status <1>\027[0m")
     os.exit(1)

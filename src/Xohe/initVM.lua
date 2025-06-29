@@ -38,30 +38,34 @@ local Builder   = require("src/Xohe/builder")
 local Compiler  = require("src/Xohe/compiler")
 local Utils     = require("src/utils")
 local Error     = require("src/errors")
+local Lexer     = require("src/lexer")
 
 -- Instance Variables --
 local string_init_character = nil
 local is_in_string = false
 local is_function = false
+local counter = 1
 warnings = ""
 initVM = {
     Tokens = {},
     Stack  = {
         Init = {},
     },
-    PUSH_OP = {}	-- Compiler Operations (ie. Write, Read, etc)
+    PUSH_OP = {},	-- Compiler Operations (ie. Write, Read, etc)
+    VERSION = "0.0.1+75"
 }
 
 
 -- Orbit -> OLua Lexer --
+initVM.Tokens[counter] = {}
 function initVM.lex(self,program)
     -- Mini Tokenizer
     for token in program:gmatch("%S+") do
-       self.Tokens[#self.Tokens+1] = {token, isString = false}
+        self.Tokens[counter][#self.Tokens[counter]+1] = {token, isString = false}
     end
 
     -- Converting Orbit tokens to Lua tokens
-    for _,token in pairs(self.Tokens) do
+    for _,token in ipairs(self.Tokens[counter]) do
 
         -- String Literals
         if token[1]:match('^"') then
@@ -81,44 +85,44 @@ function initVM.lex(self,program)
         -- Simple Keyword & Statement Conversions
         if not is_in_string then
             if token[1] == "func" then
-                self.Tokens[_][1] = "function"
-                self.Tokens[_][2] = "statement"
+                self.Tokens[counter][_][1] = "function"
+                self.Tokens[counter][_][2] = "statement"
                 is_function = true
             elseif token[1] == "if" or token[1] == "elseif" then
                 token[1] = "\n"..token[1]
-                self.Tokens[_][2] = "statement"
+                self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "for" then
                 token[1] = "\n"..token[1]
-                self.Tokens[_][2] = "statement"
+                self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "global" then
-                self.Tokens[_][1] = "\n"
+                self.Tokens[counter][_][1] = "\n"
             elseif token[1] == "while" then
                 token[1] = "\n"..token[1]
-                self.Tokens[_][2] = "statement"
+                self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "ret" then
-                self.Tokens[_][1] = "\nreturn"
+                self.Tokens[counter][_][1] = "\nreturn"
             elseif token[1] == ":=" then
-                self.Tokens[_][1] = "="
+                self.Tokens[counter][_][1] = "="
             elseif token[1] == "null" then
-                self.Tokens[_][1] = "nil"
+                self.Tokens[counter][_][1] = "nil"
             elseif token[1] == "&&" then
-                self.Tokens[_][1] = "and"
+                self.Tokens[counter][_][1] = "and"
             elseif token[1] == "||" then
-                self.Tokens[_][1] = "or"
+                self.Tokens[counter][_][1] = "or"
             elseif token[1] == "<<" then
-                self.Tokens[_][1] = ".."
+                self.Tokens[counter][_][1] = ".."
             elseif token[1] == "/=" then
-                self.Tokens[_][1] = "--[["
+                self.Tokens[counter][_][1] = "--[["
             elseif token[1] == "=/" then
-                self.Tokens[_][1] = "]]"
+                self.Tokens[counter][_][1] = "]]"
             elseif token[1] == "#" then
-                self.Tokens[_][1] = "\n--"
+                self.Tokens[counter][_][1] = "\n--"
             elseif token[1] == "[" then
-                self.Tokens[_][1] = "{*"
+                self.Tokens[counter][_][1] = "{*"
             elseif token[1] == "]" then
-                self.Tokens[_][1] = "}*"
+                self.Tokens[counter][_][1] = "}*"
             elseif token[1] == "!" then
-            	self.Tokens[_][1] = "not"
+            	self.Tokens[counter][_][1] = "not"
             end
         end
 
@@ -127,9 +131,9 @@ function initVM.lex(self,program)
            local variable_data, variable_type = Variables.search(token[1])
            if variable_data then
                if is_function == false and variable_data.Type ~= "function" then
-                   if self.Tokens[_-1][1] ~= "function" and self.Tokens[_-1][1] ~= "\nfor" and self.Tokens[_-1][1] ~= "\nwhile" then
-                       self.Tokens[_][1] = "VARIABLES."..variable_type:upper().."."..token[1]..".Value"
-                    end
+                   if self.Tokens[counter][_-1][1] ~= "function" and self.Tokens[counter][_-1][1] ~= "\nfor" and self.Tokens[counter][_-1][1] ~= "\nwhile" then
+                       self.Tokens[counter][_][1] = "VARIABLES."..variable_type:upper().."."..token[1]..".Value"
+                   end
                end
            end
         end
@@ -140,33 +144,53 @@ function initVM.lex(self,program)
         end
 
         -- Statement Handling
-        if self.Tokens[_][2] == "statement" or self.Tokens[_][1] == "{*" then
-            self.Stack.Init[#self.Stack.Init+1] = self.Tokens[_][1]
+        if self.Tokens[counter][_][2] == "statement" or self.Tokens[counter][_][1] == "{*" then
+            self.Stack.Init[#self.Stack.Init+1] = self.Tokens[counter][_][1]
+        end
+
+        -- Internal function calling
+        if token[1] == Tokens.symbols.OTOKEN_KEY_OPAREN and not token.isString then
+            local v_search = Variables.search(self.Tokens[counter][_-1][1])
+            if v_search ~= false and v_search.Type == "function" and self.Tokens[counter][_-2][1] ~= "function" then
+                counter = counter + 1 + (#self.Tokens - counter)
+                self.Tokens[counter] = {}
+                for _,i in pairs(v_search.Content) do
+                    for k,func_data in pairs(i) do
+                        self:lex(func_data)
+                    end
+                end
+                counter = #self.Tokens - counter + 1
+            -- Adding unknown function call error
+            elseif v_search == false and self.Tokens[counter][_-1][2] ~= "statement" then
+                if self.PUSH_OP[self.Tokens[counter][_-1][1]] == "nil" then    -- Checking if the function exist in the PUSH_OP's table to avoid throwing an error
+                    Error.new("UNKNOWN_FUNCTION_CALL",file.Line,{self.Tokens[counter][_-1][1]})
+                end
+            end
         end
 
         -- Changing '{' to the proper Lua equivalent
         if token[1] == "{" and not token.isString then
            if self.Stack.Init[#self.Stack.Init] == "function" then
-               if self.Tokens[_-1][1] == ")" then
-                    self.Tokens[_][1] = "\n"
+               if self.Tokens[counter][_-1][1] == ")" then
+                    self.Tokens[counter][_][1] = "\n"
                 else
-                    self.Tokens[_][1] = "()\n"
+                    self.Tokens[counter][_][1] = "()\n"
                 end
             elseif self.Stack.Init[#self.Stack.Init] == "\nif" or self.Stack.Init[#self.Stack.Init] == "\nelseif" then
-                self.Tokens[_][1] = "then\n"
+                self.Tokens[counter][_][1] = "then\n"
             elseif self.Stack.Init[#self.Stack.Init] == "\nfor" or self.Stack.Init[#self.Stack.Init] == "\nwhile" then
-                self.Tokens[_][1] = "do\n"
+                self.Tokens[counter][_][1] = "do\n"
             elseif self.Stack.Init[#self.Stack.Init] == "{*" then
-                self.Tokens[_][1] = "{"
+                self.Tokens[counter][_][1] = "{"
             end
         end
 
         -- Adding 'end' when needed
         if token[1] == "}" and not token.isString and #self.Stack.Init > 0 then
             if self.Stack.Init[#self.Stack.Init] ~= "{*" then
-                self.Tokens[_][1] = "\nend\n"
+                self.Tokens[counter][_][1] = "\nend\n"
             else
-                self.Tokens[_][1] = "}"
+                self.Tokens[counter][_][1] = "}"
             end
             table.remove(self.Stack.Init,#self.Stack.Init)
         end
@@ -177,7 +201,7 @@ end
 -- Lua Code Finalizer & Executor --
 function initVM.execute(self,Line_Data)
     local out, buff = "", ""
-    local no_varaible_function_call = false
+    local no_variable_function_call = false
     local function_data = ""
     local function_stack = {}
     local internal_functions = {
@@ -186,8 +210,11 @@ function initVM.execute(self,Line_Data)
     }
 
     -- Combining OLua Code
-    for _,i in pairs(self.Tokens) do
-        out = out..i[1].." "
+    for s = #self.Tokens, 1, -1 do
+        for _,i in pairs(self.Tokens[s]) do
+            out = out..i[1].." "
+        end
+        out = out.."\n"
     end
 
     -- Adding Data To Update
@@ -223,13 +250,12 @@ function initVM.execute(self,Line_Data)
                     function_data = function_data:gsub(Name, Data.Value)
                     --print(function_data)
                 else
-                    print("UNKOWN FUNCTION CALL <"..Name..">")
+                    print("UNKNOWN FUNCTION CALL <"..Name..">")
                 end
             end
             -- END FIX AREA
             local variable_name = Line_Data[_-1].Value
             local variable_data, variable_type = Variables.search(variable_name)
-            print(function_data)
             out = out.."\n\nVARIABLES."..variable_type:upper().."."..variable_name..".Value = "..function_data
         else
         	no_variable_function_call = true
@@ -292,6 +318,7 @@ function initVM.execute(self,Line_Data)
 
 	-- Loading, Executing, & Collecting Warnings
 --	print(out.."\n"..buff)
+--	os.exit()
     LOAD = call(load(out.."\n"..buff)())
     warnings = warnings..LOAD.."\n"
 end
@@ -299,7 +326,7 @@ end
 
 -- Xohe Function Handler --
 function initVM.UpdateOrbValues(self,program)
-	self.Tokens = {}
+	self.Tokens[counter] = {}
     for _,tokens in pairs(program._Data) do
         for _,data in pairs(tokens) do
             self:lex(data)
@@ -344,7 +371,7 @@ function initVM.GatherCompilerArguemnts()
                     displayHelpMessage(1)
                 end
             elseif arg_type == "v" then
-                print("WIP")
+                print("[version]: "..initVM.VERSION)
                 os.exit()
             elseif arg_type == "h" or arg_type == "help" then
                 displayHelpMessage()
@@ -396,7 +423,8 @@ end
 function initVM.PUSH_OP.WRITE(value)
 	value = value:gsub("^[\"']",""):gsub("[\"']$","")
 	value = Variables.inverseSearch(value) or value
-	if not Variables.search(value) then
+	local var = Variables.search(value)
+	if not var or var.Type == "function" or var.Type == "module" then
 		if not tonumber(value) then
 			value = value:gsub("^\"",""):gsub("\"$","")
 		end
@@ -417,14 +445,33 @@ end
 
 -- Compiler PANIC operation --
 function initVM.PUSH_OP.PANIC(msg,errcode)
-    errcode = tonumber(errcode) or 1
+    local stack_msg = ""
+    local Stack = _STACK
+    for s = #Stack, 1, -1 do
+        local Type = Stack[s].Type:lower()
+        if Type == "func" then
+            Type = "function <"..Stack[s].Name..">"
+        elseif Type == "mod" then
+            Type = "module <"..Stack[s].Name..">"
+        elseif Type == "if" or Type == "elseif" or Type == "for" or Type == "while" then
+            Type = Type.." statment"
+        end
+        if s > 1 then
+            stack_msg = stack_msg.."            ^".." in "..Type.." | "..Stack[s].Line_Created.."\n"
+        else
+            stack_msg = stack_msg.."            ^".." in "..Type.." | "..Stack[s].Line_Created.."\n"
+        end
+    end
     if msg == "\"Orb_PanicMSG_DEFAULT0x00\"" then
         Error.new("BAD_ARGUMENT", file.Line, {1,"func","panic", "value", "null"})
     end
+    errcode = tonumber(errcode) or 1
     msg = msg:gsub("^[\"']",""):gsub("[\"']$","")
     local msg_construct0 = initVM.PUSH_OP.ADDVAR("STR", "Orb: <panic> error\ntraceback:\n    [orb]: "..msg.."\n    [file]: "..arg[1].."\n    [line]: "..file.Line.."\n")
     local msg_construct1 = initVM.PUSH_OP.ADDVAR("STR", "\n\027[91mexit status <"..errcode..">\027[0m\n")
+    local msg_construct2 = initVM.PUSH_OP.ADDVAR("STR", stack_msg)
     COMPILER.APPEND_DATA("        WRITE "..msg_construct0..", L_"..msg_construct0)
+    COMPILER.APPEND_DATA("        WRITE "..msg_construct2..", L_"..msg_construct2)
     if not COMPILER.FLAGS.EXECUTE then
         COMPILER.APPEND_DATA("        WRITE "..msg_construct1..", L_"..msg_construct1)
     end

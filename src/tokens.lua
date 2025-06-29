@@ -41,6 +41,8 @@ tokens = {
 		OTOKEN_KEYWORD_FALSE			= "false",
 		OTOKEN_KEYWORD_NULL				= "null",
 		OTOKEN_KEYWORD_TRUE				= "true",
+		OTOKEN_KEYWORD_INC              = "inc",
+		OTOKEN_KEYWORD_DEC              = "dec"
 	},
 	combined = {
 		OTOKEN_KEYWORD_AND				= "&&",
@@ -52,7 +54,7 @@ tokens = {
 		OTOKEN_COMBINED_NOT_EQL			= "!=",
 		OTOKEN_COMBINED_MVARCALL		= "::",
 		OTOKEN_COMBINED_S_MULTI			= "/=",
-		OTOKEN_COMBINED_E_MULTI			= "=/",		
+		OTOKEN_COMBINED_E_MULTI			= "=/",
 		OTOKEN_COMBINED_CONCAT			= "<<",
 		OTOKEN_COMBINED_PIPE			= "=>"
 	}

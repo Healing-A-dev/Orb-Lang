@@ -3,9 +3,9 @@
 # Functions:
 	# Defining a function
 		<scope: none | global> func <name>(args) {
-		
+
 		}
-		
+
 		<scope: none | global> func <name> {
 			# Function with no arguments can be written as such
 		}
@@ -25,10 +25,11 @@
 	# Built-in variable functions:
 		.len()			# Returns the legnth of the variable
 		.str()			# Converts the value into a string (Returns false if not possible)
-		.num()			# Converts the value into a number (Returns false if not possible)	
-		
+		.num()			# Converts the value into a number (Returns false if not possible)
+		.split(<value>)        # Splits the value into an array of strings (Throws error if splitting is not possible)
+
 	# Arrays:
-		# Declaring an array 
+		# Declaring an array
 			<scope: none | global> foo := [
 				bar := "Hello, World!"
 			]
@@ -48,24 +49,25 @@
 			.invert()				# Switches the position of the keys and values (Key = value, value = Key)
 			.ipairs()				# Returns a loop iterating over all numerical key, value pairs in the array (key == null if no more values are found)
 			.pairs()				# Returns a loop iterating over all key, value pairs in the array (key == null if no more values are found)
+			.sort(<function>)       # Sorts the array numerically (defualt), or sorts the array by the given function value
 
 -------------------------------------------------------------------------------------------
 
 # Modules:
 	# Modules are a special type of function that is ran as it own sperate program. Meaning that any variables, imports, and even functions do not exist within the scope of the module.
 	# Defining a module:
-		<scope: none | global> mod <name>([], &m_args) {
-			
+		<scope: none | global> mod <name>([], arguments or &m_args) {
+
 		}
 
 	# Defining a module (with linked functions, variable, etc)
 		# Example program:
-		
+
 			@include("io")
 
 			global age := 3000
 			hobby := "Concrete"
-			
+
 			func greet() {
 				name := io.read("What is your name?\n")
 				putln("Hello, " << name)
@@ -77,13 +79,13 @@
 
 				# Making it slightly simpler to use the arguments (arg{foo} instead of &m_args{foo})
 				arg := &m_args
-				
+
 				Client := [
 					age := age,
 					hobby := hobby,
 					name := greet()
 				]
-				
+
 				name := &io.read("What is your name?\n")
 				if (name == Client.name) {
 					putln("WELCOME " << name << "\n")
@@ -119,7 +121,7 @@
 				ret Client
 			}
 
-		
+
 	# Calling a module:
 		# Example program using the program example above:
 			@dataCollection("REPLACE_ACTIVE_CLIENT")
@@ -134,4 +136,4 @@
 	num(<value>)			# Converts the given value to a number if possible; returns false if not possible
 	str(<value>)			# Converts the given value to a string if possible; returns false if not possible
 	len(<value>)			# Returns the length of the given value (Arrays, and Strings); returns null if not possible
-	
+	split(<value>, <value>) # Splits the value into an array of strings by the split value (arguemtn #2) (Throws error if splitting is not possible)
