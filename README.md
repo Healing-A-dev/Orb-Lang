@@ -1,4 +1,7 @@
-# ORB
+# **ORB**
+> [!WARNING]
+> Orb is a HEAVY W.I.P language and will be broken most of the time until I figure out how to fix things
+
 Introducing Orb! A compiled programming language that is (suprisingly) not a C, Rust, Java, or Go clone.
 
 ### About:
