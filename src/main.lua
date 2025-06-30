@@ -55,7 +55,7 @@ end
 
 
 --[[DEBUGGING]] --
-local o = ""
+--[[local o = ""
 for s = 1, #Lexer.tokens do
 	o = o..s..":\n"
 	for _,token in pairs(Lexer.tokens[s]) do
@@ -64,7 +64,8 @@ for s = 1, #Lexer.tokens do
 end
 local f = io.open("out.token","w+")
 f:write(o)
-f:close()
+f:close()]]
+
 -- Exit the program with the corresponding exit code
 if COMPILER.FLAGS.EXECUTE then
     os.exit(_EXITCODE)

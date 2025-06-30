@@ -1,8 +1,5 @@
 func main() {
     puts("Hello, World!\n")
-    x := 69420 * 13
-    puts(x << "\n")
 }
 
 main()
-panic("EXITING PROGRAM!")

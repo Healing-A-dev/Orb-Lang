@@ -30,7 +30,7 @@ local function readStack()
 		elseif Type == "if" or Type == "elseif" or Type == "for" or Type == "while" then
 			Type = Type.." statment"
 		end
-		print("        ^".." in "..Type.." | "..Stack[s].Line_Created)
+		print("            ^".." in "..Type.." | "..Stack[s].Line_Created)
 	end
 end
 

@@ -13,6 +13,9 @@ function functions.getValue(function_name, tokens, line)
 	for s = line, #tokens do
 		for _,i in pairs(tokens[s]) do
 			contents[#contents+1] = {}
+			if i.Token:find("COMMENT") then
+				goto is_comment
+			end
 			contents[#contents][#contents[#contents]+1] = i.Value.." "
 			if i.Token:find("OBRACE") then
 				stack_mini[#stack_mini+1] = 1
@@ -32,6 +35,7 @@ function functions.getValue(function_name, tokens, line)
 				set_out = true
 			end
 		end
+		::is_comment::
 	end
 	::nil_return::
 	return {Value = "null", Returned = false, Contents = contents}

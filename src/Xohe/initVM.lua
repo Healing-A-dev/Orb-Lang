@@ -144,6 +144,7 @@ function initVM.lex(self,program)
         end
 
         -- Statement Handling
+        -- print(self.Tokens[counter], counter)
         if self.Tokens[counter][_][2] == "statement" or self.Tokens[counter][_][1] == "{*" then
             self.Stack.Init[#self.Stack.Init+1] = self.Tokens[counter][_][1]
         end
@@ -152,14 +153,18 @@ function initVM.lex(self,program)
         if token[1] == Tokens.symbols.OTOKEN_KEY_OPAREN and not token.isString then
             local v_search = Variables.search(self.Tokens[counter][_-1][1])
             if v_search ~= false and v_search.Type == "function" and self.Tokens[counter][_-2][1] ~= "function" then
-                counter = counter + 1 + (#self.Tokens - counter)
-                self.Tokens[counter] = {}
-                for _,i in pairs(v_search.Content) do
-                    for k,func_data in pairs(i) do
-                        self:lex(func_data)
+                local c0 = coroutine.create(function()
+                    counter = counter + #self.Tokens
+                    self.Tokens[counter] = {}
+                    for _,i in pairs(v_search.Content) do
+                        for k,func_data in pairs(i) do
+                            self:lex(func_data)
+                        end
                     end
-                end
-                counter = #self.Tokens - counter + 1
+                    --print(counter, #self.Tokens)
+                    counter = #self.Tokens - (counter - 1)
+                end)
+                coroutine.resume(c0)
             -- Adding unknown function call error
             elseif v_search == false and self.Tokens[counter][_-1][2] ~= "statement" then
                 if self.PUSH_OP[self.Tokens[counter][_-1][1]] == "nil" then    -- Checking if the function exist in the PUSH_OP's table to avoid throwing an error
@@ -210,11 +215,16 @@ function initVM.execute(self,Line_Data)
     }
 
     -- Combining OLua Code
-    for s = #self.Tokens, 1, -1 do
+    local default = -4
+    if #self.Tokens % 2 == 0 then
+        default = -3
+    end
+    for s = #self.Tokens, 1, default do
         for _,i in pairs(self.Tokens[s]) do
             out = out..i[1].." "
         end
         out = out.."\n"
+        s = s + 1
     end
 
     -- Adding Data To Update
@@ -421,6 +431,7 @@ end
 
 -- Compiler WRITE/PRINT operation --
 function initVM.PUSH_OP.WRITE(value)
+    if _EXITCODE ~= 0 then return end
 	value = value:gsub("^[\"']",""):gsub("[\"']$","")
 	value = Variables.inverseSearch(value) or value
 	local var = Variables.search(value)
@@ -445,6 +456,7 @@ end
 
 -- Compiler PANIC operation --
 function initVM.PUSH_OP.PANIC(msg,errcode)
+    if _EXITCODE ~= 0 then return end
     local stack_msg = ""
     local Stack = _STACK
     for s = #Stack, 1, -1 do

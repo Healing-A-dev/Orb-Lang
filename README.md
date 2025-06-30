@@ -1,5 +1,8 @@
 # ORB
-Introducing Orb! A compiled programming language that is (suprisingly) not a C, Rust, Java, or Go clone. Being built on top of a custom VM 'Xohe', Orb is a very fast and rather lightweight language.
+Introducing Orb! A compiled programming language that is (suprisingly) not a C, Rust, Java, or Go clone.
+
+### About:
+Orb is a compiled programming language that runs on a custom VM called XOHE (pronounced Zoe). Orb gets its name from the way Orb is compiled. Everything, and I mean EVERYTHING that called be ran internally is ran internally. The generated executable is simply all that is needed to produced the exact result of the program. No function, loop, or anything of the sort.
 
 # SYNTAX:
 The syntax of Orb is rather similar to languages such as Perl and Julia with some major differences.
@@ -18,11 +21,11 @@ global String := "Bobert"
 Number := 900
 Array  := []
 
-String = "Richard"                # No erroes since String was previous declared
-Number = "9000"                   # No erroes since Number was previous declared
-Array  = ["Hello", "World"]       # No erroes since Array was previous declared
+String = "Richard"                # No erroes since String was previously declared
+Number = "9000"                   # No erroes since Number was previously declared
+Array  = ["Hello", "World"]       # No erroes since Array was previously declared
 
-Message = "Hello World"         # Throws an undeclared variable error since 'Message' was no declared and data is trying to get assigned to it
+Message = "Hello World"         # Throws an undeclared variable error since 'Message' was not previously declared
 
 # NOTE: When reassigning variables, the ':=' can simply be '=' since ':=' is used to declare variables, however it is still okay if you choose to use ':=' to reassign variables.
 ```
