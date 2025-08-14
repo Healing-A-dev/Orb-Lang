@@ -16,6 +16,7 @@
 ------------------------------------------------------------------------------------------
 
 # Variables:
+	# Static variables ALWAYS have precidence over global ones, and will be checked for first
 	# Declaring a new variable:
 		<scope: none | global> foo := bar
 
@@ -23,10 +24,10 @@
 		foo = bar
 
 	# Built-in variable functions:
-		.len()			# Returns the legnth of the variable
-		.str()			# Converts the value into a string (Returns false if not possible)
-		.num()			# Converts the value into a number (Returns false if not possible)
-		.split(<value>)        # Splits the value into an array of strings (Throws error if splitting is not possible)
+		::length()				# Returns the legnth of the variable
+		::string()				# Converts the value into a string (Returns false if not possible)
+		::number()				# Converts the value into a number (Returns false if not possible)
+		::split(<value>)        # Splits the value into an array of strings (Throws error if splitting is not possible)
 
 	# Arrays:
 		# Declaring an array
@@ -39,17 +40,17 @@
 
 		# Calling an array value
 			foo{"bar"}		# Option 1
-			foo.bar			# Option 2
+			foo::bar			# Option 2
 
 		# Builtin array functions
-			.append(<value>)		# Inserts the value into the given array
-			.remove(<index>)		# Removes the value in the array at the given index
-			.len()					# Returns the length of the array
-			.concat(<value>)		# Concatinates all values in the array combining them with the given value (Throws error if value is not a string or number)
-			.invert()				# Switches the position of the keys and values (Key = value, value = Key)
-			.ipairs()				# Returns a loop iterating over all numerical key, value pairs in the array (key == null if no more values are found)
-			.pairs()				# Returns a loop iterating over all key, value pairs in the array (key == null if no more values are found)
-			.sort(<function>)       # Sorts the array numerically (defualt), or sorts the array by the given function value
+			::append(<value>)		# Inserts the value into the given array
+			::remove(<index>)		# Removes the value in the array at the given index
+			::length()				# Returns the length of the array
+			::concat(<value>)		# Concatinates all values in the array combining them with the given value (Throws error if value is not a string or number)
+			::invert()				# Switches the position of the keys and values (Key = value, value = Key)
+			::ipairs()				# Returns a loop iterating over all numerical key, value pairs in the array (key == null if no more values are found)
+			::pairs()				# Returns a loop iterating over all key, value pairs in the array (key == null if no more values are found)
+			::sort(<function>)      # Sorts the array numerically (defualt), or sorts the array by the given function value
 
 -------------------------------------------------------------------------------------------
 
@@ -71,7 +72,7 @@
 			func greet() {
 				name := io.read("What is your name?\n")
 				putln("Hello, " << name)
-				ret name
+				.name
 			}
 
 			mod dataCollection([&age => age, &hobby => hobby, &greet => greet, &io], &m_args) {
@@ -102,7 +103,7 @@
 						hobby = &io.read("Enter your favorite hobby: "),
 						name = name
 					]
-					ret new_client
+					.new_client
 				}
 
 				global func displayClientData(table) {
@@ -118,7 +119,7 @@
 					putln("LEAVE NOW IMPOSTER!!!\n")
 					os.exit(1)
 				}
-				ret Client
+				.Client
 			}
 
 
@@ -133,7 +134,7 @@
 	puts(<value>)			# Prints the given data
 	typeof(<value>)			# Returns the type of the given value (Number, String, Array, Bool, Function, Module)
 	panic(<message>)		# Display and error with the given message; exits program
-	num(<value>)			# Converts the given value to a number if possible; returns false if not possible
-	str(<value>)			# Converts the given value to a string if possible; returns false if not possible
-	len(<value>)			# Returns the length of the given value (Arrays, and Strings); returns null if not possible
+	number(<value>)			# Converts the given value to a number if possible; returns false if not possible
+	string(<value>)			# Converts the given value to a string if possible; returns false if not possible
+	length(<value>)			# Returns the length of the given value (Arrays, and Strings); returns null if not possible
 	split(<value>, <value>) # Splits the value into an array of strings by the split value (arguemtn #2) (Throws error if splitting is not possible)

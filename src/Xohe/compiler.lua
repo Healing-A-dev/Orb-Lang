@@ -14,6 +14,7 @@ COMPILER = {
         EXECUTE = true,
         ASM = false,
         WARN = false,
+        WARNALL = false,
         VERBOSE = false,
         DEBUG = false,
         PROG_EXIT = false,
@@ -22,134 +23,136 @@ COMPILER = {
 }
 
 
--- Compiler --
-NASM = {}
-NASM.MACROS = [[;;;;;;NASM MACROS;;;;;;
-%macro WRITE 2
-    mov rax, 1	                ; Write
-    mov rdi, 1                  ; STDOUT
-    mov rsi, %1
-    mov rdx, %2
+-- ASM Headers --
+ASM = {
+    HEADER = [[
+    .section .bss
+read_buffer:
+    .skip 128
+
+    ]],
+    DATA = [[
+.section .data
+int_buffer:
+    .fill 32, 1, 0
+
+    ]],
+    TEXT = [[
+    .section .text
+    .global _start
+_start:
+    ]],
+    FUNC = [[
+Orb_CFUNCTION_puts:
+    mov $1, %rax
+    mov $1, %rdi
     syscall
-%endmacro
+    ret
 
-%macro EXIT 1
-    mov rax, 60
-    mov rdi, %1
+Orb_CFUNCTION_exit:
+    mov $60, %rax
     syscall
-%endmacro
+    ret
 
-%macro READ 1
-    mov rax, 0                  ; READ
-    mov rdi, 0                  ; SDTIN
-    mov rsi, read_buffer
-    mov rdx, %1                 ; 128
-    syscall
-%endmacro
+Orb_CFUNCTION_puts_INT:
+    mov %rax, %rdi
+    mov $int_buffer + 32, %rsi
+    mov $10, %rcx
 
-%macro WRITEINT 1
-	mov rax, %1
-	push rax
-	pop rdi
-	mov rsi, int_buffer + 32
-	mov rcx, 10
+.displayInt:
+    xor %rdx, %rdx
+    div %rcx
+    add $'0', %dl
+    dec %rsi
+    mov %dl, (%rsi)
+    test %rax, %rax
+    jnz .displayInt
 
-%%displayInt:
-	xor rdx, rdx
-	div rcx
-	add dl, '0'
-	dec rsi
-	mov [rsi], dl
-	test rax, rax
-	jnz %%displayInt
+    mov $int_buffer + 32, %rdx
+    sub %rsi, %rdx
+    mov %rsi, %rsi
+    callq "Orb_CFUNCTION_puts"
+    ret
 
-	; display int
-	mov rax, 1
-	mov rdi, 1
-	mov rdx, int_buffer + 32
-	sub rdx, rsi
-	syscall
-%endmacro
-]]
-
-NASM.BSS = [[
-
-;;;;;;VARIABLE DATA;;;;;;
-section .bss
-    read_buffer resb 128
-]]
-
-NASM.DATA = [[
-
-section .data
-	int_buffer times 33 db 0
-	newline db 0x0A
-]]
-
-NASM.TEXT = [[
-
-;;;;;;PROGRAM;;;;;;
-section .text
-    global _start
-    _start:
-]]
-
+    ]]
+}
 -- Variable Data Collection --
 function gatherVariableData()
     local V = VARIABLES
+
+    -- Global variables
     for _,variable in pairs(V.GLOBAL) do
         if variable.Type ==  "string" or variable.Type == "null" then
             local variable_value = variable.Value
-            if not tonumber(variable_value) then
-                variable_value = variable_value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
-            end
-            if variable_value:find("^['\"]") or variable_value:find("['\"]$") then
-            	local quote_char = "'"
-            	if variable_value:match("^[']") then quote_char = '"' end
-            	NASM.DATA = NASM.DATA.."    "..tostring(_)..": db "..quote_char..variable_value..quote_char..", 0\n"
-            else
-            	NASM.DATA = NASM.DATA.."    "..tostring(_)..": db \""..variable_value.."\", 0\n"
-            end
-            NASM.DATA = NASM.DATA.."    ".."L_"..tostring(_)..": equ $-"..tostring(_).."\n\n"
+
+            -- Constructing and adding the variable to the program
+            ASM.DATA = ASM.DATA..tostring(_)..":\n"
+            ASM.DATA = ASM.DATA.."    .ascii "..variable_value.."\n"
+            ASM.DATA = ASM.DATA.."    .byte 0\n"
+            ASM.DATA = ASM.DATA.."L_"..tostring(_).." = . - "..tostring(_).."\n\n"
         elseif variable.Type == "number" then
-			local variable_value = variable.Value
-			NASM.DATA = NASM.DATA.."    "..tostring(_)..": dq "..variable_value.."\n"
+            local variable_value = variable.Value
+
+            -- Constructing and adding the variable to the program
+            ASM.DATA = ASM.DATA..tostring(_)..":\n"
+			ASM.DATA = ASM.DATA.."    .quad "..variable_value.."\n\n"
 		end
     end
+
+    -- Static variables
     for _,variable in pairs(V.STATIC) do
-		if variable.Type ==  "string" then
+		if variable.Type == "string" then
 			local variable_value = variable.Value
-			if not tonumber(variable_value) then
-				variable_value = variable_value:gsub("%\\%n", "\", 0x0A, \""):gsub("%\\%t","\", 0x09, \""):gsub("^['\"]",""):gsub("['\"]$","")
-			end
-			NASM.DATA = NASM.DATA.."    "..tostring(_)..": db \""..variable_value.."\", 0\n"
-			NASM.DATA = NASM.DATA.."    ".."L_"..tostring(_)..": equ $-"..tostring(_).."\n\n"
+
+			-- Constructing and adding the variable to the program
+			ASM.DATA = ASM.DATA..tostring(_)..":\n"
+			ASM.DATA = ASM.DATA.."    .ascii "..variable_value.."\n"
+			ASM.DATA = ASM.DATA.."    .byte 0\n"
+			ASM.DATA = ASM.DATA.."L_"..tostring(_).." = . - "..tostring(_).."\n\n"
 		elseif variable.Type == "number" then
 			local variable_value = variable.Value
-			NASM.DATA = NASM.DATA.."    "..tostring(_)..": dq "..variable_value.."\n"
+
+			-- Constructing and adding the variable to the program
+			ASM.DATA = ASM.DATA..tostring(_)..":\n"
+			ASM.DATA = ASM.DATA.."    .quad "..variable_value.."\n\n"
 		end
 	end
 end
 
 -- Utility Function(s) --
-function COMPILER.APPEND_DATA(data)
+function COMPILER.APPEND_TEXT(data)
     data = data or ""
-    NASM.TEXT = NASM.TEXT..data.."\n"
+    ASM.TEXT = ASM.TEXT..data.."\n"
 end
 
+function COMPILER.APPEND_DATA(data)
+    data = data or ""
+    ASM.DATA = ASM.DATA..data.."\n"
+end
+
+function COMPILER.APPEND_BSS(data)
+    data = data or ""
+    ASM.BSS = ASM.BSS..data.."\n"
+end
+
+function COMPILER.APPEND_HEADER(data)
+    data = data or ""
+    ASM.HEADER = ASM.HEADER..data.."\n"
+end
 -- Program Compilation --
 function Compile()
     gatherVariableData()
     local file = io.open(COMPILER.CREATED_FILES[1],"w+")
 
     -- Macros and variable data
-    file:write(NASM.MACROS)
-    file:write(NASM.BSS)
-    file:write(NASM.DATA)
+    file:write(ASM.HEADER)
+    file:write(ASM.DATA)
 
     -- Porgram --
-    file:write(NASM.TEXT)
-    file:write("        EXIT 0")
+    file:write(ASM.TEXT)
+    file:write("    mov $".._EXITCODE..", %rdi\n")
+    file:write("    call Orb_CFUNCTION_exit\n\n")
+    file:write(ASM.FUNC)
     file:close()
 
     -- Executing file
@@ -162,8 +165,8 @@ function Compile()
         	COMPILER.FLAGS.OUTFILE = filename:match("%S+%."):gsub("[%/%.]","")
         end
         if not COMPILER.FLAGS.ASM then
-        	print("<\027[95mCmd\027[0m> nasm -felf64 ".. COMPILER.CREATED_FILES[1])
-            os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1])
+        	print("<\027[95mCmd\027[0m> as -g -o "..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
             print("<\027[95mCmd\027[0m> ld -o ".. COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
             os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
         else
@@ -171,28 +174,29 @@ function Compile()
                 COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE..".s"
             end
             local file = io.open(COMPILER.FLAGS.OUTFILE, "w+")
-            file:write(NASM.MACROS)
-            file:write(NASM.BSS)
-            file:write(NASM.DATA)
+            file:write(ASM.HEADER)
+            file:write(ASM.DATA)
             -- Program --
-            file:write(NASM.TEXT)
+            file:write(ASM.TEXT)
             if not COMPILER.FLAGS.PROG_EXIT then
-                file:write("        EXIT 0")
+                file:write("    mov $0, %rdi\n")
+                file:write("    callq \"Orb_CFUNCTION_exit\"\n\n")
             end
+            file:write(ASM.FUNC)
             file:close()
         end
     else
         COMPILER.FLAGS.OUTFILE = "orb.out"
         table.insert(COMPILER.CREATED_FILES, COMPILER.FLAGS.OUTFILE)
         if COMPILER.FLAGS.VERBOSE then
- 	 		print("<\027[95mCmd\027[0m> nasm -felf64 ".. COMPILER.CREATED_FILES[1])
-			os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1])
+ 	 		print("<\027[95mCmd\027[0m> as -g -o "..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
 			print("<\027[95mCmd\027[0m> ld -o ".. COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
 			os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
 			print("<\027[95mCmd\027[0m> ./"..COMPILER.FLAGS.OUTFILE)
 			os.execute("./"..COMPILER.FLAGS.OUTFILE)
 		else
-			os.execute('nasm -felf64 '..COMPILER.CREATED_FILES[1])
+			os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
 			os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
 			os.execute("./"..COMPILER.FLAGS.OUTFILE)
 		end

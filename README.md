@@ -9,6 +9,7 @@ Orb is a compiled programming language that runs on a custom VM called XOHE (pro
 
 # SYNTAX:
 The syntax of Orb is rather similar to languages such as Perl and Julia with some major differences.
+
 ___
 ### Variables:
 Creating and assigning variables in Orb is really simple and straight forward given that Orb is dynamically typed. There are also only two types of variables that can be found in Orb. Static variables and global variables. All variables, function, modules, etc are static by default. To make a variable global and able to be used throughout the entire program, simply use the 'global' key word.

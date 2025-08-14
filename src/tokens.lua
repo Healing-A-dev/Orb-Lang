@@ -16,7 +16,7 @@ tokens = {
 		OTOKEN_KEY_SQUOTE 				= "'",
 		OTOKEN_KEY_DQUOTE 				= '"',
 		OTOKEN_KEY_EQUAL 				= "=",
-		OTOKEN_KEY_PERIOD 				= ".",
+		--OTOKEN_KEY_PERIOD 				= ".",
 		OTOKEN_KEY_COLON 				= ":",
 		OTOKEN_KEY_COMMA 				= ",",
 		OTOKEN_KEY_GTHAN 				= ">",
@@ -36,7 +36,9 @@ tokens = {
 		OTOKEN_KEYWORD_STMT_MOD			= "mod",
 		OTOKEN_KEYWORD_STMT_FOR			= "for",
 		OTOKEN_KEYWORD_STMT_WHILE		= "while",
-		OTOKEN_KEYWORD_RET				= "ret",
+		OTOKEN_KEYWORD_USING            = "using",
+		OTOKEN_KEYWORD_IMPORT           = "import",
+		OTOKEN_KEYWORD_RETURN			= ".",
 		OTOKEN_KEYWORD_GLOBAL			= "global",
 		OTOKEN_KEYWORD_FALSE			= "false",
 		OTOKEN_KEYWORD_NULL				= "null",
@@ -52,11 +54,11 @@ tokens = {
 		OTOKEN_COMBINED_LEQLTO			= "<=",
 		OTOKEN_COMBINED_EQL				= "==",
 		OTOKEN_COMBINED_NOT_EQL			= "!=",
-		OTOKEN_COMBINED_MVARCALL		= "::",
+		OTOKEN_COMBINED_SUBVARCALL		= "::",
 		OTOKEN_COMBINED_S_MULTI			= "/=",
 		OTOKEN_COMBINED_E_MULTI			= "=/",
 		OTOKEN_COMBINED_CONCAT			= "<<",
-		OTOKEN_COMBINED_PIPE			= "=>"
+		OTOKEN_COMBINED_PIPE			= "|>"
 	}
 }
 

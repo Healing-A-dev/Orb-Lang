@@ -22,7 +22,6 @@ FEATURES:
 			- Be able to run and compile assembly files using an assembly wrapper written in lua
 
 	- Create a simple Lua transpiler:	[CORE COMPLETED: Need to fixs arguments being converted to their orbit variable table values ex. VARIABLES.TEMPORARY.x1.VALUE should just be x1]
-		- FIX: Random crap being added to the function calls (ex. VARIABLES.GLOBAL.a.Value = :=main():=main()main())
 		- Converts Orbit functions & modules into Lua
 		- Runs functions/modules, but only updates variables in Orbit
 			- Converters the function/module into lua code that will be ran using the load() function
@@ -42,7 +41,9 @@ FEATURES:
 
 				Variables.static.z.Value = add(x,y)
 
-		- May be included in the x-oVM (Will have to rewrite in orb to ONLY update values and not compile again...because yeah...saving reasources and time)
+	- Finish implementing file importing:
+	    - FIX static variables being callable from other files
+		- ADD 'container' keyword requirement for module files
 
 BUG FIXES:
 	- Fix concatenation [WIP]

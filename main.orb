@@ -1,5 +1,10 @@
-func main() {
-    puts("Hello, World!\n")
-}
+import "testing.inverter.mrb"
 
-main()
+# Testing puts function further
+puts("(1 + 1) * 2 = " << (1 + 1) * 2 << "\n")
+
+# Test calling a function from another file
+Test()
+
+# Test calling a variable from another file
+puts("Hello, my name is " << name << ".\n")

@@ -1,0 +1,4 @@
+func Test() {
+  puts("\027[92mHello from " << "'testing/inverter.mrb'" << "\027[0m\n")
+  global name := "Healing"
+}

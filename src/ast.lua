@@ -18,9 +18,7 @@ function ast.CV(data)
 	return AST_DATA
 end
 
-function ast.new(call,data)
-	local _DATA = ast[call](data)
-	ast[#ast+1] = _DATA
+function ast.new(tokens)
 end
 
 return ast
