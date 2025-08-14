@@ -12,7 +12,7 @@
 
         func combine(x1,x2) {
             z := x1 << x2
-            ret z
+            .z
         }
 
         a := combine(x,y)
