@@ -1,2 +1,0 @@
-a := '15\n'
-puts(a << " is a bad number!!!!\n")
