@@ -39,11 +39,11 @@ Message = "Hello World"         # Throws an undeclared variable error since 'Mes
 Functions are also really straight forward in Orb.
 ```julia
 func add(x, y) {
-    ret x + y
+    .x + y
 }
 
 global func subtract(x, y) {
-    ret x - y
+    .x - y
 }
 ```
 Given the event that you have a function that does not take any arguments, in Orb, you won't even need to use and parenthesis for said function. ie:
@@ -52,3 +52,4 @@ func sayHello {
     put("Hello, World!")
 }
 ```
+
