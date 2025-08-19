@@ -96,11 +96,12 @@ function displayHelpMessage(err)
     if COMPILER.FLAGS.EXECUTE then
         io.write([[Usage: orb <filename> <arguments>
 Commands:
-    -h  [--help]       |> Displays this message and exits
-    -v  [--version]    |> Displays the current version and exits
-    -ve [--verbose]    |> Displays all commands used during compilation
-    -w  [--warn]       |> Displays warngins that occured during compilation
-    -W  [--WARN]       |> Displays all warning that occurred during compilation and initialization
+    -h  [--help]         |> Displays this message and exits
+    -i  [--interactive]  |> Open an interactive compiler shell
+    -v  [--version]      |> Displays the current version and exits
+    -ve [--verbose]      |> Displays all commands used during compilation
+    -w  [--warn]         |> Displays warngins that occured during compilation
+    -W  [--WARN]         |> Displays all warning that occurred during compilation and initialization
 ]])
         os.exit(err)
     else
@@ -157,15 +158,15 @@ end
 function expect(names, tokens, line, token_pos, err)
     err = err or "NAME_EXPECTED"
     local token = tokens[line][token_pos].Value
-    if tokens[line][token_pos+1] == nil then
+    if tokens[line][token_pos + 1] == nil then
         Error.new("NAME_EXPECTED", line, token)
     end
-    for _,name in pairs(names) do
+    for _, name in pairs(names) do
         if tokens[line][token_pos + 1].Token:match(name) then
-            return {Token = tokens[line][token_pos+1].Token, Value = tokens[line][token_pos+1].Value}
+            return { Token = tokens[line][token_pos + 1].Token, Value = tokens[line][token_pos + 1].Value }
         end
     end
-    Error.new(err, line, {token})
+    Error.new(err, line, { token })
 end
 
 function variable_search(variable_name)

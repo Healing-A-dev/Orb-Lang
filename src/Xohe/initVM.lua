@@ -37,7 +37,7 @@ local Builder               = require("src/Xohe/builder")
 local Compiler              = require("src/Xohe/compiler")
 local Utils                 = require("src/utils")
 local Error                 = require("src/errors")
-local Lexer                 = require("src/lexer")
+local CLI                   = require("src/Cli/cli")
 
 -- Instance Variables --
 local string_init_character = nil
@@ -51,7 +51,7 @@ initVM                      = {
         Init = {},
     },
     PUSH_OP = {}, -- Compiler Operations (ie. Write, Read, etc)
-    VM = {
+    VM      = {
         TYPEOF = function(var)
             print(var)
         end
@@ -92,15 +92,15 @@ function initVM.lex(self, program)
                 self.Tokens[counter][_][2] = "statement"
                 is_function = true
             elseif token[1] == "if" or token[1] == "elseif" then
-                token[1] = "\n"..token[1]
+                token[1] = "\n" .. token[1]
                 self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "for" then
-                token[1] = "\n"..token[1]
+                token[1] = "\n" .. token[1]
                 self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "global" then
                 self.Tokens[counter][_][1] = "\n"
             elseif token[1] == "while" then
-                token[1] = "\n"..token[1]
+                token[1] = "\n" .. token[1]
                 self.Tokens[counter][_][2] = "statement"
             elseif token[1] == "." and self.Tokens[counter][_][2] ~= "skip_me" then
                 self.Tokens[counter][_][1] = "\nreturn"
@@ -138,7 +138,7 @@ function initVM.lex(self, program)
             if variable_data then
                 if is_function == false and variable_data.Type ~= "function" then
                     if self.Tokens[counter][_ - 1][1] ~= "function" and self.Tokens[counter][_ - 1][1] ~= "\nfor" and self.Tokens[counter][_ - 1][1] ~= "\nwhile" then
-                        self.Tokens[counter][_][1] = "VARIABLES."..variable_type:upper().."."..token[1]..".Value"
+                        self.Tokens[counter][_][1] = "VARIABLES." .. variable_type:upper() .. "." .. token[1] .. ".Value"
                     end
                 end
             end
@@ -213,7 +213,7 @@ function initVM.lex(self, program)
         end
 
         if token[1]:find("^%%") and #token[1] > 1 then
-            self.VM.TYPEOF(token[1]:gsub("^%%",""))
+            self.VM.TYPEOF(token[1]:gsub("^%%", ""))
             print(token[1])
         end
     end
@@ -237,9 +237,9 @@ function initVM.execute(self, Line_Data)
     end
     for s = #self.Tokens, 1, default do
         for _, i in pairs(self.Tokens[s]) do
-            out = out..i[1].." "
+            out = out .. i[1] .. " "
         end
-        out = out.."\n"
+        out = out .. "\n"
         s = s + 1
     end
 
@@ -249,13 +249,13 @@ function initVM.execute(self, Line_Data)
             no_variable_function_call = false
             local skipper = 1
             while _ + skipper <= #Line_Data do
-                function_data = function_data..Line_Data[_ + skipper].Value
+                function_data = function_data .. Line_Data[_ + skipper].Value
                 if Line_Data[_ + skipper].Value == Tokens.symbols.OTOKEN_KEY_OPAREN then
                     if #function_stack > 1 then
                         for s = #function_data, 1, -1 do
                             local character = function_data:sub(s, s)
                             if not character:match("[%,%(]") then
-                                internal_functions.Name = internal_functions.Name..character
+                                internal_functions.Name = internal_functions.Name .. character
                             elseif character:match("[%,%(]") and #internal_functions.Name > 0 then
                                 table.insert(internal_functions.Functions, internal_functions.Name:reverse())
                                 internal_functions.Name = ""
@@ -274,43 +274,44 @@ function initVM.execute(self, Line_Data)
             for _, Name in pairs(internal_functions.Functions) do
                 local Data = Variables.search(Name)
                 if Data then
-                    local Name = Name.."%(%)"
+                    local Name = Name .. "%(%)"
                     function_data = function_data:gsub(Name, Data.Value)
                 else
-                    print("UNKNOWN FUNCTION CALL <"..Name..">")
+                    print("UNKNOWN FUNCTION CALL <" .. Name .. ">")
                 end
             end
             -- END FIX AREA
 
-            local variable_name = Line_Data[_-1].Value
+            local variable_name = Line_Data[_ - 1].Value
             local variable_data, variable_type = Variables.search(variable_name)
             function_data = (function_data:match("%)%S+%(.?%)$") or function_data):gsub("^%)", ""):gsub("<<", "..")
 
             -- Concverting function data to OLua
             if function_data:match("%((%S+)%)") then
-                local f_head = function_data:match("%S+%("):gsub("%(","")
+                local f_head = function_data:match("%S+%("):gsub("%(", "")
                 local f_data = function_data:match("%((%S+)%)")
                 local v_data, v_class = Variables.search(f_data)
                 if v_data ~= false then
-                    f_data = "VARIABLES."..v_class:upper().."."..f_data..".Value"
+                    f_data = "VARIABLES." .. v_class:upper() .. "." .. f_data .. ".Value"
                 end
-                function_data = f_head.."("..f_data..")"
+                function_data = f_head .. "(" .. f_data .. ")"
             end
 
             -- Creating variable expression (eg. VARIABLES.Static.x.Value = foo(VARIABLES.Global.bar.Value))
-            out = out.."\n\nVARIABLES."..variable_type:upper().."."..variable_name..".Value = "..function_data
+            out = out .. "\n\nVARIABLES." .. variable_type:upper() .. "." .. variable_name .. ".Value = " ..
+                function_data
         elseif _ == #Line_Data and no_variable_function_call == nil then
             no_variable_function_call = true
             local skipper = 1
             while _ + skipper <= #Line_Data do
-                function_data = function_data..Line_Data[_ + skipper].Value
+                function_data = function_data .. Line_Data[_ + skipper].Value
                 if Line_Data[_ + skipper].Value == Tokens.symbols.OTOKEN_KEY_OPAREN then
                     function_stack[#function_stack + 1] = 1
                     if #function_stack > 1 then
                         for s = #function_data, 1, -1 do
                             local character = function_data:sub(s, s)
                             if not character:match("[%,%(]") then
-                                internal_functions.Name = internal_functions.Name..character
+                                internal_functions.Name = internal_functions.Name .. character
                             elseif character:match("[%,%(]") and #internal_functions.Name > 0 then
                                 table.insert(internal_functions.Functions, internal_functions.Name:reverse())
                                 internal_functions.Name = ""
@@ -328,10 +329,10 @@ function initVM.execute(self, Line_Data)
         for _, Name in pairs(internal_functions.Functions) do
             local Data = Variables.search(Name)
             if Data then
-                local Name = Name.."%(%)"
+                local Name = Name .. "%(%)"
                 function_data = function_data:gsub(Name, Data.Value)
             else
-                print("UNKOWN FUNCTION CALL <"..Name..">")
+                print("UNKOWN FUNCTION CALL <" .. Name .. ">")
             end
         end
     end
@@ -342,17 +343,18 @@ function initVM.execute(self, Line_Data)
             local variable, classification = Variables.search(i.Value)
             if variable ~= false and variable.Type ~= "function" and variable.Type ~= "mod" then
                 if variable.Type == "Number" then
-                    local variable_value = VARIABLES[classification:upper()][i.Value].NewValue or VARIABLES[classification:upper()][i.Value].NewValue
-                    buff = buff.."\""..variable_value.."\""
+                    local variable_value = VARIABLES[classification:upper()][i.Value].NewValue or
+                        VARIABLES[classification:upper()][i.Value].NewValue
+                    buff = buff .. "\"" .. variable_value .. "\""
                 else
-                    buff = buff.."VARIABLES."..classification:upper().."."..i.Value..".Value"
+                    buff = buff .. "VARIABLES." .. classification:upper() .. "." .. i.Value .. ".Value"
                 end
             elseif tonumber(i.Value) then
-                buff = buff.."\""..i.Value.."\""
+                buff = buff .. "\"" .. i.Value .. "\""
             elseif i.Value == Tokens.combined.OTOKEN_COMBINED_CONCAT then
-                buff = buff..", "
+                buff = buff .. ", "
             else
-                buff = buff..i.Value
+                buff = buff .. i.Value
             end
         end
     end
@@ -364,8 +366,8 @@ function initVM.execute(self, Line_Data)
     fl:close()
     ]]
     -- Loading, Executing, & Collecting Warnings
-    LOAD = call(load(out.."\n"..buff)())
-    warnings = warnings..LOAD.."\n"
+    LOAD = call(load(out .. "\n" .. buff)())
+    warnings = warnings .. LOAD .. "\n"
 end
 
 -- Xohe Function Handler --
@@ -400,7 +402,7 @@ function initVM.GatherCompilerArguemnts()
         COMPILER.FLAGS.EXECUTE = false
         table.remove(arg, 1)
     elseif arg[1] == "-c" and arg[#arg] ~= ("orbc") then
-        print("[orb]: invalid option '"..arg[1].."'")
+        print("[orb]: invalid option '" .. arg[1] .. "'")
         displayHelpMessage(1)
     end
     for _, i in pairs(arg) do
@@ -413,36 +415,39 @@ function initVM.GatherCompilerArguemnts()
                 if not COMPILER.FLAGS.EXECUTE then
                     COMPILER.FLAGS.OUTFILE = arg[_ + 1]
                     table.remove(arg, _ + 1)
-                    table.remove(arg, _)
                 else
-                    print("[orb]: invalid option '"..arg[_].."'")
+                    print("[orb]: invalid option '" .. arg[_] .. "'")
                     displayHelpMessage(1)
                 end
             elseif arg_type == "v" then
-                print("[version]: "..initVM.VERSION)
+                print("[version]: " .. initVM.VERSION)
                 os.exit()
             elseif arg_type == "h" or arg_type == "help" then
                 displayHelpMessage()
             elseif arg_type == "w" or arg_type == "warn" then
                 COMPILER.FLAGS.WARN = true
-                table.remove(arg, _)
             elseif arg_type == "W" or arg_type == "WARN" then
                 COMPILER.FLAGS.WARNALL = true
-                table.remove(arg, _)
             elseif arg_type == "ve" or arg_type == "verbose" then
                 COMPILER.FLAGS.VERBOSE = true
-                table.remove(arg, _)
+            elseif arg_type == "i" or arg_type == "interactive" then
+                CLI.interactive(initVM, arg[_ + 1])
+                os.exit()
             elseif arg_type == "a" then
                 if not COMPILER.FLAGS.EXECUTE then
                     COMPILER.FLAGS.ASM = true
-                    table.remove(arg, _)
                 else
-                    print("[orb]: invalid option '"..arg[_].."'")
+                    print("[orb]: invalid option '" .. arg[_] .. "'")
                     displayHelpMessage()
                 end
             else
-                print("[orb]: invalid option '"..arg[_].."'")
+                print("[orb]: invalid option '" .. arg[_] .. "'")
                 displayHelpMessage(1)
+            end
+
+            -- Clearing argument
+            if _ ~= #arg then
+                arg[_] = nil
             end
         end
     end
@@ -453,7 +458,8 @@ end
 
 -- Compiler ADD VARIABLE operation --
 function initVM.PUSH_OP.ADDVAR(type, value)
-    local var, type, value, quote_char = "Orb_CVARIABLE_0x0"..COMPILER.VARIABLES, type,tostring(value):gsub("\n", "\\n"), '"'
+    local var, type, value, quote_char = "Orb_CVARIABLE_0x0" .. COMPILER.VARIABLES, type,
+        tostring(value):gsub("\n", "\\n"), '"'
     if value:find("\"") then
         quote_char = "'"
     end
@@ -464,12 +470,12 @@ function initVM.PUSH_OP.ADDVAR(type, value)
     -- Adding data to .data depending on the type of variable
     if type == "STR" then
         value = value
-        COMPILER.APPEND_DATA(var..":")
-        COMPILER.APPEND_DATA("    .ascii "..quote_char..value..quote_char)
+        COMPILER.APPEND_DATA(var .. ":")
+        COMPILER.APPEND_DATA("    .ascii " .. quote_char .. value .. quote_char)
         COMPILER.APPEND_DATA("    .byte 0")
-        COMPILER.APPEND_DATA("L_"..var.." = . -"..var.."\n")
+        COMPILER.APPEND_DATA("L_" .. var .. " = . -" .. var .. "\n")
     elseif type == "NUM" then
-        COMPILER.APPEND_DATA(var..":")
+        COMPILER.APPEND_DATA(var .. ":")
         COMPILER.APPEND_DATA()
     end
     return var
@@ -485,36 +491,36 @@ function initVM.PUSH_OP.WRITE(value, ...)
         if not tonumber(value) then
             value = value:gsub("^\"", ""):gsub("\"$", "")
         end
-        value = value..(table.concat(...) or "")
+        value = value .. (table.concat(...) or "")
         local value = initVM.PUSH_OP.ADDVAR("STR", value)
-        COMPILER.APPEND_TEXT("    mov $"..value..", %rsi")
-        COMPILER.APPEND_TEXT("    mov $L_"..value..", %rdx")
+        COMPILER.APPEND_TEXT("    mov $" .. value .. ", %rsi")
+        COMPILER.APPEND_TEXT("    mov $L_" .. value .. ", %rdx")
         COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
     else
         local _, var_type = Variables.search(value)
         local var_type = VARIABLES[var_type:upper()][value].Type
         if var_type == "number" then
-            COMPILER.APPEND_TEXT("    mov "..value.."(%rip), %rax")
+            COMPILER.APPEND_TEXT("    mov " .. value .. "(%rip), %rax")
             COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts_INT\"")
 
             -- Adding concatenated data
             local etc_data = initVM.PUSH_OP.ADDVAR("STR", table.concat(...) or "")
-            COMPILER.APPEND_TEXT("    mov $"..etc_data..", %rsi")
-            COMPILER.APPEND_TEXT("    mov $L_"..etc_data..", %rdx")
+            COMPILER.APPEND_TEXT("    mov $" .. etc_data .. ", %rsi")
+            COMPILER.APPEND_TEXT("    mov $L_" .. etc_data .. ", %rdx")
             COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
         elseif var_type == "string" or var_type == "null" then
             value = value:gsub("^\"", ""):gsub("\"$", "")
-            COMPILER.APPEND_TEXT("    mov $"..value..", %rsi")
-            COMPILER.APPEND_TEXT("    mov $L_"..(var.NewCallSign or value)..", %rdx")
+            COMPILER.APPEND_TEXT("    mov $" .. value .. ", %rsi")
+            COMPILER.APPEND_TEXT("    mov $L_" .. (var.NewCallSign or value) .. ", %rdx")
             COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
             if ... ~= nil then
                 local etc = ""
-                for _,i in pairs(...) do
-                    etc = etc..i:gsub("^['\"]",""):gsub("['\"]","")
+                for _, i in pairs(...) do
+                    etc = etc .. i:gsub("^['\"]", ""):gsub("['\"]", "")
                 end
                 local etc = initVM.PUSH_OP.ADDVAR("STR", etc)
-                COMPILER.APPEND_TEXT("    mov $"..etc..", %rsi")
-                COMPILER.APPEND_TEXT("    mov $L_"..etc..", %rdx")
+                COMPILER.APPEND_TEXT("    mov $" .. etc .. ", %rsi")
+                COMPILER.APPEND_TEXT("    mov $L_" .. etc .. ", %rdx")
                 COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
             end
         end
@@ -531,16 +537,16 @@ function initVM.PUSH_OP.PANIC(msg, errcode)
     for s = #Stack, 1, -1 do
         local Type = Stack[s].Type:lower()
         if Type == "func" then
-            Type = "function <"..Stack[s].Name..">"
+            Type = "function <" .. Stack[s].Name .. ">"
         elseif Type == "mod" then
-            Type = "module <"..Stack[s].Name..">"
+            Type = "module <" .. Stack[s].Name .. ">"
         elseif Type == "if" or Type == "elseif" or Type == "for" or Type == "while" then
-            Type = Type.." statment"
+            Type = Type .. " statment"
         end
         if s > 1 then
-            stack_msg = stack_msg.."            ^".." in "..Type.." | "..Stack[s].Line_Created.."\n"
+            stack_msg = stack_msg .. "            ^" .. " in " .. Type .. " | " .. Stack[s].Line_Created .. "\n"
         else
-            stack_msg = stack_msg.."            ^".." in "..Type.." | "..Stack[s].Line_Created.."\n"
+            stack_msg = stack_msg .. "            ^" .. " in " .. Type .. " | " .. Stack[s].Line_Created .. "\n"
         end
     end
 
@@ -554,36 +560,38 @@ function initVM.PUSH_OP.PANIC(msg, errcode)
 
     -- Constructing error message
     msg = msg:gsub("^[\"']", ""):gsub("[\"']$", "")
-    local msg_construct0 = initVM.PUSH_OP.ADDVAR("STR", "Orb: <panic> error\ntraceback:\n    [orb]: "..msg .."\n    [file]: "..arg[1].."\n    [line]: "..file.Line.."\n")
-    local msg_construct1 = initVM.PUSH_OP.ADDVAR("STR", "\n\027[91mexit status <"..errcode..">\027[0m\n")
+    local msg_construct0 = initVM.PUSH_OP.ADDVAR("STR",
+        "Orb: <panic> error\ntraceback:\n    [orb]: " ..
+        msg .. "\n    [file]: " .. arg[1] .. "\n    [line]: " .. file.Line .. "\n")
+    local msg_construct1 = initVM.PUSH_OP.ADDVAR("STR", "\n\027[91mexit status <" .. errcode .. ">\027[0m\n")
     local msg_construct2 = initVM.PUSH_OP.ADDVAR("STR", stack_msg)
 
     -- Writing error message
-    COMPILER.APPEND_TEXT("    mov $"..msg_construct0..", %rsi")
-    COMPILER.APPEND_TEXT("    mov $L_"..msg_construct0..", %rdx")
+    COMPILER.APPEND_TEXT("    mov $" .. msg_construct0 .. ", %rsi")
+    COMPILER.APPEND_TEXT("    mov $L_" .. msg_construct0 .. ", %rdx")
     COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
-    COMPILER.APPEND_TEXT("    mov $"..msg_construct2..", %rsi")
-    COMPILER.APPEND_TEXT("    mov $L_"..msg_construct2..", %rdx")
+    COMPILER.APPEND_TEXT("    mov $" .. msg_construct2 .. ", %rsi")
+    COMPILER.APPEND_TEXT("    mov $L_" .. msg_construct2 .. ", %rdx")
     COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
     if not COMPILER.FLAGS.EXECUTE then
-        COMPILER.APPEND_TEXT("    mov $"..msg_construct1..", %rsi")
-        COMPILER.APPEND_TEXT("    mov $L_"..msg_construct1..", %rdx")
+        COMPILER.APPEND_TEXT("    mov $" .. msg_construct1 .. ", %rsi")
+        COMPILER.APPEND_TEXT("    mov $L_" .. msg_construct1 .. ", %rdx")
         COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_puts\"")
     end
-    COMPILER.APPEND_TEXT("    mov $"..errcode..", %rdi")
+    COMPILER.APPEND_TEXT("    mov $" .. errcode .. ", %rdi")
     COMPILER.APPEND_TEXT("    callq \"Orb_CFUNCTION_exit\"\n")
     _EXITCODE = errcode
 end
 
 function initVM.PUSH_OP.UPDATE(var, value, type)
     if type == "STR" then
-        COMPILER.APPEND_TEXT("    mov $"..value..", %rsi")
-        COMPILER.APPEND_TEXT("    mov $"..var.." + 0"..", %rdi")
-        COMPILER.APPEND_TEXT("    mov $L_"..value..", %rcx")
+        COMPILER.APPEND_TEXT("    mov $" .. value .. ", %rsi")
+        COMPILER.APPEND_TEXT("    mov $" .. var .. " + 0" .. ", %rdi")
+        COMPILER.APPEND_TEXT("    mov $L_" .. value .. ", %rcx")
         COMPILER.APPEND_TEXT("    cld")
         COMPILER.APPEND_TEXT("    rep movsb")
     else
-        print("IMPLEMENT: "..type.." variable updates")
+        print("IMPLEMENT: " .. type .. " variable updates")
         os.exit()
     end
 end

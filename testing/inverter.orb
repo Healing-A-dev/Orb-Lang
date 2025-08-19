@@ -1,0 +1,13 @@
+# Defining Variables
+global MAXIMUM_IVNERTS := 0
+global MINIMUM_INVERTS := 0
+global INVERT_NO_PREFIX := false
+global INVERT_AUTO_RESET := false
+global PROG_NAME := "Inverter"
+global VERSION := "1.0.0"
+
+global func Test() {
+  puts("\027[94mHello from " << "'testing/inverter.orb'" << "\027[0m\n")
+  global name := "Healing"
+  #panic("TESTING PANICS")
+}

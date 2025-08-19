@@ -1,5 +1,8 @@
 local error = {}
+
 Adjustment = 0
+ERR_PASS_THROUGH = false
+
 -- Error Data Reader/Processor
 local function __EXTRAINFO(PROCESS,SIZE)
 	local table, PROCESS = {}, PROCESS or {}
@@ -51,7 +54,7 @@ function error.new(type,line,...)
     local errors = {
 		UNFINISHED_STRING = "Orb: <syntax> error\ntraceback\n    [orb]: unfinished string near '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
 		STATEMENT_INIT = "Orb: <syntax> error\ntraceback\n    [orb]: '{' expected near '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
-		STATEMENT_END = "Oorb: <syntax> error\ntraceback\n    [orb]: '}' expected (to close '"..data[1].."' at line "..data[2]..")\n    [file]: "..arg[1].."\n    [line]: "..line,
+		STATEMENT_END = "Oorb: <syntax> error\ntraceback\n    [orb]: '}' expected to close '"..data[1].."' at line "..data[2]..")\n    [file]: "..arg[1].."\n    [line]: "..line,
 		UNKNOWN_VAR_CALL = "Orb: <call> error\ntraceback\n    [orb]: attempt to call unknown variable '"..data[1].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
 		ARITHMETIC = "Orb: <syntax> error\ntraceback\n    [orb]: cannot perform arithmetic operation on "..data[1]..data[2]..data[3].." '"..data[4].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
 		UNEXPECTED_TOKEN = "Orb: <syntax> error\ntraceback\n    [orb]: unexpected token '"..data[1].."' near '"..data[2].."'\n    [file]: "..arg[1].."\n    [line]: "..line,
@@ -73,7 +76,9 @@ function error.new(type,line,...)
 		print("Orb: <panic> error\ntraceback:\n    [orb]: "..type.."\n    [file]: "..arg[1].."\n    [line]: "..file.Line)
     end
     print("\n\027[91mexit status <2>\027[0m")
-    os.exit(2)
+    if not ERR_PASS_THROUGH then
+        os.exit(2)
+    end
 end
 
 -- Warnings

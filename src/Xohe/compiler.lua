@@ -36,12 +36,12 @@ read_buffer:
 int_buffer:
     .fill 32, 1, 0
 
-    ]],
+]],
     TEXT = [[
     .section .text
     .global _start
 _start:
-    ]],
+]],
     FUNC = [[
 Orb_CFUNCTION_puts:
     mov $1, %rax
@@ -76,73 +76,76 @@ Orb_CFUNCTION_puts_INT:
 
     ]]
 }
+
+local ASM2 = ASM
 -- Variable Data Collection --
 function gatherVariableData()
     local V = VARIABLES
 
     -- Global variables
-    for _,variable in pairs(V.GLOBAL) do
-        if variable.Type ==  "string" or variable.Type == "null" then
+    for _, variable in pairs(V.GLOBAL) do
+        if variable.Type == "string" or variable.Type == "null" then
             local variable_value = variable.Value
 
             -- Constructing and adding the variable to the program
-            ASM.DATA = ASM.DATA..tostring(_)..":\n"
-            ASM.DATA = ASM.DATA.."    .ascii "..variable_value.."\n"
-            ASM.DATA = ASM.DATA.."    .byte 0\n"
-            ASM.DATA = ASM.DATA.."L_"..tostring(_).." = . - "..tostring(_).."\n\n"
+            ASM.DATA = ASM.DATA .. tostring(_) .. ":\n"
+            ASM.DATA = ASM.DATA .. "    .ascii " .. variable_value .. "\n"
+            ASM.DATA = ASM.DATA .. "    .byte 0\n"
+            ASM.DATA = ASM.DATA .. "L_" .. tostring(_) .. " = . - " .. tostring(_) .. "\n\n"
         elseif variable.Type == "number" then
             local variable_value = variable.Value
 
             -- Constructing and adding the variable to the program
-            ASM.DATA = ASM.DATA..tostring(_)..":\n"
-			ASM.DATA = ASM.DATA.."    .quad "..variable_value.."\n\n"
-		end
+            ASM.DATA = ASM.DATA .. tostring(_) .. ":\n"
+            ASM.DATA = ASM.DATA .. "    .quad " .. variable_value .. "\n\n"
+        end
     end
 
     -- Static variables
-    for _,variable in pairs(V.STATIC) do
-		if variable.Type == "string" then
-			local variable_value = variable.Value
+    for _, variable in pairs(V.STATIC) do
+        if variable.Type == "string" then
+            local variable_value = variable.Value
 
-			-- Constructing and adding the variable to the program
-			ASM.DATA = ASM.DATA..tostring(_)..":\n"
-			ASM.DATA = ASM.DATA.."    .ascii "..variable_value.."\n"
-			ASM.DATA = ASM.DATA.."    .byte 0\n"
-			ASM.DATA = ASM.DATA.."L_"..tostring(_).." = . - "..tostring(_).."\n\n"
-		elseif variable.Type == "number" then
-			local variable_value = variable.Value
+            -- Constructing and adding the variable to the program
+            ASM.DATA = ASM.DATA .. tostring(_) .. ":\n"
+            ASM.DATA = ASM.DATA .. "    .ascii " .. variable_value .. "\n"
+            ASM.DATA = ASM.DATA .. "    .byte 0\n"
+            ASM.DATA = ASM.DATA .. "L_" .. tostring(_) .. " = . - " .. tostring(_) .. "\n\n"
+        elseif variable.Type == "number" then
+            local variable_value = variable.Value
 
-			-- Constructing and adding the variable to the program
-			ASM.DATA = ASM.DATA..tostring(_)..":\n"
-			ASM.DATA = ASM.DATA.."    .quad "..variable_value.."\n\n"
-		end
-	end
+            -- Constructing and adding the variable to the program
+            ASM.DATA = ASM.DATA .. tostring(_) .. ":\n"
+            ASM.DATA = ASM.DATA .. "    .quad " .. variable_value .. "\n\n"
+        end
+    end
 end
 
 -- Utility Function(s) --
 function COMPILER.APPEND_TEXT(data)
     data = data or ""
-    ASM.TEXT = ASM.TEXT..data.."\n"
+    ASM.TEXT = ASM.TEXT .. data .. "\n"
 end
 
 function COMPILER.APPEND_DATA(data)
     data = data or ""
-    ASM.DATA = ASM.DATA..data.."\n"
+    ASM.DATA = ASM.DATA .. data .. "\n"
 end
 
 function COMPILER.APPEND_BSS(data)
     data = data or ""
-    ASM.BSS = ASM.BSS..data.."\n"
+    ASM.BSS = ASM.BSS .. data .. "\n"
 end
 
 function COMPILER.APPEND_HEADER(data)
     data = data or ""
-    ASM.HEADER = ASM.HEADER..data.."\n"
+    ASM.HEADER = ASM.HEADER .. data .. "\n"
 end
+
 -- Program Compilation --
 function Compile()
     gatherVariableData()
-    local file = io.open(COMPILER.CREATED_FILES[1],"w+")
+    local file = io.open(COMPILER.CREATED_FILES[1], "w+")
 
     -- Macros and variable data
     file:write(ASM.HEADER)
@@ -150,7 +153,7 @@ function Compile()
 
     -- Porgram --
     file:write(ASM.TEXT)
-    file:write("    mov $".._EXITCODE..", %rdi\n")
+    file:write("    mov $" .. _EXITCODE .. ", %rdi\n")
     file:write("    call Orb_CFUNCTION_exit\n\n")
     file:write(ASM.FUNC)
     file:close()
@@ -158,20 +161,20 @@ function Compile()
     -- Executing file
     if not COMPILER.FLAGS.EXECUTE then
         if COMPILER.FLAGS.OUTFILE == nil then
-        	local filename = arg[1]
-        	if filename:find("%/") then
-				filename = arg[1]:match("%/%S+$")
-        	end
-        	COMPILER.FLAGS.OUTFILE = filename:match("%S+%."):gsub("[%/%.]","")
+            local filename = arg[1]
+            if filename:find("%/") then
+                filename = arg[1]:match("%/%S+$")
+            end
+            COMPILER.FLAGS.OUTFILE = filename:match("%S+%."):gsub("[%/%.]", "")
         end
         if not COMPILER.FLAGS.ASM then
-        	print("<\027[95mCmd\027[0m> as -g -o "..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
-            os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
-            print("<\027[95mCmd\027[0m> ld -o ".. COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
-            os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
+            print("<\027[95mCmd\027[0m> as -g -o " .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o ' .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            print("<\027[95mCmd\027[0m> ld -o " .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
+            os.execute('ld -o ' .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
         else
             if not COMPILER.FLAGS.OUTFILE:find("%.%S+$") then
-                COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE..".s"
+                COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE .. ".s"
             end
             local file = io.open(COMPILER.FLAGS.OUTFILE, "w+")
             file:write(ASM.HEADER)
@@ -189,21 +192,21 @@ function Compile()
         COMPILER.FLAGS.OUTFILE = "orb.out"
         table.insert(COMPILER.CREATED_FILES, COMPILER.FLAGS.OUTFILE)
         if COMPILER.FLAGS.VERBOSE then
- 	 		print("<\027[95mCmd\027[0m> as -g -o "..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
-            os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
-			print("<\027[95mCmd\027[0m> ld -o ".. COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
-			os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
-			print("<\027[95mCmd\027[0m> ./"..COMPILER.FLAGS.OUTFILE)
-			os.execute("./"..COMPILER.FLAGS.OUTFILE)
-		else
-			os.execute('as -g -o '..COMPILER.CREATED_FILES[2].." "..COMPILER.CREATED_FILES[1])
-			os.execute('ld -o '..COMPILER.FLAGS.OUTFILE..' '..COMPILER.CREATED_FILES[2])
-			os.execute("./"..COMPILER.FLAGS.OUTFILE)
-		end
+            print("<\027[95mCmd\027[0m> as -g -o " .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o ' .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            print("<\027[95mCmd\027[0m> ld -o " .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
+            os.execute('ld -o ' .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
+            print("<\027[95mCmd\027[0m> ./" .. COMPILER.FLAGS.OUTFILE)
+            os.execute("./" .. COMPILER.FLAGS.OUTFILE)
+        else
+            os.execute('as -g -o ' .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            os.execute('ld -o ' .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
+            os.execute("./" .. COMPILER.FLAGS.OUTFILE)
+        end
     end
 
     -- Cleaning
-    for _,c_file in pairs(COMPILER.CREATED_FILES) do
+    for _, c_file in pairs(COMPILER.CREATED_FILES) do
         os.remove(c_file)
     end
     return true
