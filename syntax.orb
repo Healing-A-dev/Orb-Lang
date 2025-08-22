@@ -36,7 +36,7 @@
 			]
 
 			foo{"buzz"} := "Buzz"
-		    foo.fizz := "Fizz"
+		    foo::fizz := "Fizz"
 
 		# Calling an array value
 			foo{"bar"}		# Option 1
@@ -54,10 +54,18 @@
 
 -------------------------------------------------------------------------------------------
 
+# Control Flow:
+    # 'for' loops:
+
+    # 'while' loops:
+
+    # 'if' statements:
+
+-------------------------------------------------------------------------------------------
 # Modules:
 	# Modules are a special type of function that is ran as it own sperate program. Meaning that any variables, imports, and even functions do not exist within the scope of the module.
 	# Defining a module:
-		<scope: none | global> mod <name>([], arguments or &m_args) {
+		<scope: none | global> mod <name>([], <arguments>) {
 
 		}
 
@@ -75,7 +83,7 @@
 				.name
 			}
 
-			mod dataCollection([&age => age, &hobby => hobby, &greet => greet, &io], &m_args) {
+			mod dataCollection([&age as age, &hobby as hobby, &greet as greet, &io as io], &m_args) {
 				@include("os")
 
 				# Making it slightly simpler to use the arguments (arg{foo} instead of &m_args{foo})

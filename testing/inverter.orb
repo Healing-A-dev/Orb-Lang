@@ -1,9 +1,9 @@
 # Defining Variables
-global MAXIMUM_IVNERTS := 0
-global MINIMUM_INVERTS := 0
-global INVERT_NO_PREFIX := false
-global INVERT_AUTO_RESET := false
-global PROG_NAME := "Inverter"
+MAXIMUM_IVNERTS := 0
+MINIMUM_INVERTS := 0
+INVERT_NO_PREFIX := false
+INVERT_AUTO_RESET := false
+PROG_NAME := "Inverter\n"
 global VERSION := "1.0.0"
 
 global func Test() {

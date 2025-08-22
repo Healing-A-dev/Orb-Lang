@@ -63,7 +63,7 @@ Commands:
     !exit          |> Exits the interactive compiler and removes all created files
     !reset         |> Resets all stored data in the interactive compiler
     !clear         |> Clears the terminal
-    !/<file_name>  |> Runs compiles and runs the given file
+    ./<file_name>  |> Runs compiles and runs the given file
     ?commands      |> Displays this message
     ?version       |> Displays the current Orb version
 ]]
@@ -128,13 +128,6 @@ Type "?commands" for more information
 
                     -- Exiting
                     os.exit()
-                elseif cmd:match("%/%S+") then
-
-                    -- Running an orb file
-                    FileBuilder.CLEAR()
-                    local file = cmd:gsub("^%/","")
-                    FileBuilder.PushToXohe(file)
-                    FileBuilder.CLEAR()
                 elseif cmd == "reset" then
 
                     -- Clearing stored data
@@ -156,6 +149,18 @@ Type "?commands" for more information
                     print("[version]: "..XOHE.VERSION)
                 else
                     print("'"..cmd.."' is not a valid command!")
+                end
+            elseif cmd_tag == "." then
+                if cmd:match("%/%S+") then
+                    -- Running an orb file
+                    FileBuilder.CLEAR()
+                    local file = cmd:gsub("^%/","")
+                    if io.open(file,"r") then
+                        FileBuilder.PushToXohe(file)
+                        FileBuilder.CLEAR()
+                    else
+                        print("Cannot open file '"..file.."' |> No such file or directory")
+                    end
                 end
             else
                 print("'"..cmd_tag.."' is not a valid command tag!")

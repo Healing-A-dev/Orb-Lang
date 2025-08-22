@@ -6,9 +6,9 @@ local Error  = require("src/errors")
 local Utils  = require("src/utils")
 
 -- Instance Variables --
-lexer        = {
+lexer = {
     tokens = {},
-    static_variable_buffer = {}
+    static_variable_buffer = {},
 }
 
 -- Token Checker --
@@ -117,7 +117,6 @@ function lexer.adjust(safemode)
     if safemode then
         lexer_tokens = lexer.tokens_safemode
     else
-        --COMPILER.APPEND_HEADER("    .file: \""..arg[1].."\"")
         ASM.HEADER = "    .file \"" .. arg[1] .. "\"\n    .text\n" .. ASM.HEADER
     end
 
@@ -219,6 +218,7 @@ function lexer.lex(file, safemode)
         VARIABLES.STATIC = {}
     else
         lexer.static_variable_buffer = VARIABLES.STATIC
+        VARIABLES.STATIC = {}
     end
 
     -- Variables
@@ -281,11 +281,8 @@ function lexer.lex(file, safemode)
 
             -- Global values
             if token.Token == "OTOKEN_KEYWORD_GLOBAL" then
-                if not next_token.Token:find("NAME") and not next_token.Token:find("FUNC") and not next_token.Token:find("MOD") then
-                    Error.new("NAME_EXPECTED", s, { token.Value })
-                else
-                    next_token.Token = next_token.Token .. "_GLOBAL"
-                end
+                expect({"NAME", "FUNC", "MOD"}, lexer_tokens, s, _)
+                next_token.Token = next_token.Token .. "_GLOBAL"
             end
 
             -- Adding Value Tokens
@@ -307,46 +304,6 @@ function lexer.lex(file, safemode)
             end
 
             -- File Imports --
-            if lexer_tokens[s][_] ~= nil and lexer_tokens[s][_].Token == "OTOKEN_KEYWORD_IMPORT" then
-                -- Instance Variables
-                local possible_ext = false
-
-                -- Getting file name from next expected tokens
-                local file = expect({ "NAME", "STRING_LIT" }, lexer_tokens, s, _)
-
-                -- Removing begining and ending quotation marks
-                file = file.Value:gsub("^['\"]", ""):gsub("['\"]$", "")
-
-                -- Converting all '.' to '/' for path searching
-                if file:find("%.") then
-                    file = file:gsub("%.", "/")
-                    possible_ext = true
-                end
-
-                -- Checking if the file with a .orb extension exist
-                if not io.open(file .. ".orb") then
-                    if possible_ext then
-                        -- Converting the last '/' back to a '.' assuming file extension
-                        local ext = file:match("%/[^/]+$"):gsub("/", "")
-                        file = file:gsub("%/" .. ext, "." .. ext)
-                        if not io.open(file) then
-                            Error.new("IMPORT_NO_FILE", s, { file, ".orb <." .. ext .. ">" })
-                        end
-                    else
-                        Error.new("IMPORT_NO_FILE", s, { file })
-                    end
-                else
-                    file = file .. ".orb"
-                end
-
-                -- Lexing the new file
-                local return_tokens = lexer.lex(file, true)
-                lexer_tokens = Utils.merge(return_tokens, lexer_tokens)
-                lexer.tokens = Utils.merge(return_tokens, lexer.tokens)
-
-                -- Fixing Error Adjustments
-                --Adjustment = (#return_tokens)
-            end
         end
     end
     if safemode then

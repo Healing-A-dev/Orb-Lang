@@ -94,10 +94,10 @@ end
 function displayHelpMessage(err)
     local err = err or 0
     if COMPILER.FLAGS.EXECUTE then
-        io.write([[Usage: orb <filename> <arguments>
+        io.write([[Usage: orb <arguments> <filename>
 Commands:
     -h  [--help]         |> Displays this message and exits
-    -i  [--interactive]  |> Open an interactive compiler shell
+  * -i  [--interactive]  |> Open an interactive compiler shell
     -v  [--version]      |> Displays the current version and exits
     -ve [--verbose]      |> Displays all commands used during compilation
     -w  [--warn]         |> Displays warngins that occured during compilation
@@ -105,15 +105,20 @@ Commands:
 ]])
         os.exit(err)
     else
-        io.write([[Usage: orbc <filename> <arguments>
+        io.write([[Usage: orbc <arguments> <filename>
 Commands:
-    -h  [--help]       |> Displays this message and exits
-    -v  [--version]    |> Displays the current version and exits
-    -ve [--verbose]    |> Displays all commands used during compilation
-    -w  [--warn]       |> Displays warngins that occured during compilation
-    -W  [--WARN]       |> Displays all warning that occurred during compilation and initialization
-    -a                 |> Compiler flag to generate only an assembly file of the specified program
-    -o                 |> Specify an output file
+    -h  [--help]               |> Displays this message and exits
+    -v  [--version]            |> Displays the current version and exits
+    -ve [--verbose]            |> Displays all commands used during compilation
+    -w  [--warn]               |> Displays warngins that occured during compilation
+    -W  [--WARN]               |> Displays all warning that occurred during compilation and initialization
+    -o  [--outfile]            |> Specify an output file
+    -e=<OPTION>  [--emitted=<OPTION>]    |> Compiler flag to generate the specified file output
+        OPTIONS = {
+            asm,
+            obj,
+            vmtf (XoheVM Token File),
+        }
 ]])
         os.exit(err)
     end
@@ -166,7 +171,7 @@ function expect(names, tokens, line, token_pos, err)
             return { Token = tokens[line][token_pos + 1].Token, Value = tokens[line][token_pos + 1].Value }
         end
     end
-    Error.new(err, line, { token })
+    Error.new(err, line, { token, err })
 end
 
 function variable_search(variable_name)

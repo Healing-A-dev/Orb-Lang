@@ -44,13 +44,13 @@ if #arg > 0 then
         "s\027[0m> with warning(s):\n  |> \027[2mXohe: " ..
         A .. "\n  |> \027[2mXohe: " .. X .. "\n  |> \027[2mXohe: " .. LOAD .. "\n  |> \027[2mLexer: " .. L .. "\n  |> \027[2mParser: " ..
         P .. "\n  |> \027[2mCompiler: " .. C .. "\n\027[0m")
-    elseif not COMPILER.FLAGS.WARN and not COMPILER.FLAGS.EXECUTE then
+    elseif not COMPILER.FLAGS.WARN and not COMPILER.FLAGS.EXECUTE and not COMPILER.FLAGS.VMTF then
         io.write("Compilation completed <\027[95m" .. os.time() - start_time .. "s\027[0m>\n")
     end
 
     -- Exit the program with the corresponding exit code
     if COMPILER.FLAGS.EXECUTE then
-        os.exit(_EXITCODE)
+        --os.exit(_EXITCODE)
     end
 end
 
@@ -68,3 +68,7 @@ local g = io.open("out.tokens","w+")
 g:write(out)
 g:close()
 ]]
+
+--[[for _,i in pairs(VARIABLES.GLOBAL) do
+	print(_,i)
+end]]

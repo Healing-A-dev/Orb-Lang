@@ -31,7 +31,7 @@ function cli_file_builder.PushToXohe(new_file_name)
     else
         -- Gathering data
         local lines  = table.concat(line_storage, "\n")
-        local file   = io.open(file_name, "a+")
+        local file   = assert(io.open(file_name, "a+"), "")
         file:write(lines)
         file:close()
         arg[1] = file_name

@@ -51,7 +51,7 @@ initVM                      = {
         Init = {},
     },
     PUSH_OP = {}, -- Compiler Operations (ie. Write, Read, etc)
-    VM      = {
+    VM = {
         TYPEOF = function(var)
             print(var)
         end
@@ -365,6 +365,7 @@ function initVM.execute(self, Line_Data)
     fl:write(out.."\n"..buff)
     fl:close()
     ]]
+
     -- Loading, Executing, & Collecting Warnings
     LOAD = call(load(out .. "\n" .. buff)())
     warnings = warnings .. LOAD .. "\n"
@@ -398,10 +399,11 @@ end
 
 -- Compiler Arguemnt Handler --
 function initVM.GatherCompilerArguemnts()
-    if arg[1] == "-c" and arg[#arg] == ("orbc") then
+    if arg[1] == "-c" and arg[#arg] == ("--compiler=orbc") then
         COMPILER.FLAGS.EXECUTE = false
         table.remove(arg, 1)
-    elseif arg[1] == "-c" and arg[#arg] ~= ("orbc") then
+        table.remove(arg, #arg)
+    elseif arg[1] == "-c" and arg[#arg] ~= ("--compiler=orbc") then
         print("[orb]: invalid option '" .. arg[1] .. "'")
         displayHelpMessage(1)
     end
@@ -411,10 +413,11 @@ function initVM.GatherCompilerArguemnts()
         end
         if i:find("%-") then
             local arg_type = i:gsub("%-", "")
-            if arg_type == "o" then
+            if arg_type == "o" or arg_type == "outfile" then
                 if not COMPILER.FLAGS.EXECUTE then
                     COMPILER.FLAGS.OUTFILE = arg[_ + 1]
                     table.remove(arg, _ + 1)
+                    table.remove(arg, _)
                 else
                     print("[orb]: invalid option '" .. arg[_] .. "'")
                     displayHelpMessage(1)
@@ -427,18 +430,25 @@ function initVM.GatherCompilerArguemnts()
             elseif arg_type == "w" or arg_type == "warn" then
                 COMPILER.FLAGS.WARN = true
             elseif arg_type == "W" or arg_type == "WARN" then
+                COMPILER.FLAGS.WARN = true
                 COMPILER.FLAGS.WARNALL = true
             elseif arg_type == "ve" or arg_type == "verbose" then
                 COMPILER.FLAGS.VERBOSE = true
             elseif arg_type == "i" or arg_type == "interactive" then
                 CLI.interactive(initVM, arg[_ + 1])
                 os.exit()
-            elseif arg_type == "a" then
-                if not COMPILER.FLAGS.EXECUTE then
-                    COMPILER.FLAGS.ASM = true
-                else
+            elseif arg_type:match("e%=") or arg_type:match("emitted%=") then
+                local options = {
+                    ["asm"] = 1,
+                    ["obj"] = 1,
+                    ["vmtf"] = 1
+                }
+                local emit = arg_type:match("%=.+$"):gsub("%=","")
+                if options[emit] == nil then
                     print("[orb]: invalid option '" .. arg[_] .. "'")
-                    displayHelpMessage()
+                    displayHelpMessage(1)
+                else
+                    COMPILER.FLAGS[emit:upper()] = true
                 end
             else
                 print("[orb]: invalid option '" .. arg[_] .. "'")
@@ -447,7 +457,7 @@ function initVM.GatherCompilerArguemnts()
 
             -- Clearing argument
             if _ ~= #arg then
-                arg[_] = nil
+                table.remove(arg, _)
             end
         end
     end
@@ -556,13 +566,12 @@ function initVM.PUSH_OP.PANIC(msg, errcode)
     end
 
     -- Creating error code
-    errcode = tonumber(errcode) or 1
+    errcode = tonumber(errcode) or 3
 
     -- Constructing error message
     msg = msg:gsub("^[\"']", ""):gsub("[\"']$", "")
     local msg_construct0 = initVM.PUSH_OP.ADDVAR("STR",
-        "Orb: <panic> error\ntraceback:\n    [orb]: " ..
-        msg .. "\n    [file]: " .. arg[1] .. "\n    [line]: " .. file.Line .. "\n")
+        "Orb: <panic> error\ntraceback:\n    [orb]: " .. msg .. "\n    [file]: " .. arg[1] .. "\n    [line]: " .. file.Line .. "\n")
     local msg_construct1 = initVM.PUSH_OP.ADDVAR("STR", "\n\027[91mexit status <" .. errcode .. ">\027[0m\n")
     local msg_construct2 = initVM.PUSH_OP.ADDVAR("STR", stack_msg)
 

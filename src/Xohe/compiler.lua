@@ -2,6 +2,7 @@ local compiler = {}
 
 -- Imports --
 local Error = require("src/errors")
+local Lexer = require("src/lexer")
 
 -- Compiler Table --
 COMPILER = {
@@ -13,11 +14,14 @@ COMPILER = {
         OUTFILE = nil,
         EXECUTE = true,
         ASM = false,
+        OBJ = false,
+        VMTF = false,
         WARN = false,
         WARNALL = false,
         VERBOSE = false,
         DEBUG = false,
         PROG_EXIT = false,
+        LINKER_FILES = {}
     },
     VARIABLES = 0
 }
@@ -167,12 +171,9 @@ function Compile()
             end
             COMPILER.FLAGS.OUTFILE = filename:match("%S+%."):gsub("[%/%.]", "")
         end
-        if not COMPILER.FLAGS.ASM then
-            print("<\027[95mCmd\027[0m> as -g -o " .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
-            os.execute('as -g -o ' .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
-            print("<\027[95mCmd\027[0m> ld -o " .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
-            os.execute('ld -o ' .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
-        else
+
+        -- Assembly --
+        if COMPILER.FLAGS.ASM then
             if not COMPILER.FLAGS.OUTFILE:find("%.%S+$") then
                 COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE .. ".s"
             end
@@ -187,6 +188,37 @@ function Compile()
             end
             file:write(ASM.FUNC)
             file:close()
+
+        -- Object File --
+        elseif COMPILER.FLAGS.OBJ then
+            if not COMPILER.FLAGS.OUTFILE:find("%.%S+$") then
+                COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE .. ".o"
+            end
+            print("<\027[95mCmd\027[0m> as -g -o " .. COMPILER.FLAGS.OUTFILE .. " " .. COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o ' .. COMPILER.FLAGS.OUTFILE .. " " .. COMPILER.CREATED_FILES[1])
+
+        elseif COMPILER.FLAGS.VMTF then
+            if not COMPILER.FLAGS.OUTFILE:find("%.%S+$") then
+                COMPILER.FLAGS.OUTFILE = COMPILER.FLAGS.OUTFILE .. ".vmtf"
+            end
+            local out = ""
+            local tfile = io.open(COMPILER.FLAGS.OUTFILE, "w+")
+            for s = 1, #Lexer.tokens do
+                out = out..tostring(s).."\n"
+                for _,i in pairs(Lexer.tokens[s]) do
+                    out = out..("    {Token: "..i.Token..", Value: "..i.Value.."}\n")
+                end
+            end
+            tfile:write(out)
+            tfile:close()
+
+            print("Generated XoheVM token file")
+
+        else
+            print("<\027[95mCmd\027[0m> as -g -o " .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            os.execute('as -g -o ' .. COMPILER.CREATED_FILES[2] .. " " .. COMPILER.CREATED_FILES[1])
+            print("<\027[95mCmd\027[0m> ld -o " .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
+            os.execute('ld -o ' .. COMPILER.FLAGS.OUTFILE .. ' ' .. COMPILER.CREATED_FILES[2])
         end
     else
         COMPILER.FLAGS.OUTFILE = "orb.out"

@@ -6,6 +6,7 @@ local Function  = require("src/functions")
 local Error     = require("src/errors")
 local Tokens    = require("src/tokens")
 local Module    = require("src/modules")
+local Lexer     = require("src/lexer")
 
 -- Instance Variables --
 file = {
@@ -13,14 +14,16 @@ file = {
     Line = 0,
 }
 
-
--- Seek Function --
-local function seek()
-    -- May fill out if needed
-end
+-- STATIC Variable storage
+local static_variables = {}
 
 -- Parser --
-function parser.parse(token_table)
+function parser.parse(token_table, fimport)
+    fimport = fimport or false
+    if fimport then
+        static_variables = VARIABLES.STATIC
+        VARIABLES.STATIC = {}
+    end
     local sandboxed = false
     for line = 1, #token_table do
         file.Line = line
@@ -99,11 +102,49 @@ function parser.parse(token_table)
                     end
                 end
 
+                if token.Token:find("IMPORT") then
+                    local fname = expect({ "NAME", "STRING_LIT" }, token_table, line, _)
+
+                    -- Removing begining and ending quotation marks
+                    fname = fname.Value:gsub("^['\"]", ""):gsub("['\"]$", "")
+
+                    -- Converting all '.' to '/' for path searching
+                    if fname:find("%.") then
+                        fname = fname:gsub("%.", "/")
+                        possible_ext = true
+                    end
+
+                    -- Checking if the file with a .orb extension exist
+                    if not io.open(fname..".orb") then
+                        if possible_ext then
+                            -- Converting the last '/' back to a '.' assuming file extension
+                            local ext = fname:match("%/[^/]+$"):gsub("/", "")
+                            fname = fname:gsub("%/" .. ext, "." .. ext)
+                            if not io.open(fname) then
+                                Error.new("IMPORT_NO_FILE", _, { fname, ".orb <." .. ext .. ">" })
+                            end
+                            else
+                            Error.new("IMPORT_NO_FILE", _, { fname })
+                        end
+                        else
+                        fname = fname .. ".orb"
+                    end
+                    local parse_file = coroutine.create(function()
+                        local arg1_old = arg[1]
+                        arg[1] = fname
+                        local ftokens = Lexer.lex(arg[1], true)
+                        parser.parse(ftokens, true)
+                        arg[1] = arg1_old
+                    end)
+                    coroutine.resume(parse_file)
+                end
+
                 -- Moving data from the stack buffer to the stack
                 if token.Value == Tokens.symbols.OTOKEN_KEY_OBRACE then
                     if #_STACK.BUFFER > 0 then
                         _STACK[#_STACK+1] = _STACK.BUFFER[#_STACK.BUFFER]
                         table.remove(_STACK.BUFFER, #_STACK.BUFFER)
+                        --print(_STACK[#_STACK].Type)
                         if _STACK[#_STACK].Type == "FUNC" or _STACK[#_STACK].Type == "MOD" then
                             sandboxed = true
                         end
@@ -140,6 +181,9 @@ function parser.parse(token_table)
     end
 
     ::program_exit::
+    if fimport then
+        VARIABLES.STATIC = static_variables
+    end
     return true
 end
 

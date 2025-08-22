@@ -1,15 +1,32 @@
+# Testing Library imports
+using lib::std
+using lib::string
+using lib::files
+using usr::inverter
+
+# Defining variables for testing
+age := 719
+books := ["Book1", "Book2", "Book3"]
+global foo := "bar"
+
+# Testing file importing
+import "testing.inverter.orb"
+
 # Testing puts function further
 func display() {
-    puts("(1 + 1) * 2 = " << (1 + 1) * 2 << "\n")
+    puts("Testing\n")
 }
 
 # Test calling a function from another file
-import "testing.inverter"
 Test()
 
 # Test calling a variable from another file
 puts("Hello, my name is " << name << ".\n")
-puts(PROG_NAME << "\n")
-
+puts("Age: " << age << "\n" << "Foo: " << "foo" << "\n")
+puts(VERSION << " <| Current Version\n")
 
 display()
+
+if (age >= 47) {
+    z := 47
+}
