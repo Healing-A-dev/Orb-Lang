@@ -1,0 +1,5 @@
+using lib::std
+
+puts("Hello, World!\n")
+
+exit()
