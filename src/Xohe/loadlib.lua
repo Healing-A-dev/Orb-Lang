@@ -109,7 +109,8 @@ function loadlib.loadlib(lib_location, lib_name)
             end
         end
     end
-    
+	headerfile:close()
+	
     -- Error Checking
     if #defs > 0 then
 		X_Error.new("END_DEF_NOT_FOUND", defs[#defs].Line, {filename, defs[#defs].Name})
